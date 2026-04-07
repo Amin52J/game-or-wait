@@ -23,7 +23,7 @@ export class AIClient {
   ): Promise<string> {
     const libraryData = this.formatLibrary(games);
     const systemPrompt = instructions;
-    const userMessage = `Here is my game library:\n\n${libraryData}\n\n---\n\nAnalyze this game for me: **${gameName}** at **${currencySymbol}${price}**\n\nProvide the full analysis with Enjoyment Score, confidence, verified matches from my library, Red-Line Risk, target price, and all reasoning.`;
+    const userMessage = `Here is my game library:\n\n${libraryData}\n\n---\n\nAnalyze this game for me: **${gameName}** at **${currencySymbol}${price}**\n\nIMPORTANT: Search the web for current Steam reviews and player feedback for this game. Use real, up-to-date review data — do not rely on training data for review statistics, ratings, review counts, or player sentiment.\n\nProvide the full analysis with Enjoyment Score, confidence, verified matches from my library, Red-Line Risk, target price, and all reasoning.`;
 
     if (onStream) {
       return this.streamRequest(systemPrompt, userMessage, onStream, signal);
@@ -75,6 +75,7 @@ export class AIClient {
       model: this.config.model,
       system,
       messages: [{ role: "user", content: user }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 3 }],
     };
 
     if (this.config.extendedThinking) {
@@ -106,8 +107,8 @@ export class AIClient {
       throw new Error(`Anthropic API error (${res.status}): ${err}`);
     }
     const data = await res.json();
-    const textBlock = data.content?.find((b: { type: string }) => b.type === "text");
-    return textBlock?.text || "";
+    const textBlocks = (data.content || []).filter((b: { type: string }) => b.type === "text");
+    return textBlocks.map((b: { text: string }) => b.text).join("") || "";
   }
 
   private async anthropicStream(
@@ -175,6 +176,7 @@ export class AIClient {
       messages,
       max_tokens: 4096,
       temperature: 0.2,
+      tools: [{ type: "web_search_preview" }],
     };
 
     if (this.config.extendedThinking) {
