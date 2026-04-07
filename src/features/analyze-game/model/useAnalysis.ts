@@ -24,6 +24,7 @@ export function useAnalysis() {
   const { state, addAnalysis } = useApp();
   const cached = sessionCache.get();
   const [streamedText, setStreamedText] = useState(cached.streamedText);
+  const [thinkingText, setThinkingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [cachedResult, setCachedResult] = useState<AnalysisResult | null>(cached.result);
   const abortRef = useRef<AbortController | null>(null);
@@ -37,6 +38,7 @@ export function useAnalysis() {
 
       const client = new AIClient(state.aiProvider);
       setStreamedText("");
+      setThinkingText("");
       setCachedResult(null);
       sessionCache.set({ streamedText: "", result: null });
       setIsStreaming(true);
@@ -55,6 +57,9 @@ export function useAnalysis() {
           });
         },
         abortController.signal,
+        (status) => {
+          setThinkingText(status);
+        },
       );
 
       setIsStreaming(false);
@@ -87,6 +92,7 @@ export function useAnalysis() {
 
   const reset = useCallback(() => {
     setStreamedText("");
+    setThinkingText("");
     setIsStreaming(false);
     setCachedResult(null);
     abortRef.current?.abort();
@@ -102,6 +108,7 @@ export function useAnalysis() {
     isLoading: mutation.isPending,
     isStreaming,
     streamedText,
+    thinkingText,
     result,
     error: mutation.error,
     reset,

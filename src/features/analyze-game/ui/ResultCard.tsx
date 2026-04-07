@@ -134,6 +134,16 @@ const ThinkingLabel = styled.span`
   animation: ${pulse} 1s ease-in-out infinite;
 `;
 
+function ThinkingDisplay({ text }: { text: string }) {
+  const label = text || "Thinking...";
+  return (
+    <StreamRow aria-hidden>
+      <ThinkingLabel>{label}</ThinkingLabel>
+      <StreamCursor />
+    </StreamRow>
+  );
+}
+
 /* ——— Result card shell ——— */
 
 const Card = styled.article`
@@ -561,18 +571,16 @@ function StructuredResult({
 export interface AnalysisMarkdownProps {
   source: string;
   showStreamCursor?: boolean;
+  thinkingText?: string;
 }
 
-export function AnalysisMarkdown({ source, showStreamCursor }: AnalysisMarkdownProps) {
+export function AnalysisMarkdown({ source, showStreamCursor, thinkingText }: AnalysisMarkdownProps) {
   const waitingForFirst = showStreamCursor && !source;
 
   return (
     <MarkdownBody>
       {waitingForFirst ? (
-        <StreamRow aria-hidden>
-          <ThinkingLabel>Thinking...</ThinkingLabel>
-          <StreamCursor />
-        </StreamRow>
+        <ThinkingDisplay text={thinkingText ?? ""} />
       ) : (
         <>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{source}</ReactMarkdown>
@@ -590,6 +598,7 @@ export interface ResultCardProps {
   gameName: string;
   price: number;
   isStreaming: boolean;
+  thinkingText?: string;
 }
 
 function formatPrice(price: number, currencyCode: string | undefined): string {
@@ -601,7 +610,7 @@ function formatPrice(price: number, currencyCode: string | undefined): string {
   }
 }
 
-export function ResultCard({ response, gameName, price, isStreaming }: ResultCardProps) {
+export function ResultCard({ response, gameName, price, isStreaming, thinkingText }: ResultCardProps) {
   const { state } = useApp();
   const priceLabel = formatPrice(price, state.setupAnswers?.currency);
 
@@ -627,17 +636,14 @@ export function ResultCard({ response, gameName, price, isStreaming }: ResultCar
       {waitingForFirst ? (
         <FallbackBody>
           <MarkdownBody>
-            <StreamRow aria-hidden>
-              <ThinkingLabel>Thinking...</ThinkingLabel>
-              <StreamCursor />
-            </StreamRow>
+            <ThinkingDisplay text={thinkingText ?? ""} />
           </MarkdownBody>
         </FallbackBody>
       ) : useStructured ? (
         <ThemedStructuredResult sections={sections} isStreaming={isStreaming} />
       ) : (
         <FallbackBody>
-          <AnalysisMarkdown source={response} showStreamCursor={isStreaming} />
+          <AnalysisMarkdown source={response} showStreamCursor={isStreaming} thinkingText={thinkingText} />
         </FallbackBody>
       )}
     </Card>

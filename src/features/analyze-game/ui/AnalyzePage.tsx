@@ -40,7 +40,7 @@ function errorMessage(err: unknown): string {
 }
 
 export function AnalyzePage() {
-  const { analyze, isLoading, isStreaming, streamedText, result, error, reset, stop } =
+  const { analyze, isLoading, isStreaming, streamedText, thinkingText, result, error, reset, stop } =
     useAnalysis();
   const cached = sessionCache.get();
   const [session, setSession] = useState<{ gameName: string; price: number } | null>(
@@ -93,6 +93,7 @@ export function AnalyzePage() {
           gameName={displayName}
           price={displayPrice}
           isStreaming={isStreaming}
+          thinkingText={thinkingText}
         />
       ) : null}
 

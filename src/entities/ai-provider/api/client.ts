@@ -20,13 +20,14 @@ export class AIClient {
     currencySymbol: string,
     onStream?: (chunk: string) => void,
     signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
   ): Promise<string> {
     const libraryData = this.formatLibrary(games);
     const systemPrompt = instructions;
     const userMessage = `Here is my game library:\n\n${libraryData}\n\n---\n\nAnalyze this game for me: **${gameName}** at **${currencySymbol}${price}**\n\nIMPORTANT: Search the web for current Steam reviews and player feedback for this game. Use real, up-to-date review data — do not rely on training data for review statistics, ratings, review counts, or player sentiment.\n\nProvide the full analysis with Enjoyment Score, confidence, verified matches from my library, Red-Line Risk, target price, and all reasoning.`;
 
     if (onStream) {
-      return this.streamRequest(systemPrompt, userMessage, onStream, signal);
+      return this.streamRequest(systemPrompt, userMessage, onStream, signal, onThinking);
     }
     return this.request(systemPrompt, userMessage, signal);
   }
@@ -55,14 +56,15 @@ export class AIClient {
     user: string,
     onStream: (chunk: string) => void,
     signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
   ): Promise<string> {
     switch (this.config.type) {
       case "anthropic":
-        return this.anthropicStream(system, user, onStream, signal);
+        return this.anthropicStream(system, user, onStream, signal, onThinking);
       case "openai":
-        return this.openaiStream(system, user, onStream, signal);
+        return this.openaiStream(system, user, onStream, signal, onThinking);
       case "google":
-        return this.googleStream(system, user, onStream, signal);
+        return this.googleStream(system, user, onStream, signal, onThinking);
       case "custom":
         return this.customStream(system, user, onStream, signal);
     }
@@ -116,6 +118,7 @@ export class AIClient {
     user: string,
     onStream: (chunk: string) => void,
     signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
   ): Promise<string> {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -132,12 +135,13 @@ export class AIClient {
       const err = await res.text();
       throw new Error(`Anthropic API error (${res.status}): ${err}`);
     }
-    return this.readAnthropicSSE(res, onStream);
+    return this.readAnthropicSSE(res, onStream, onThinking);
   }
 
   private async readAnthropicSSE(
     res: Response,
     onStream: (chunk: string) => void,
+    onThinking?: (chunk: string) => void,
   ): Promise<string> {
     const reader = res.body!.getReader();
     const decoder = new TextDecoder();
@@ -156,9 +160,20 @@ export class AIClient {
         if (json === "[DONE]") break;
         try {
           const evt = JSON.parse(json);
-          if (evt.type === "content_block_delta" && evt.delta?.text) {
-            full += evt.delta.text;
-            onStream(evt.delta.text);
+          if (evt.type === "content_block_start" && onThinking) {
+            const block = evt.content_block;
+            if (block?.type === "thinking") {
+              onThinking("Reasoning...");
+            } else if (block?.type === "server_tool_use" || block?.type === "tool_use") {
+              const label = block.name === "web_search" ? "Searching the web..." : `Running ${block.name}...`;
+              onThinking(label);
+            }
+          }
+          if (evt.type === "content_block_delta") {
+            if (evt.delta?.text) {
+              full += evt.delta.text;
+              onStream(evt.delta.text);
+            }
           }
         } catch {
           /* skip malformed */
@@ -216,6 +231,7 @@ export class AIClient {
     user: string,
     onStream: (chunk: string) => void,
     signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
   ): Promise<string> {
     const messages: Message[] = [
       { role: "system", content: system },
@@ -234,10 +250,14 @@ export class AIClient {
       const err = await res.text();
       throw new Error(`OpenAI API error (${res.status}): ${err}`);
     }
-    return this.readOpenAISSE(res, onStream);
+    return this.readOpenAISSE(res, onStream, onThinking);
   }
 
-  private async readOpenAISSE(res: Response, onStream: (chunk: string) => void): Promise<string> {
+  private async readOpenAISSE(
+    res: Response,
+    onStream: (chunk: string) => void,
+    onThinking?: (chunk: string) => void,
+  ): Promise<string> {
     const reader = res.body!.getReader();
     const decoder = new TextDecoder();
     let full = "";
@@ -255,10 +275,13 @@ export class AIClient {
         if (json === "[DONE]") break;
         try {
           const evt = JSON.parse(json);
-          const delta = evt.choices?.[0]?.delta?.content;
-          if (delta) {
-            full += delta;
-            onStream(delta);
+          const delta = evt.choices?.[0]?.delta;
+          if ((delta?.reasoning_content || delta?.reasoning) && onThinking) {
+            onThinking("Reasoning...");
+          }
+          if (delta?.content) {
+            full += delta.content;
+            onStream(delta.content);
           }
         } catch {
           /* skip */
@@ -311,6 +334,7 @@ export class AIClient {
     user: string,
     onStream: (chunk: string) => void,
     signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
   ): Promise<string> {
     const messages: Message[] = [
       { role: "system", content: system },
@@ -341,7 +365,7 @@ export class AIClient {
       const err = await res.text();
       throw new Error(`Google API error (${res.status}): ${err}`);
     }
-    return this.readOpenAISSE(res, onStream);
+    return this.readOpenAISSE(res, onStream, onThinking);
   }
 
   // --- Custom ---
