@@ -320,13 +320,14 @@ function buildRefundGuard(a: SetupAnswers): string {
 
 Use the refund guard only for real risk. Always include this section.
 
-**Apply a strict refund guard if:**
-- R = High, OR
+**Apply a strict refund guard if ANY of these are true:**
+- R = High
 - R = Medium AND (P < 75 OR C ≤ Medium)
+- C = Low or Very Low (regardless of R — unreliable predictions always warrant a safety net)
 
-**Do NOT apply a refund guard if:**
-- R = None, OR
-- R = Medium AND P ≥ 75 AND C ≥ High
+**Do NOT apply a refund guard if ALL of these are true:**
+- R = None or (R = Medium AND P ≥ 75)
+- C ≥ Medium
 
 **When the refund guard applies:**
 State "Recommended" and prefer platforms with clear refund policies (e.g. Steam's 2h / 14d). If no refund-safe option exists, the acceptable buy price is ${symbol}10 lower than the target price. Recommend an early 60–90 minute test focused on movement, pacing, navigation and systems; if they feel wrong, treat the result as "refund / don't buy" regardless of score.

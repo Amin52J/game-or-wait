@@ -37,7 +37,8 @@ export function useAnalysis() {
 
       const client = new AIClient(state.aiProvider);
       setStreamedText("");
-      sessionCache.set({ streamedText: "" });
+      setCachedResult(null);
+      sessionCache.set({ streamedText: "", result: null });
       setIsStreaming(true);
 
       const response = await client.analyze(
@@ -94,7 +95,7 @@ export function useAnalysis() {
     sessionCache.clear();
   }, [mutation]);
 
-  const result = mutation.data ?? cachedResult;
+  const result = (mutation.isPending || isStreaming) ? null : (mutation.data ?? cachedResult);
 
   return {
     analyze: mutation.mutate,

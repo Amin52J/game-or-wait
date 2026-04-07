@@ -229,23 +229,6 @@ const ScoreLabel = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.xs};
 `;
 
-const ConfidenceBadge = styled.span<{ $level: string }>`
-  display: inline-block;
-  padding: 2px 8px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-radius: ${({ theme }) => theme.radius.sm};
-  margin-left: ${({ theme }) => theme.spacing.sm};
-  ${({ $level, theme }) => {
-    if ($level.toLowerCase().includes("very high") || $level.toLowerCase() === "high")
-      return css`background: ${theme.colors.successMuted}; color: ${theme.colors.success};`;
-    if ($level.toLowerCase() === "medium")
-      return css`background: ${theme.colors.warningMuted}; color: ${theme.colors.warning};`;
-    return css`background: ${theme.colors.errorMuted}; color: ${theme.colors.error};`;
-  }}
-`;
 
 const ScoreSummaryText = styled.div`
   font-size: 0.875rem;
@@ -431,10 +414,7 @@ function renderScoreHero(
         <ScoreRing $score={metrics.score}>{metrics.score}</ScoreRing>
       )}
       <ScoreDetails>
-        <ScoreLabel>
-          Enjoyment Score
-          {metrics.confidence && <ConfidenceBadge $level={metrics.confidence}>{metrics.confidence}</ConfidenceBadge>}
-        </ScoreLabel>
+        <ScoreLabel>Enjoyment Score</ScoreLabel>
         {summarySection && (
           <ScoreSummaryText>
             <SectionMarkdown content={summarySection.content} />

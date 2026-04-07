@@ -46,6 +46,7 @@ export function AnalyzePage() {
   const [session, setSession] = useState<{ gameName: string; price: number } | null>(
     cached.result ? { gameName: cached.result.gameName, price: cached.result.price } : null,
   );
+  const [formKey, setFormKey] = useState(0);
 
   const handleSubmit = useCallback(
     (gameName: string, price: number) => {
@@ -59,6 +60,7 @@ export function AnalyzePage() {
   const handleNewAnalysis = useCallback(() => {
     reset();
     setSession(null);
+    setFormKey((k) => k + 1);
   }, [reset]);
 
   const showResult = Boolean(session);
@@ -69,7 +71,7 @@ export function AnalyzePage() {
 
   return (
     <Page>
-      <AnalyzeForm onSubmit={handleSubmit} isLoading={isLoading} />
+      <AnalyzeForm key={formKey} onSubmit={handleSubmit} isLoading={isLoading} />
 
       {(isStreaming || isLoading) ? (
         <Toolbar>
