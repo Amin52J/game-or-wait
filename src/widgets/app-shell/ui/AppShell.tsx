@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { useApp } from "@/app/providers/AppProvider";
@@ -53,13 +53,16 @@ export function AppShell({ children }: AppShellProps) {
   const { state, hydrated } = useApp();
   const setupDone = state.isSetupComplete;
 
-  if (authLoading) {
+  const [isTauri, setIsTauri] = useState<boolean | null>(null);
+  useEffect(() => {
+    setIsTauri("__TAURI__" in window);
+  }, []);
+
+  if (authLoading || isTauri === null) {
     return <AuthLoadingSkeleton />;
   }
 
   if (!user) {
-    const isTauri =
-      typeof window !== "undefined" && "__TAURI__" in window;
     return isTauri ? <AuthPage /> : <LandingOrAuth />;
   }
 
