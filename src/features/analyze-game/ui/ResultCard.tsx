@@ -21,9 +21,9 @@ const fadeUp = keyframes`
   to   { opacity: 1; transform: translateY(0); }
 `;
 
-const pulse = keyframes`
+const blink = keyframes`
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.2; }
+  50%      { opacity: 0; }
 `;
 
 /* ——— Markdown body (shared) ——— */
@@ -122,7 +122,7 @@ const StreamCursor = styled.span`
   margin-left: 2px;
   background: ${({ theme }) => theme.colors.accent};
   border-radius: 2px;
-  animation: ${pulse} 1s ease-in-out infinite;
+  animation: ${blink} 1s step-end infinite;
   vertical-align: text-bottom;
 `;
 
@@ -130,17 +130,14 @@ const ThinkingLabel = styled.span`
   font-size: 0.9375rem;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.textMuted};
-  margin-right: ${({ theme }) => theme.spacing.xs};
-  animation: ${pulse} 1s ease-in-out infinite;
 `;
 
 function ThinkingDisplay({ text }: { text: string }) {
   const label = text || "Thinking...";
   return (
-    <StreamRow aria-hidden>
-      <ThinkingLabel>{label}</ThinkingLabel>
-      <StreamCursor />
-    </StreamRow>
+    <ThinkingLabel aria-hidden>
+      {label}<StreamCursor />
+    </ThinkingLabel>
   );
 }
 
