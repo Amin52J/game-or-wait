@@ -19,12 +19,17 @@ const slideIn = keyframes`
 
 export const ResultCardWrap = styled.div`
   background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.lg};
+  border: 2px solid ${({ theme }) => theme.colors.accent};
+  border-radius: 50%;
   padding: ${({ theme }) => theme.spacing.lg};
-  margin-top: ${({ theme }) => theme.spacing.lg};
   text-align: center;
   animation: ${slideIn} 300ms ease;
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: ${({ theme }) => theme.spacing.lg} auto;
 `;
 
 export const ScoreValue = styled.div`
@@ -41,7 +46,6 @@ export const ScoreValue = styled.div`
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  margin-bottom: ${({ theme }) => theme.spacing.md};
 `;
 
 export const ScoreMax = styled.span`

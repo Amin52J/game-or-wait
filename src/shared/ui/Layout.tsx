@@ -21,11 +21,6 @@ export const PageHeader = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
-
-  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    flex-direction: row;
-    align-items: center;
-  }
 `;
 
 export const PageTitle = styled.h1`
@@ -37,7 +32,7 @@ export const PageTitle = styled.h1`
 `;
 
 export const PageSubtitle = styled.p`
-  margin: 4px 0 0;
+  margin: 0;
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.9rem;
   color: ${({ theme }) => theme.colors.textSecondary};

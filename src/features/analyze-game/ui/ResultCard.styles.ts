@@ -438,6 +438,45 @@ export const SectionContent = styled.div`
   }
 `;
 
+export const RefundSkeletonBanner = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: ${({ theme }) => theme.spacing.sm};
+  padding: 12px;
+  background: ${({ theme }) => theme.colors.surfaceElevated};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  border-left: 3px solid ${({ theme }) => theme.colors.border};
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    gap: ${({ theme }) => theme.spacing.md};
+    padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
+  }
+`;
+
+export const RefundSkeletonIcon = styled.span`
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-top: 2px;
+  background: ${({ theme }) => theme.colors.textMuted};
+  animation: ${pulse} 1.8s ease-in-out infinite;
+`;
+
+export const RefundSkeletonTitle = styled.div`
+  width: 100px;
+  height: 0.8125rem;
+  border-radius: ${({ theme }) => theme.radius.sm};
+  background: ${({ theme }) => theme.colors.textMuted};
+  animation: ${pulse} 1.8s ease-in-out infinite;
+  margin-bottom: ${({ theme }) => theme.spacing.xs};
+`;
+
+export const RefundSkeletonBody = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
 export const RefundBanner = styled.div<{ $required: boolean }>`
   display: flex;
   align-items: flex-start;

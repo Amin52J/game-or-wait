@@ -1,19 +1,57 @@
 "use client";
 
 import styled, { keyframes } from "styled-components";
-import { PageWrapper } from "@/shared/ui";
 
 export const fadeUp = keyframes`
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 `;
 
-export const Page = styled(PageWrapper)`
+export const Page = styled.div`
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
   padding: ${({ theme }) => theme.spacing.sm} 0;
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     padding: 0;
   }
+`;
+
+export const HeaderRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: 0 ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.sm};
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    flex-direction: row;
+    align-items: center;
+    padding: 0;
+    margin-bottom: ${({ theme }) => theme.spacing.lg};
+  }
+`;
+
+export const Title = styled.h1`
+  margin: 0;
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    font-size: 1.5rem;
+  }
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm};
+  align-items: center;
 `;
 
 export const Toolbar = styled.div`
@@ -512,7 +550,7 @@ export const MiniScore = styled.span<{ $score: number | null }>`
     return theme.colors.error;
   }};
 
-  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+  @media (min-width: 641px) {
     width: 40px;
     height: 40px;
     font-size: 0.8rem;

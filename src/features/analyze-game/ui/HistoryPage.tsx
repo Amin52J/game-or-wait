@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { Button, PageTitle, PageHeader, ButtonRow } from "@/shared/ui";
+import { Button } from "@/shared/ui";
 import { useHistoryPage } from "./HistoryPage.hooks";
 import { HistoryToolbar } from "./history/HistoryToolbar";
 import { DetailedCardView } from "./history/DetailedCardView";
 import { ListTableView } from "./history/ListTableView";
-import { Page, Sentinel, EmptyState } from "./HistoryPage.styles";
+import { Page, HeaderRow, Title, Actions, Sentinel, EmptyState } from "./HistoryPage.styles";
 
 export function HistoryPage() {
   const h = useHistoryPage();
@@ -14,7 +14,7 @@ export function HistoryPage() {
   if (h.totalCount === 0) {
     return (
       <Page>
-        <PageHeader><PageTitle>Analysis history</PageTitle></PageHeader>
+        <HeaderRow><Title>Analysis history</Title></HeaderRow>
         <EmptyState>No analyses yet</EmptyState>
       </Page>
     );
@@ -22,14 +22,14 @@ export function HistoryPage() {
 
   return (
     <Page>
-      <PageHeader>
-        <PageTitle>Analysis history</PageTitle>
-        <ButtonRow>
-          <Button variant="danger" onClick={h.handleClearAll} onBlur={() => h.setConfirmClearAll(false)}>
+      <HeaderRow>
+        <Title>Analysis history</Title>
+        <Actions>
+          <Button type="button" variant="danger" size="md" onClick={h.handleClearAll} onBlur={() => h.setConfirmClearAll(false)}>
             {h.confirmClearAll ? "Are you sure?" : "Clear all"}
           </Button>
-        </ButtonRow>
-      </PageHeader>
+        </Actions>
+      </HeaderRow>
 
       <HistoryToolbar
         inputValue={h.inputValue}

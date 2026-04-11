@@ -3,12 +3,14 @@
 import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useTheme } from "styled-components";
-import { parseResponseSections, extractMetrics } from "@/features/analyze-game/lib/response-parser";
+import { useApp } from "@/app/providers/AppProvider";
+import { Icon } from "@/shared/ui";
+import { parseResponseSections, extractMetrics, isInternalSection } from "@/features/analyze-game/lib/response-parser";
 import type { ParsedSection } from "@/features/analyze-game/lib/response-parser";
 import { renderScoreHero } from "./result/ScoreHero";
 import { renderMetricsRow } from "./result/MetricsRow";
-import { renderSection, displaySortKey, isInternalSection } from "./result/SectionRenderer";
+import { renderSection, displaySortKey } from "./result/SectionRenderer";
+import { formatPrice, FALLBACK_THEME } from "./ResultCard.utils";
 import {
   Card,
   Header,
@@ -20,22 +22,47 @@ import {
   ThinkingLabel,
   MarkdownBody,
   SkeletonBarSpaced,
-  SectionCard,
-  SectionContent,
   FallbackBody,
-  ResultWrapper,
-  PreviewGrid,
-  PreviewLabel,
-  PreviewValue,
-  PreviewScoreCircle,
+  PreviewWrap,
+  RefundStrip,
+  RefundSkeletonBanner,
+  RefundSkeletonIcon,
+  RefundSkeletonTitle,
+  RefundSkeletonBody,
 } from "./ResultCard.styles";
 
 export { parseResponseSections, MarkdownBody };
 
-export function AnalysisMarkdown({ source }: { source: string }) {
+function ThinkingDisplay({ text }: { text: string }) {
+  const label = text || "Thinking...";
+  return (
+    <ThinkingLabel aria-hidden>
+      {label}<StreamCursor />
+    </ThinkingLabel>
+  );
+}
+
+export interface AnalysisMarkdownProps {
+  source: string;
+  showStreamCursor?: boolean;
+  thinkingText?: string;
+}
+
+export function AnalysisMarkdown({ source, showStreamCursor, thinkingText }: AnalysisMarkdownProps) {
+  const waitingForFirst = showStreamCursor && !source;
+
   return (
     <MarkdownBody>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{source}</ReactMarkdown>
+      {waitingForFirst ? (
+        <ThinkingDisplay text={thinkingText ?? ""} />
+      ) : (
+        <>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{source}</ReactMarkdown>
+          {showStreamCursor ? (
+            <StreamRow aria-hidden><StreamCursor /></StreamRow>
+          ) : null}
+        </>
+      )}
     </MarkdownBody>
   );
 }
@@ -51,139 +78,119 @@ export function ThemedStructuredResult({
   fullPrice?: number;
   currencyCode?: string;
 }) {
-  const theme = useTheme() as { colors: Record<string, string> };
-  const metrics = useMemo(() => extractMetrics(sections), [sections]);
+  const metrics = extractMetrics(sections);
 
-  const bodySections = useMemo(
-    () =>
-      sections
-        .filter((s) => s.key !== "preamble" && !isInternalSection(s.key))
-        .sort((a, b) => displaySortKey(a.key) - displaySortKey(b.key)),
-    [sections],
+  const contentSections = sections.filter(
+    (s) =>
+      s.key !== "preamble" &&
+      !s.key.includes("enjoyment-score") &&
+      !s.key.includes("score-summary") &&
+      !s.key.includes("target-price") &&
+      !isInternalSection(s.key),
   );
 
+  const refundSection = contentSections.find((s) => s.key.includes("refund-guard"));
+  const otherSections = contentSections.filter((s) => !s.key.includes("refund-guard"));
+
+  const ordered = isStreaming
+    ? otherSections
+    : [...otherSections].sort((a, b) => displaySortKey(a.key) - displaySortKey(b.key));
+
   return (
-    <ResultWrapper>
+    <>
       {renderScoreHero(sections, metrics, isStreaming)}
-      {renderMetricsRow(sections, metrics, theme, isStreaming, fullPrice, currencyCode)}
-      {bodySections.map((section, i) =>
-        renderSection(section, metrics, i === bodySections.length - 1, isStreaming, theme),
+      {renderMetricsRow(sections, metrics, FALLBACK_THEME, isStreaming, fullPrice, currencyCode)}
+      {refundSection
+        ? renderSection(refundSection, metrics, false, isStreaming, FALLBACK_THEME)
+        : isStreaming && (
+          <RefundSkeletonBanner>
+            <RefundSkeletonIcon />
+            <RefundSkeletonBody>
+              <RefundSkeletonTitle />
+              <SkeletonBarSpaced $width="85%" />
+              <SkeletonBarSpaced $width="60%" />
+            </RefundSkeletonBody>
+          </RefundSkeletonBanner>
+        )}
+      {ordered.map((s, i) =>
+        renderSection(s, metrics, i === ordered.length - 1, isStreaming, FALLBACK_THEME),
       )}
-      {isStreaming && sections.length === 0 && (
-        <SectionCard $accent="default">
-          <SectionContent>
-            <SkeletonBarSpaced $width="80%" />
-            <SkeletonBarSpaced $width="65%" />
-            <SkeletonBarSpaced $width="90%" />
-            <StreamRow><StreamCursor /></StreamRow>
-          </SectionContent>
-        </SectionCard>
-      )}
-    </ResultWrapper>
+    </>
   );
 }
 
-export function HistoryPreview({
-  response,
-  fullPrice,
-  currencyCode,
-}: {
-  response: string;
-  fullPrice?: number;
-  currencyCode?: string;
-}) {
-  const theme = useTheme() as { colors: Record<string, string> };
-  const sections = useMemo(() => parseResponseSections(response), [response]);
-  const metrics = useMemo(() => extractMetrics(sections), [sections]);
-
-  return (
-    <PreviewGrid>
-      {metrics.score !== null && (
-        <div>
-          <PreviewLabel>Score</PreviewLabel>
-          <PreviewScoreCircle $score={metrics.score}>{metrics.score}</PreviewScoreCircle>
-        </div>
-      )}
-      {metrics.riskLevel !== "unknown" && (
-        <div>
-          <PreviewLabel>Risk</PreviewLabel>
-          <PreviewValue>
-            {metrics.riskLevel.charAt(0).toUpperCase() + metrics.riskLevel.slice(1)}
-          </PreviewValue>
-        </div>
-      )}
-      {metrics.confidence && (
-        <div>
-          <PreviewLabel>Confidence</PreviewLabel>
-          <PreviewValue>{metrics.confidence}</PreviewValue>
-        </div>
-      )}
-      {metrics.targetPrice && (
-        <div>
-          <PreviewLabel>Target Price</PreviewLabel>
-          <PreviewValue>{metrics.targetPrice}</PreviewValue>
-        </div>
-      )}
-    </PreviewGrid>
-  );
-}
-
-export function ResultCard({
-  response,
-  gameName,
-  price,
-  isStreaming,
-  thinkingText,
-}: {
+export interface ResultCardProps {
   response: string;
   gameName: string;
   price: number;
   isStreaming: boolean;
   thinkingText?: string;
-}) {
-  const sections = useMemo(() => parseResponseSections(response), [response]);
-  const hasStructure = sections.filter((s) => s.key !== "preamble").length >= 3;
+}
 
-  if (!hasStructure && response) {
-    return (
-      <Card>
-        <Header>
-          <GameTitle>{gameName}</GameTitle>
-        </Header>
-        {thinkingText ? (
-          <SectionCard $accent="default">
-            <SectionContent><ThinkingLabel>{thinkingText}</ThinkingLabel></SectionContent>
-          </SectionCard>
-        ) : null}
-        <FallbackBody>
-          <AnalysisMarkdown source={response} />
-          {isStreaming && <StreamRow><StreamCursor /></StreamRow>}
-        </FallbackBody>
-      </Card>
-    );
-  }
+export function ResultCard({ response, gameName, price, isStreaming, thinkingText }: ResultCardProps) {
+  const { state } = useApp();
+  const priceLabel = formatPrice(price, state.setupAnswers?.currency);
+
+  const { sections, useStructured, earlyAccess } = useMemo(() => {
+    const parsed = parseResponseSections(response);
+    const hasSections = parsed.filter((s) => s.key !== "preamble").length >= 1;
+    const preamble = parsed.find((s) => s.key === "preamble");
+    return {
+      sections: parsed,
+      useStructured: hasSections,
+      earlyAccess: Boolean(preamble && /\[EARLY_ACCESS\]/i.test(preamble.content)),
+    };
+  }, [response]);
+
+  const waitingForFirst = isStreaming && !response;
 
   return (
     <Card>
       <Header>
         <GameTitle>
           {gameName}
-          {sections.some((s) => s.content.toLowerCase().includes("early access")) && (
-            <EarlyAccessBadge>Early Access</EarlyAccessBadge>
-          )}
+          {earlyAccess && <EarlyAccessBadge>Early Access</EarlyAccessBadge>}
         </GameTitle>
-        <GameMeta>Price: {price > 0 ? `$${price}` : "Free"}</GameMeta>
+        <GameMeta>{priceLabel}</GameMeta>
       </Header>
-      {thinkingText ? (
-        <SectionCard $accent="default">
-          <SectionContent><ThinkingLabel>{thinkingText}</ThinkingLabel></SectionContent>
-        </SectionCard>
-      ) : null}
-      <ThemedStructuredResult
-        sections={sections}
-        isStreaming={isStreaming}
-        fullPrice={price}
-      />
+
+      {waitingForFirst ? (
+        <FallbackBody>
+          <MarkdownBody>
+            <ThinkingDisplay text={thinkingText ?? ""} />
+          </MarkdownBody>
+        </FallbackBody>
+      ) : (useStructured || isStreaming) ? (
+        <ThemedStructuredResult sections={sections} isStreaming={isStreaming} fullPrice={price} currencyCode={state.setupAnswers?.currency} />
+      ) : (
+        <FallbackBody>
+          <AnalysisMarkdown source={response} showStreamCursor={isStreaming} thinkingText={thinkingText} />
+        </FallbackBody>
+      )}
     </Card>
+  );
+}
+
+export function HistoryPreview({ response, fullPrice, currencyCode }: { response: string; fullPrice?: number; currencyCode?: string }) {
+  const sections = useMemo(() => parseResponseSections(response), [response]);
+  const metrics = useMemo(() => extractMetrics(sections), [sections]);
+  const hasStructure = sections.filter((s) => s.key !== "preamble").length >= 3;
+
+  if (!hasStructure) return null;
+
+  const refundSection = sections.find((s) => s.key.includes("refund-guard"));
+  const refundRequired = metrics.refundRecommended;
+
+  return (
+    <PreviewWrap>
+      {renderScoreHero(sections, metrics, false)}
+      {renderMetricsRow(sections, metrics, FALLBACK_THEME, false, fullPrice, currencyCode)}
+      {refundSection && (
+        <RefundStrip $required={refundRequired}>
+          <Icon name={refundRequired ? "alert-triangle" : "info"} size={14} />
+          <span><strong>Refund Guard:</strong> {refundRequired ? "Recommended" : "Not required"}</span>
+        </RefundStrip>
+      )}
+    </PreviewWrap>
   );
 }
