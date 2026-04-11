@@ -68,6 +68,10 @@ const LogoText = styled.span`
 const NavActions = styled.div`
   display: flex;
   gap: 12px;
+
+  @media (max-width: 767px) {
+    gap: 8px;
+  }
 `;
 
 const NavBtn = styled.button<{ $primary?: boolean }>`
@@ -96,6 +100,11 @@ const NavBtn = styled.button<{ $primary?: boolean }>`
   &:active {
     transform: scale(0.97);
   }
+
+  @media (max-width: 767px) {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
 `;
 
 /* ── Hero ── */
@@ -109,6 +118,14 @@ const Hero = styled.section`
   max-width: 800px;
   margin: 0 auto;
   animation: ${fadeUp} 0.6s ease;
+
+  @media (max-width: 1024px) {
+    padding-top: 140px;
+  }
+
+  @media (max-width: 767px) {
+    padding: 120px 16px 60px;
+  }
 `;
 
 const HeroBadge = styled.span`
@@ -170,6 +187,10 @@ const HeroCTA = styled.button`
   &:active {
     transform: translateY(0) scale(0.98);
   }
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
 `;
 
 const HeroActions = styled.div`
@@ -178,6 +199,11 @@ const HeroActions = styled.div`
   gap: 16px;
   flex-wrap: wrap;
   justify-content: center;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    width: 100%;
+  }
 `;
 
 const DownloadBtn = styled.a`
@@ -206,6 +232,11 @@ const DownloadBtn = styled.a`
   &:active {
     transform: translateY(0) scale(0.98);
   }
+
+  @media (max-width: 767px) {
+    width: 100%;
+    justify-content: center;
+  }
 `;
 
 const WinIcon = () => (
@@ -227,6 +258,15 @@ const Features = styled.section`
   margin: 0 auto;
   padding: 0 24px 100px;
   animation: ${fadeUp} 0.6s ease 0.15s both;
+
+  @media (max-width: 1024px) {
+    padding-bottom: 80px;
+  }
+
+  @media (max-width: 767px) {
+    gap: 16px;
+    padding: 0 16px 60px;
+  }
 `;
 
 const FeatureCard = styled.div`
@@ -276,6 +316,10 @@ const Section = styled.section`
   padding: 0 24px 100px;
   text-align: center;
   animation: ${fadeUp} 0.6s ease 0.3s both;
+
+  @media (max-width: 767px) {
+    padding: 0 16px 60px;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -292,12 +336,20 @@ const Steps = styled.ol`
   flex-direction: column;
   gap: 32px;
   text-align: left;
+
+  @media (max-width: 767px) {
+    gap: 24px;
+  }
 `;
 
 const Step = styled.li`
   display: flex;
   gap: 20px;
   align-items: flex-start;
+
+  @media (max-width: 767px) {
+    gap: 16px;
+  }
 `;
 
 const StepNum = styled.span`

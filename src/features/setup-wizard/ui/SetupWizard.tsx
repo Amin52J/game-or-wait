@@ -109,6 +109,10 @@ const Page = styled.div`
   padding: ${({ theme }) => theme.spacing.xl} ${({ theme }) => theme.spacing.md};
   background: ${({ theme }) => theme.colors.bg};
   font-family: ${({ theme }) => theme.font.sans};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const Center = styled.div`
@@ -127,6 +131,10 @@ const Title = styled.h1`
   font-weight: 700;
   letter-spacing: -0.02em;
   color: ${({ theme }) => theme.colors.text};
+
+  @media (max-width: 767px) {
+    font-size: 1.4rem;
+  }
 `;
 
 const Subtitle = styled.p`
@@ -147,6 +155,11 @@ const Card = styled.div`
   border-radius: ${({ theme }) => theme.radius.xl};
   padding: ${({ theme }) => theme.spacing.xl};
   box-shadow: ${({ theme }) => theme.shadow.lg};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.md};
+    border-radius: ${({ theme }) => theme.radius.lg};
+  }
 `;
 
 const StepContent = styled.div`
@@ -473,6 +486,11 @@ const NavRow = styled.div`
   margin-top: ${({ theme }) => theme.spacing.xl};
   padding-top: ${({ theme }) => theme.spacing.lg};
   border-top: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media (max-width: 767px) {
+    margin-top: ${({ theme }) => theme.spacing.lg};
+    padding-top: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const Btn = styled.button<{
@@ -580,6 +598,10 @@ const Stepper = styled.div`
   justify-content: space-between;
   margin-bottom: ${({ theme }) => theme.spacing.xl};
   gap: ${({ theme }) => theme.spacing.xs};
+
+  @media (max-width: 767px) {
+    margin-bottom: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 const StepItem = styled.div`
@@ -607,6 +629,12 @@ const StepCircle = styled.div<{ $state: "done" | "current" | "todo" }>`
   font-size: 0.8125rem;
   font-weight: 700;
   z-index: 1;
+
+  @media (max-width: 767px) {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
+  }
   transition:
     background ${({ theme }) => theme.transition.fast},
     border-color ${({ theme }) => theme.transition.fast},
@@ -653,6 +681,10 @@ const StepLabel = styled.span<{ $active: boolean }>`
   text-align: center;
   color: ${({ theme, $active }) => ($active ? theme.colors.text : theme.colors.textMuted)};
   line-height: 1.2;
+
+  @media (max-width: 767px) {
+    font-size: 0.5625rem;
+  }
 `;
 
 function ProgressStepper({ currentStep }: { currentStep: number }) {
@@ -874,6 +906,10 @@ const OptionCard = styled.button<{ $selected: boolean }>`
 
   &:active {
     transform: translateY(0) scale(0.97);
+  }
+
+  @media (max-width: 1024px) {
+    &:hover, &:active { transform: none; }
   }
 
   &:focus-visible {
@@ -1151,6 +1187,10 @@ const PlatformBtn = styled.button<{ $color: string; $connected?: boolean }>`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 1024px) {
+    &:hover:not(:disabled) { transform: none; }
   }
 
   svg { fill: currentColor; }
@@ -1795,6 +1835,7 @@ function StepImportLibrary({
   setPasteText,
   parseError,
   setParseError,
+  steamAutoImportCount,
 }: {
   importedGames: Game[];
   setImportedGames: React.Dispatch<React.SetStateAction<Game[]>>;
@@ -1802,10 +1843,15 @@ function StepImportLibrary({
   setPasteText: (v: string) => void;
   parseError: string | null;
   setParseError: (v: string | null) => void;
+  steamAutoImportCount: number | null;
 }) {
   const [steamLoading, setSteamLoading] = useState(false);
-  const [steamCount, setSteamCount] = useState<number | null>(null);
+  const [steamCount, setSteamCount] = useState<number | null>(steamAutoImportCount);
   const [steamError, setSteamError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (steamAutoImportCount !== null) setSteamCount(steamAutoImportCount);
+  }, [steamAutoImportCount]);
 
   const [epicStep, setEpicStep] = useState<"idle" | "waiting" | "loading">("idle");
   const [epicCode, setEpicCode] = useState("");
@@ -1877,9 +1923,13 @@ function StepImportLibrary({
     setSteamError(null);
     setSteamLoading(true);
     try {
-      const params = await openSteamLoginPopup();
-      const steamId = extractSteamIdFromParams(params);
-      if (!steamId) throw new Error("Could not extract Steam ID");
+      let steamId = sessionStorage.getItem("gamefit_steam_id");
+
+      if (!steamId) {
+        const params = await openSteamLoginPopup();
+        steamId = extractSteamIdFromParams(params);
+        if (!steamId) throw new Error("Could not extract Steam ID");
+      }
 
       const games = await fetchSteamGames(steamId);
       const mapped: Game[] = games.map((g) => ({
@@ -1888,7 +1938,6 @@ function StepImportLibrary({
         score: null,
       }));
 
-      // Merge: existing games (CSV/text) take priority over Steam imports
       setImportedGames((prev) => mergeGameLists(prev, mapped));
       setSteamCount(games.length);
     } catch (err) {
@@ -2086,6 +2135,29 @@ export function SetupWizard() {
   const [testStatus, setTestStatus] = useState<"idle" | "ok" | "err">("idle");
   const [testLoading, setTestLoading] = useState(false);
   const [step1Error, setStep1Error] = useState<string | null>(null);
+  const [steamAutoImportCount, setSteamAutoImportCount] = useState<number | null>(null);
+  const steamAutoImported = useRef(false);
+
+  useEffect(() => {
+    if (steamAutoImported.current) return;
+    const storedSteamId = sessionStorage.getItem("gamefit_steam_id");
+    if (!storedSteamId) return;
+    steamAutoImported.current = true;
+
+    fetchSteamGames(storedSteamId)
+      .then((games) => {
+        const mapped: Game[] = games.map((g) => ({
+          id: generateId(),
+          name: g.name,
+          score: null,
+        }));
+        setImportedGames((prev) => mergeGameLists(prev, mapped));
+        setSteamAutoImportCount(games.length);
+      })
+      .catch(() => {
+        // Steam import will be retried manually on step 3
+      });
+  }, []);
 
   const runTestConnection = async () => {
     setTestLoading(true);
@@ -2127,12 +2199,17 @@ export function SetupWizard() {
   const goNext = () => {
     if (!isDevMode && step === 1 && !validateStep1()) return;
     setStep((s) => Math.min(4, s + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const goBack = () => setStep((s) => Math.max(1, s - 1));
+  const goBack = () => {
+    setStep((s) => Math.max(1, s - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const skipLibrary = () => {
     setStep(4);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const finish = () => {
@@ -2153,6 +2230,8 @@ export function SetupWizard() {
     setGames(importedGames);
     setInstructions(generateInstructions(answers));
     completeSetup();
+    sessionStorage.removeItem("gamefit_steam_id");
+    sessionStorage.removeItem("gamefit_steam_is_new");
     router.push("/analyze");
   };
 
@@ -2191,6 +2270,7 @@ export function SetupWizard() {
                 setPasteText={setPasteText}
                 parseError={parseError}
                 setParseError={setParseError}
+                steamAutoImportCount={steamAutoImportCount}
               />
             ) : null}
             {step === 4 ? (

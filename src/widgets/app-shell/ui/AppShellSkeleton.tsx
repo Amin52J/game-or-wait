@@ -3,6 +3,10 @@
 import styled from "styled-components";
 import { Skeleton, SkeletonCircle } from "@/shared/ui";
 
+const MOBILE_MAX = "767px";
+const TABLET_MIN = "768px";
+const TABLET_MAX = "1024px";
+
 const Root = styled.div`
   display: flex;
   min-height: 100vh;
@@ -36,7 +40,11 @@ const SidebarSkeleton = styled.aside`
   border-right: 1px solid ${({ theme }) => theme.colors.border};
   flex-shrink: 0;
 
-  @media (max-width: 767px) {
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    width: 64px;
+  }
+
+  @media (max-width: ${MOBILE_MAX}) {
     display: none;
   }
 `;
@@ -47,6 +55,17 @@ const SidebarLogo = styled.div`
   gap: ${({ theme }) => theme.spacing.sm};
   padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.md};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    justify-content: center;
+    padding: ${({ theme }) => theme.spacing.md};
+  }
+`;
+
+const SidebarLogoText = styled.div`
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: none;
+  }
 `;
 
 const SidebarNav = styled.div`
@@ -55,6 +74,10 @@ const SidebarNav = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs};
   padding: ${({ theme }) => theme.spacing.md};
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const NavItemSkeleton = styled.div`
@@ -62,6 +85,17 @@ const NavItemSkeleton = styled.div`
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
   padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    justify-content: center;
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
+`;
+
+const NavItemLabel = styled.div`
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: none;
+  }
 `;
 
 const SidebarFooter = styled.div`
@@ -71,6 +105,36 @@ const SidebarFooter = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs};
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    padding: ${({ theme }) => theme.spacing.sm};
+    align-items: center;
+  }
+`;
+
+const SidebarFooterDesktop = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs};
+  width: 100%;
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: none;
+  }
+`;
+
+/* ——— Mobile menu button skeleton ——— */
+
+const MobileMenuSkeleton = styled.div`
+  display: none;
+
+  @media (max-width: ${MOBILE_MAX}) {
+    display: block;
+    position: fixed;
+    left: ${({ theme }) => theme.spacing.md};
+    top: ${({ theme }) => theme.spacing.md};
+    z-index: 250;
+  }
 `;
 
 /* ——— Content skeleton ——— */
@@ -80,6 +144,11 @@ const Content = styled.div`
   min-width: 0;
   padding: ${({ theme }) => theme.spacing.lg};
   overflow: hidden;
+
+  @media (max-width: ${MOBILE_MAX}) {
+    padding: ${({ theme }) => theme.spacing.sm};
+    padding-top: calc(${({ theme }) => theme.spacing.sm} + 64px);
+  }
 `;
 
 const ContentInner = styled.div`
@@ -89,12 +158,21 @@ const ContentInner = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: ${MOBILE_MAX}) {
+    padding: ${({ theme }) => theme.spacing.sm} 0;
+    gap: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const FormBlock = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm};
+
+  @media (max-width: ${MOBILE_MAX}) {
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const CardBlock = styled.div`
@@ -105,6 +183,13 @@ const CardBlock = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
+
+  @media (max-width: ${MOBILE_MAX}) {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 /* ——— Centered spinner for auth loading ——— */
@@ -135,22 +220,32 @@ export function AuthLoadingSkeleton() {
 export function HydrationSkeleton() {
   return (
     <Root>
+      <MobileMenuSkeleton>
+        <Skeleton $width="44px" $height="44px" $radius="8px" />
+      </MobileMenuSkeleton>
+
       <SidebarSkeleton>
         <SidebarLogo>
           <SkeletonCircle $width="32px" $height="32px" $radius="6px" />
-          <Skeleton $width="90px" $height="18px" />
+          <SidebarLogoText>
+            <Skeleton $width="90px" $height="18px" />
+          </SidebarLogoText>
         </SidebarLogo>
         <SidebarNav>
           {Array.from({ length: 4 }, (_, i) => (
             <NavItemSkeleton key={i}>
               <Skeleton $width="24px" $height="24px" $radius="6px" />
-              <Skeleton $width={`${70 + i * 12}px`} $height="14px" />
+              <NavItemLabel>
+                <Skeleton $width={`${70 + i * 12}px`} $height="14px" />
+              </NavItemLabel>
             </NavItemSkeleton>
           ))}
         </SidebarNav>
         <SidebarFooter>
-          <Skeleton $width="100px" $height="12px" />
-          <Skeleton $width="140px" $height="11px" />
+          <SidebarFooterDesktop>
+            <Skeleton $width="100px" $height="12px" />
+            <Skeleton $width="140px" $height="11px" />
+          </SidebarFooterDesktop>
           <Skeleton $width="100%" $height="32px" style={{ marginTop: 8 }} />
         </SidebarFooter>
       </SidebarSkeleton>

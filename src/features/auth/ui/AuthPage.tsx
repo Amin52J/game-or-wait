@@ -153,6 +153,10 @@ const SubmitBtn = styled.button`
     transform: translateY(0) scale(0.98);
   }
 
+  @media (max-width: 1024px) {
+    &:hover:not(:disabled), &:active:not(:disabled) { transform: none; }
+  }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -192,7 +196,7 @@ const SocialBtn = styled.button`
   padding: 10px;
   border-radius: ${({ theme }) => theme.radius.md};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.bg};
+  background: transparent;
   color: ${({ theme }) => theme.colors.text};
   font-size: 0.8rem;
   font-weight: 500;
@@ -208,6 +212,10 @@ const SocialBtn = styled.button`
 
   &:active:not(:disabled) {
     transform: translateY(0) scale(0.97);
+  }
+
+  @media (max-width: 1024px) {
+    &:hover:not(:disabled), &:active:not(:disabled) { transform: none; }
   }
 
   &:disabled {
@@ -226,7 +234,7 @@ const SteamBtn = styled.button`
   margin-top: ${({ theme }) => theme.spacing.sm};
   border-radius: ${({ theme }) => theme.radius.md};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: #171a21;
+  background: transparent;
   color: #c7d5e0;
   font-size: 0.85rem;
   font-weight: 600;
@@ -243,6 +251,10 @@ const SteamBtn = styled.button`
 
   &:active:not(:disabled) {
     transform: translateY(0) scale(0.97);
+  }
+
+  @media (max-width: 1024px) {
+    &:hover:not(:disabled), &:active:not(:disabled) { transform: none; }
   }
 
   &:disabled {
@@ -314,14 +326,18 @@ export function AuthPage() {
     setBusy(true);
     try {
       const params = await openSteamLoginPopup();
-      const { tokenHash, email: steamEmail } = await verifySteamLogin(params);
+      const { tokenHash, steamId, isNew } = await verifySteamLogin(params);
       const sb = getSupabase();
       const { error: otpError } = await sb.auth.verifyOtp({
         type: "magiclink",
         token_hash: tokenHash,
-        email: steamEmail,
       });
-      if (otpError) setError(otpError.message);
+      if (otpError) {
+        setError(otpError.message);
+      } else if (steamId) {
+        sessionStorage.setItem("gamefit_steam_id", steamId);
+        if (isNew) sessionStorage.setItem("gamefit_steam_is_new", "1");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Steam login failed");
     }
@@ -404,7 +420,7 @@ export function AuthPage() {
 
         <SteamBtn type="button" onClick={handleSteamLogin} disabled={busy}>
           <img src="/steam-logo.svg" alt="" width="18" height="18" />
-          Sign in with Steam
+          Steam
         </SteamBtn>
       </Card>
     </Page>

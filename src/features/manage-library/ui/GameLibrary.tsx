@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { useApp } from "@/app/providers/AppProvider";
 import { parseAnyFormat, gamesToCSV } from "@/entities/game/lib/csv-parser";
@@ -12,6 +12,10 @@ import { Icon } from "@/shared/ui";
 const Page = styled.div`
   max-width: 1100px;
   margin: 0 auto;
+
+  @media (max-width: 767px) {
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const Header = styled.div`
@@ -21,6 +25,11 @@ const Header = styled.div`
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing.md};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 const Title = styled.h1`
@@ -39,6 +48,10 @@ const Actions = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.sm};
   flex-wrap: wrap;
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
 `;
 
 const Btn = styled.button<{ $variant?: "primary" | "secondary" | "danger" }>`
@@ -55,7 +68,7 @@ const Btn = styled.button<{ $variant?: "primary" | "secondary" | "danger" }>`
     $variant === "primary"
       ? theme.colors.accent
       : $variant === "danger"
-        ? theme.colors.errorMuted
+        ? "transparent"
         : theme.colors.surface};
   color: ${({ theme, $variant }) =>
     $variant === "danger" ? theme.colors.error : theme.colors.text};
@@ -65,12 +78,18 @@ const Btn = styled.button<{ $variant?: "primary" | "secondary" | "danger" }>`
   transition: all ${({ theme }) => theme.transition.fast};
 
   &:hover:not(:disabled) {
-    opacity: 0.85;
+    opacity: ${({ $variant }) => $variant === "danger" ? 1 : 0.85};
+    background: ${({ theme, $variant }) =>
+      $variant === "danger" ? theme.colors.errorMuted : undefined};
     transform: translateY(-1px);
   }
 
   &:active:not(:disabled) {
     transform: translateY(0) scale(0.97);
+  }
+
+  @media (max-width: 1024px) {
+    &:hover:not(:disabled), &:active:not(:disabled) { transform: none; }
   }
 `;
 
@@ -96,6 +115,10 @@ const SearchBar = styled.input`
   &::placeholder {
     color: ${({ theme }) => theme.colors.textMuted};
   }
+
+  @media (max-width: 767px) {
+    max-width: 100%;
+  }
 `;
 
 const Toolbar = styled.div`
@@ -104,12 +127,22 @@ const Toolbar = styled.div`
   align-items: center;
   flex-wrap: wrap;
   margin-bottom: ${({ theme }) => theme.spacing.md};
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const Stats = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.lg};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: 767px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 const StatCard = styled.div`
@@ -119,6 +152,11 @@ const StatCard = styled.div`
   padding: ${({ theme }) => theme.spacing.md};
   flex: 1;
   min-width: 120px;
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm};
+    min-width: 0;
+  }
 `;
 
 const StatValue = styled.div`
@@ -151,6 +189,12 @@ const TableHeader = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
   text-transform: uppercase;
   letter-spacing: 0.05em;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr 50px 50px;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+  }
 `;
 
 const SortableCol = styled.button<{ $active: boolean }>`
@@ -211,6 +255,10 @@ const FilterChip = styled.button<{ $active: boolean }>`
   &:active {
     transform: translateY(0) scale(0.95);
   }
+
+  @media (max-width: 1024px) {
+    &:hover, &:active { transform: none; }
+  }
 `;
 
 const Row = styled.div<{ $editing?: boolean }>`
@@ -230,11 +278,22 @@ const Row = styled.div<{ $editing?: boolean }>`
   &:last-child {
     border-bottom: none;
   }
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr 50px 50px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
 `;
 
 const GameName = styled.div`
   font-size: 0.9rem;
   color: ${({ theme }) => theme.colors.text};
+
+  @media (max-width: 767px) {
+    font-size: 0.8125rem;
+    word-break: break-word;
+  }
 `;
 
 const ScoreBadge = styled.span<{ $score: number | null }>`
@@ -269,16 +328,31 @@ const InlineInput = styled.input`
   outline: none;
 `;
 
+const InlineNameInput = styled.input`
+  width: 100%;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid ${({ theme }) => theme.colors.accent};
+  background: ${({ theme }) => theme.colors.bg};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.85rem;
+  outline: none;
+
+  @media (max-width: 767px) {
+    font-size: 0.8125rem;
+  }
+`;
+
 const RowActions = styled.div`
   display: flex;
   gap: 6px;
   justify-content: flex-end;
 `;
 
-const IconBtn = styled.button`
+const IconBtn = styled.button<{ $danger?: boolean }>`
   background: none;
   border: none;
-  color: ${({ theme }) => theme.colors.textMuted};
+  color: ${({ theme, $danger }) => $danger ? theme.colors.error : theme.colors.textMuted};
   cursor: pointer;
   padding: 4px;
   font-size: 1rem;
@@ -289,7 +363,7 @@ const IconBtn = styled.button`
     transform ${({ theme }) => theme.transition.fast};
 
   &:hover {
-    color: ${({ theme }) => theme.colors.text};
+    color: ${({ theme, $danger }) => $danger ? theme.colors.error : theme.colors.text};
     background: ${({ theme }) => theme.colors.surfaceHover};
   }
 
@@ -309,6 +383,10 @@ const DropZone = styled.div<{ $active: boolean }>`
   cursor: pointer;
   transition: all ${({ theme }) => theme.transition.normal};
   background: ${({ theme, $active }) => ($active ? theme.colors.accentMuted : "transparent")};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const Empty = styled.div`
@@ -353,6 +431,10 @@ const PlatformBtn = styled.button<{ $connected?: boolean }>`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 1024px) {
+    &:hover:not(:disabled) { transform: none; }
   }
 
   img { flex-shrink: 0; }
@@ -434,6 +516,10 @@ const PasteArea = styled.textarea`
   &::placeholder {
     color: ${({ theme }) => theme.colors.textMuted};
   }
+
+  @media (max-width: 767px) {
+    min-height: 80px;
+  }
 `;
 
 const PasteActions = styled.div`
@@ -464,6 +550,78 @@ const CodeInput = styled.input`
   &::placeholder {
     color: ${({ theme }) => theme.colors.textMuted};
   }
+`;
+
+const ModalBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${({ theme }) => theme.spacing.md};
+  backdrop-filter: blur(2px);
+`;
+
+const ModalCard = styled.div`
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  padding: ${({ theme }) => theme.spacing.lg};
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md};
+  box-shadow: ${({ theme }) => theme.shadow.lg};
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const ModalLabel = styled.label`
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const ModalInput = styled.input`
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: ${({ theme }) => theme.radius.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.bg};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.9rem;
+  font-family: ${({ theme }) => theme.font.sans};
+  outline: none;
+  transition:
+    border-color ${({ theme }) => theme.transition.fast},
+    box-shadow ${({ theme }) => theme.transition.fast};
+
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.accent};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accentMuted};
+  }
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.textMuted};
+  }
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.sm};
+  justify-content: flex-end;
 `;
 
 const Pagination = styled.div`
@@ -500,6 +658,7 @@ function matchesRanges(score: number | null, activeRanges: Set<string>): boolean
 
 export function GameLibrary() {
   const { state, setGames, updateGame, deleteGame } = useApp();
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const [inputValue, setInputValue] = useState("");
   const [page, setPage] = useState(0);
@@ -537,6 +696,9 @@ export function GameLibrary() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editScore, setEditScore] = useState("");
+  const [editName, setEditName] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [steamLoading, setSteamLoading] = useState(false);
   const [steamCount, setSteamCount] = useState<number | null>(null);
@@ -547,6 +709,9 @@ export function GameLibrary() {
   const [epicError, setEpicError] = useState<string | null>(null);
   const [pasteText, setPasteText] = useState("");
   const [pasteError, setPasteError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addName, setAddName] = useState("");
+  const [addScore, setAddScore] = useState("");
 
   const filtered = useMemo(() => {
     const q = inputValue.toLowerCase();
@@ -582,13 +747,16 @@ export function GameLibrary() {
 
   const startEdit = (game: Game) => {
     setEditingId(game.id);
+    setEditName(game.name);
     setEditScore(game.score !== null ? String(game.score) : "");
   };
 
   const saveEdit = (game: Game) => {
     const val = editScore.trim();
-    const score = val === "" ? null : parseInt(val, 10);
-    updateGame({ ...game, score: isNaN(score as number) ? null : score });
+    const parsed = val === "" ? null : parseInt(val, 10);
+    const score = parsed === null || isNaN(parsed) ? null : Math.max(0, Math.min(100, parsed));
+    const name = editName.trim() || game.name;
+    updateGame({ ...game, name, score });
     setEditingId(null);
   };
 
@@ -716,11 +884,23 @@ export function GameLibrary() {
   });
 
   const handleClearLibrary = () => {
-    if (confirm(`Remove all ${state.games.length} games from your library?`)) {
+    if (confirmClear) {
       setGames([]);
       setSteamCount(null);
       setEpicCount(null);
       setEpicStep("idle");
+      setConfirmClear(false);
+    } else {
+      setConfirmClear(true);
+    }
+  };
+
+  const handleDeleteGame = (id: string) => {
+    if (confirmDeleteId === id) {
+      deleteGame(id);
+      setConfirmDeleteId(null);
+    } else {
+      setConfirmDeleteId(id);
     }
   };
 
@@ -741,24 +921,20 @@ export function GameLibrary() {
           <Btn
             $variant="secondary"
             onClick={() => {
-              const name = prompt("Game name:");
-              if (name) {
-                const scoreStr = prompt("Score (0-100, leave empty for none):");
-                const score = scoreStr && !isNaN(parseInt(scoreStr)) ? parseInt(scoreStr) : null;
-                const newGame: Game = {
-                  id: Math.random().toString(36).slice(2, 11),
-                  name,
-                  score,
-                };
-                setGames([...state.games, newGame]);
-              }
+              setAddName("");
+              setAddScore("");
+              setShowAddModal(true);
             }}
           >
             + Add Game
           </Btn>
           {state.games.length > 0 && (
-            <Btn $variant="danger" onClick={handleClearLibrary}>
-              Clear Library
+            <Btn
+              $variant="danger"
+              onClick={handleClearLibrary}
+              onBlur={() => setConfirmClear(false)}
+            >
+              {confirmClear ? "Are you sure?" : "Clear Library"}
             </Btn>
           )}
         </Actions>
@@ -901,7 +1077,7 @@ export function GameLibrary() {
         </FilterBar>
       </Toolbar>
 
-      <Table>
+      <Table ref={tableRef}>
         <TableHeader>
           <SortableCol $active={sortField === "name"} onClick={() => toggleSort("name")}>
             Game
@@ -926,18 +1102,39 @@ export function GameLibrary() {
         ) : (
           pageGames.map((game) => (
             <Row key={game.id} $editing={editingId === game.id}>
-              <GameName>{game.name}</GameName>
+              <GameName>
+                {editingId === game.id ? (
+                  <InlineNameInput
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveEdit(game);
+                      if (e.key === "Escape") setEditingId(null);
+                    }}
+                    placeholder="Game name"
+                  />
+                ) : (
+                  game.name
+                )}
+              </GameName>
               <div>
                 {editingId === game.id ? (
                   <InlineInput
                     value={editScore}
-                    onChange={(e) => setEditScore(e.target.value)}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === "" || (/^\d+$/.test(v) && Number(v) <= 100)) setEditScore(v);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") saveEdit(game);
                       if (e.key === "Escape") setEditingId(null);
                     }}
                     autoFocus
                     placeholder="—"
+                    type="number"
+                    min={0}
+                    max={100}
+                    inputMode="numeric"
                   />
                 ) : (
                   <ScoreBadge $score={game.score}>
@@ -957,16 +1154,16 @@ export function GameLibrary() {
                   </>
                 ) : (
                   <>
-                    <IconBtn onClick={() => startEdit(game)} title="Edit score">
+                    <IconBtn onClick={() => startEdit(game)} title="Edit">
                       <Icon name="edit" size={16} />
                     </IconBtn>
                     <IconBtn
-                      onClick={() => {
-                        if (confirm(`Remove "${game.name}"?`)) deleteGame(game.id);
-                      }}
-                      title="Delete"
+                      $danger={confirmDeleteId === game.id}
+                      onClick={() => handleDeleteGame(game.id)}
+                      onBlur={() => setConfirmDeleteId(null)}
+                      title={confirmDeleteId === game.id ? "Confirm delete" : "Delete"}
                     >
-                      <Icon name="trash" size={16} />
+                      <Icon name={confirmDeleteId === game.id ? "alert-triangle" : "trash"} size={16} />
                     </IconBtn>
                   </>
                 )}
@@ -980,7 +1177,10 @@ export function GameLibrary() {
         <Pagination>
           <Btn
             $variant="secondary"
-            onClick={() => setPage(Math.max(0, clampedPage - 1))}
+            onClick={() => {
+              setPage(Math.max(0, clampedPage - 1));
+              tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
             disabled={clampedPage === 0}
           >
             <Icon name="chevron-left" size={14} /> Prev
@@ -990,12 +1190,84 @@ export function GameLibrary() {
           </span>
           <Btn
             $variant="secondary"
-            onClick={() => setPage(Math.min(totalPages - 1, clampedPage + 1))}
+            onClick={() => {
+              setPage(Math.min(totalPages - 1, clampedPage + 1));
+              tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
             disabled={clampedPage >= totalPages - 1}
           >
             Next <Icon name="chevron-right" size={14} />
           </Btn>
         </Pagination>
+      )}
+
+      {showAddModal && (
+        <ModalBackdrop onClick={() => setShowAddModal(false)}>
+          <ModalCard onClick={(e) => e.stopPropagation()}>
+            <ModalTitle>Add Game</ModalTitle>
+            <div>
+              <ModalLabel htmlFor="add-game-name">Game name</ModalLabel>
+              <ModalInput
+                id="add-game-name"
+                autoFocus
+                value={addName}
+                onChange={(e) => setAddName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && addName.trim()) {
+                    const raw = parseInt(addScore);
+                    const score = addScore.trim() && !isNaN(raw) ? Math.max(0, Math.min(100, raw)) : null;
+                    setGames([...state.games, { id: Math.random().toString(36).slice(2, 11), name: addName.trim(), score }]);
+                    setShowAddModal(false);
+                  }
+                  if (e.key === "Escape") setShowAddModal(false);
+                }}
+                placeholder="Enter game name..."
+              />
+            </div>
+            <div>
+              <ModalLabel htmlFor="add-game-score">Score (optional)</ModalLabel>
+              <ModalInput
+                id="add-game-score"
+                value={addScore}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "" || (/^\d+$/.test(v) && Number(v) <= 100)) setAddScore(v);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && addName.trim()) {
+                    const raw = parseInt(addScore);
+                    const score = addScore.trim() && !isNaN(raw) ? Math.max(0, Math.min(100, raw)) : null;
+                    setGames([...state.games, { id: Math.random().toString(36).slice(2, 11), name: addName.trim(), score }]);
+                    setShowAddModal(false);
+                  }
+                  if (e.key === "Escape") setShowAddModal(false);
+                }}
+                placeholder="0–100"
+                type="number"
+                min={0}
+                max={100}
+                inputMode="numeric"
+              />
+            </div>
+            <ModalActions>
+              <Btn $variant="secondary" onClick={() => setShowAddModal(false)}>
+                Cancel
+              </Btn>
+              <Btn
+                $variant="primary"
+                disabled={!addName.trim()}
+                onClick={() => {
+                  const raw = parseInt(addScore);
+                  const score = addScore.trim() && !isNaN(raw) ? Math.max(0, Math.min(100, raw)) : null;
+                  setGames([...state.games, { id: Math.random().toString(36).slice(2, 11), name: addName.trim(), score }]);
+                  setShowAddModal(false);
+                }}
+              >
+                Add
+              </Btn>
+            </ModalActions>
+          </ModalCard>
+        </ModalBackdrop>
       )}
     </Page>
   );

@@ -10,6 +10,8 @@ import { Icon } from "@/shared/ui";
 import type { IconName } from "@/shared/ui";
 
 const MOBILE_MAX = "767px";
+const TABLET_MIN = "768px";
+const TABLET_MAX = "1024px";
 
 const NAV_ITEMS: readonly { href: string; label: string; icon: IconName }[] = [
   { href: "/analyze", label: "Analyze", icon: "search" },
@@ -38,6 +40,10 @@ const SidebarRoot = styled.aside<{ $open: boolean }>`
   z-index: 200;
   transition: transform ${({ theme }) => theme.transition.normal};
 
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    width: 64px;
+  }
+
   @media (max-width: ${MOBILE_MAX}) {
     position: fixed;
     left: 0;
@@ -63,6 +69,15 @@ const LogoBlock = styled(Link)`
   &:hover {
     background: ${({ theme }) => theme.colors.surfaceHover};
   }
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    justify-content: center;
+    padding: ${({ theme }) => theme.spacing.md};
+  }
+
+  @media (max-width: ${MOBILE_MAX}) {
+    padding-left: 72px;
+  }
 `;
 
 const LogoIcon = styled(Image)`
@@ -83,6 +98,10 @@ const LogoText = styled.span`
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: none;
+  }
 `;
 
 const Nav = styled.nav`
@@ -92,6 +111,10 @@ const Nav = styled.nav`
   gap: ${({ theme }) => theme.spacing.xs};
   padding: ${({ theme }) => theme.spacing.md};
   overflow-y: auto;
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const navLinkActive = css`
@@ -130,6 +153,11 @@ const NavLink = styled(Link)<{ $active: boolean }>`
     transform: translateX(2px) scale(0.98);
   }
 
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    justify-content: center;
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
+
   ${({ $active }) => $active && navLinkActive}
 `;
 
@@ -141,10 +169,20 @@ const NavIcon = styled.span`
   height: 1.5rem;
 `;
 
+const NavLabel = styled.span`
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: none;
+  }
+`;
+
 const Footer = styled.div`
   padding: ${({ theme }) => theme.spacing.md};
   border-top: 1px solid ${({ theme }) => theme.colors.border};
   margin-top: auto;
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const FooterBtn = styled.button`
@@ -177,12 +215,23 @@ const FooterBtn = styled.button`
     outline: 2px solid ${({ theme }) => theme.colors.accent};
     outline-offset: 2px;
   }
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const UserBlock = styled.div`
   padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
   margin-bottom: ${({ theme }) => theme.spacing.xs};
   overflow: hidden;
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: none;
+  }
 `;
 
 const UserName = styled.div`
@@ -205,6 +254,22 @@ const UserEmail = styled.div`
   text-overflow: ellipsis;
 `;
 
+const FooterBtnText = styled.span`
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: none;
+  }
+`;
+
+const LogoutIcon = styled.span`
+  display: none;
+
+  @media (min-width: ${TABLET_MIN}) and (max-width: ${TABLET_MAX}) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
 const Backdrop = styled.div<{ $visible: boolean }>`
   display: none;
 
@@ -219,6 +284,85 @@ const Backdrop = styled.div<{ $visible: boolean }>`
     transition: opacity ${({ theme }) => theme.transition.normal};
     backdrop-filter: blur(2px);
   }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${({ theme }) => theme.spacing.md};
+  backdrop-filter: blur(2px);
+`;
+
+const ModalCard = styled.div`
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  padding: ${({ theme }) => theme.spacing.lg};
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md};
+  box-shadow: ${({ theme }) => theme.shadow.lg};
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+  font-family: ${({ theme }) => theme.font.sans};
+`;
+
+const ModalDesc = styled.p`
+  margin: 0;
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  line-height: 1.5;
+  font-family: ${({ theme }) => theme.font.sans};
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.sm};
+  justify-content: flex-end;
+`;
+
+const ModalBtn = styled.button<{ $danger?: boolean }>`
+  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: ${({ theme }) => theme.radius.md};
+  cursor: pointer;
+  transition:
+    background ${({ theme }) => theme.transition.fast},
+    border-color ${({ theme }) => theme.transition.fast};
+
+  ${({ theme, $danger }) =>
+    $danger
+      ? css`
+          background: ${theme.colors.error};
+          color: #fff;
+          border: 1px solid ${theme.colors.error};
+          &:hover {
+            opacity: 0.85;
+          }
+        `
+      : css`
+          background: ${theme.colors.surface};
+          color: ${theme.colors.text};
+          border: 1px solid ${theme.colors.border};
+          &:hover {
+            background: ${theme.colors.surfaceHover};
+            border-color: ${theme.colors.borderLight};
+          }
+        `}
 `;
 
 const MenuToggle = styled.button`
@@ -290,6 +434,7 @@ export function Sidebar() {
   const { user, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [lastActivePath, setLastActivePath] = useState(activePath);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   if (activePath !== lastActivePath) {
     setLastActivePath(activePath);
@@ -299,13 +444,24 @@ export function Sidebar() {
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
   useEffect(() => {
-    if (!mobileOpen) return;
+    if (!mobileOpen && !showLogoutModal) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeMobile();
+      if (e.key === "Escape") {
+        if (showLogoutModal) setShowLogoutModal(false);
+        else closeMobile();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mobileOpen, closeMobile]);
+  }, [mobileOpen, showLogoutModal, closeMobile]);
+
+  const handleLogoutClick = () => setShowLogoutModal(true);
+
+  const handleLogoutConfirm = () => {
+    setShowLogoutModal(false);
+    closeMobile();
+    signOut();
+  };
 
   return (
     <>
@@ -335,7 +491,7 @@ export function Sidebar() {
               }}
             >
               <NavIcon><Icon name={icon} size={18} /></NavIcon>
-              {label}
+              <NavLabel>{label}</NavLabel>
             </NavLink>
           ))}
         </Nav>
@@ -346,11 +502,29 @@ export function Sidebar() {
               <UserEmail>{user.email}</UserEmail>
             </UserBlock>
           )}
-          <FooterBtn type="button" onClick={() => { signOut(); closeMobile(); }}>
-            Log Out
+          <FooterBtn type="button" onClick={handleLogoutClick}>
+            <LogoutIcon><Icon name="log-out" size={18} /></LogoutIcon>
+            <FooterBtnText>Log Out</FooterBtnText>
           </FooterBtn>
         </Footer>
       </SidebarRoot>
+
+      {showLogoutModal && (
+        <ModalOverlay onClick={() => setShowLogoutModal(false)}>
+          <ModalCard onClick={(e) => e.stopPropagation()}>
+            <ModalTitle>Log out?</ModalTitle>
+            <ModalDesc>Are you sure you want to log out of GameFit?</ModalDesc>
+            <ModalActions>
+              <ModalBtn type="button" onClick={() => setShowLogoutModal(false)}>
+                Cancel
+              </ModalBtn>
+              <ModalBtn type="button" $danger onClick={handleLogoutConfirm}>
+                Log Out
+              </ModalBtn>
+            </ModalActions>
+          </ModalCard>
+        </ModalOverlay>
+      )}
     </>
   );
 }

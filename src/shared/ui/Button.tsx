@@ -89,12 +89,12 @@ const variantStyles = (theme: Theme, variant: ButtonVariant) => {
       `;
     case "danger":
       return css`
-        background: ${theme.colors.error};
-        color: #fff;
-        border: 1px solid transparent;
+        background: transparent;
+        color: ${theme.colors.error};
+        border: 1px solid ${theme.colors.error};
 
         &:hover:not(:disabled) {
-          filter: brightness(1.08);
+          background: ${theme.colors.errorMuted};
         }
 
         &:active:not(:disabled) {
@@ -137,6 +137,13 @@ const StyledButton = styled.button<{
 
   &:active:not(:disabled) {
     transform: translateY(0) scale(0.97);
+  }
+
+  @media (max-width: 1024px) {
+    &:hover:not(:disabled),
+    &:active:not(:disabled) {
+      transform: none;
+    }
   }
 
   &:disabled {

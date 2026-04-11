@@ -13,6 +13,14 @@ const Page = styled.div`
   max-width: 900px;
   margin: 0 auto;
   padding: ${({ theme }) => `${theme.spacing.xl} ${theme.spacing.lg}`};
+
+  @media (max-width: 1024px) {
+    padding: ${({ theme }) => `${theme.spacing.xl} ${theme.spacing.md}`};
+  }
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm} 0;
+  }
 `;
 
 const Toolbar = styled.div`
@@ -20,6 +28,10 @@ const Toolbar = styled.div`
   justify-content: flex-end;
   gap: ${({ theme }) => theme.spacing.sm};
   margin-top: ${({ theme }) => theme.spacing.md};
+
+  @media (max-width: 767px) {
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const ErrorBox = styled.div`

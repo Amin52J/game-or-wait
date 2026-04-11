@@ -40,8 +40,9 @@ const Main = styled.main<{ $fullWidth: boolean }>`
   padding: ${({ theme }) => theme.spacing.lg};
 
   @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm};
     padding-top: ${({ $fullWidth, theme }) =>
-      $fullWidth ? theme.spacing.lg : `calc(${theme.spacing.lg} + 52px)`};
+      $fullWidth ? theme.spacing.sm : `calc(${theme.spacing.sm} + 64px)`};
   }
 `;
 

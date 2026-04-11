@@ -67,6 +67,10 @@ const HomeLink = styled(Link)`
     background: ${({ theme }) => theme.colors.accentHover};
     transform: translateY(-1px);
   }
+
+  @media (max-width: 1024px) {
+    &:hover { transform: none; }
+  }
 `;
 
 export default function NotFound() {

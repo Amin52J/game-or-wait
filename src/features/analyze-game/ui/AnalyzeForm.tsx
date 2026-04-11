@@ -12,6 +12,11 @@ const FormRoot = styled.form`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
   width: 100%;
+
+  @media (max-width: 767px) {
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+    gap: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const FieldBlock = styled.div`
@@ -59,6 +64,11 @@ const GameNameField = styled.input<{ $invalid?: boolean }>`
   &:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 1.125rem;
+    padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
   }
 `;
 

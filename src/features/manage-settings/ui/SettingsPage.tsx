@@ -11,6 +11,10 @@ import { DEFAULT_MODELS } from "@/shared/types";
 const Page = styled.div`
   max-width: 900px;
   margin: 0 auto;
+
+  @media (max-width: 767px) {
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const Title = styled.h1`
@@ -25,6 +29,11 @@ const Section = styled.section`
   border-radius: ${({ theme }) => theme.radius.lg};
   padding: ${({ theme }) => theme.spacing.lg};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm};
+    border-radius: ${({ theme }) => theme.radius.md};
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -51,6 +60,10 @@ const FormRow = styled.div`
 const FormGroup = styled.div`
   flex: 1;
   min-width: 200px;
+
+  @media (max-width: 767px) {
+    min-width: 100%;
+  }
 `;
 
 const Label = styled.label`
@@ -134,6 +147,10 @@ const Btn = styled.button<{ $variant?: "primary" | "secondary" | "danger" | "gho
   &:active {
     transform: translateY(0) scale(0.97);
   }
+
+  @media (max-width: 1024px) {
+    &:hover, &:active { transform: none; }
+  }
 `;
 
 const BtnRow = styled.div`
@@ -210,8 +227,13 @@ const Toast = styled.div<{ $type: "success" | "error" }>`
   animation: ${toastSlideIn} 250ms ease;
   pointer-events: none;
 
+  @media (max-width: 1024px) {
+    left: calc(50% + 32px);
+  }
+
   @media (max-width: 767px) {
     left: 50%;
+    padding: 8px 16px;
   }
 `;
 

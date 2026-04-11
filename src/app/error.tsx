@@ -85,6 +85,10 @@ const Btn = styled.button<{ $primary?: boolean }>`
     background: ${({ theme, $primary }) =>
       $primary ? theme.colors.accentHover : theme.colors.surfaceHover};
   }
+
+  @media (max-width: 1024px) {
+    &:hover { transform: none; }
+  }
 `;
 
 export default function Error({

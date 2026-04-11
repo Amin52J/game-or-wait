@@ -101,6 +101,22 @@ export const MarkdownBody = styled.div`
 
   hr { display: none; }
 
+  @media (max-width: 767px) {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+
+    h1 { font-size: 1.1rem; }
+    h2 { font-size: 1rem; }
+    h3 { font-size: 0.9375rem; }
+
+    ul, ol { padding-left: 1.1rem; }
+
+    pre {
+      padding: ${({ theme }) => theme.spacing.sm};
+      code { font-size: 0.75rem; }
+    }
+  }
+
   table { width: 100%; border-collapse: collapse; margin: 0.85em 0; font-size: 0.875rem; }
   th, td {
     border: 1px solid ${({ theme }) => theme.colors.border};
@@ -158,12 +174,24 @@ const Card = styled.article`
   box-shadow: ${({ theme }) => theme.shadow.md};
   overflow: hidden;
   animation: ${fadeUp} ${({ theme }) => theme.transition.normal};
+
+  @media (max-width: 767px) {
+    margin-top: ${({ theme }) => theme.spacing.md};
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+  }
 `;
 
 const Header = styled.header`
   padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
   background: ${({ theme }) => theme.colors.surfaceElevated};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media (max-width: 767px) {
+    padding: 8px 12px;
+  }
 `;
 
 const GameTitle = styled.h2`
@@ -173,6 +201,10 @@ const GameTitle = styled.h2`
   font-weight: 700;
   color: ${({ theme }) => theme.colors.text};
   line-height: 1.3;
+
+  @media (max-width: 767px) {
+    font-size: 1rem;
+  }
 `;
 
 const GameMeta = styled.p`
@@ -208,9 +240,12 @@ const ScoreHero = styled.div`
   background: ${({ theme }) => theme.colors.bg};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 
-  @media (max-width: 600px) {
+  @media (max-width: 767px) {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
+    gap: ${({ theme }) => theme.spacing.sm};
+    padding: 12px;
   }
 `;
 
@@ -243,6 +278,13 @@ const ScoreRing = styled.div<{ $score: number }>`
         : $score >= 40
           ? theme.colors.warningMuted
           : theme.colors.errorMuted};
+
+  @media (max-width: 767px) {
+    width: 56px;
+    height: 56px;
+    font-size: 1.2rem;
+    border-width: 3px;
+  }
 `;
 
 const ScoreRingWrap = styled.div`
@@ -264,6 +306,10 @@ const ScoreRingTag = styled.span`
 const ScoreDetails = styled.div`
   flex: 1;
   min-width: 0;
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
 `;
 
 const ScoreLabel = styled.div`
@@ -281,6 +327,11 @@ const ScoreSummaryText = styled.div`
   line-height: 1.5;
   color: ${({ theme }) => theme.colors.textSecondary};
   margin-top: ${({ theme }) => theme.spacing.xs};
+
+  @media (max-width: 767px) {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
 `;
 
 const CurrentScoreNote = styled.div`
@@ -297,6 +348,11 @@ const MetricsRow = styled.div`
   gap: 1px;
   background: ${({ theme }) => theme.colors.border};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media (max-width: 767px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 const MetricCell = styled.div<{ $accent?: string }>`
@@ -307,6 +363,14 @@ const MetricCell = styled.div<{ $accent?: string }>`
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+
+  @media (max-width: 767px) {
+    padding: 8px 10px;
+
+    &:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
 `;
 
 const MetricLabel = styled.div`
@@ -342,6 +406,12 @@ const SkeletonRing = styled.div`
   background: ${({ theme }) => theme.colors.surfaceElevated};
   border: 4px solid ${({ theme }) => theme.colors.border};
   animation: ${pulse} 1.8s ease-in-out infinite;
+
+  @media (max-width: 767px) {
+    width: 56px;
+    height: 56px;
+    border-width: 3px;
+  }
 `;
 
 /* ——— Section cards ——— */
@@ -368,7 +438,11 @@ const accentBorder = (accent: SectionAccent) => css`
 const SectionCard = styled.div<{ $accent: SectionAccent }>`
   padding: ${({ theme }) => theme.spacing.lg};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  ${({ $accent }) => accentBorder($accent)}
+  ${({ $accent }) => accentBorder($accent)};
+
+  @media (max-width: 767px) {
+    padding: 10px 12px;
+  }
 `;
 
 const SectionHeading = styled.h3<{ $color?: string }>`
@@ -386,6 +460,11 @@ const SectionContent = styled.div`
   font-size: 0.9375rem;
   line-height: 1.65;
   color: ${({ theme }) => theme.colors.text};
+
+  @media (max-width: 767px) {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+  }
 `;
 
 /* ——— Refund banner ——— */
@@ -401,6 +480,11 @@ const RefundBanner = styled.div<{ $required: boolean }>`
     $required ? theme.colors.warning : theme.colors.accent};
   border-left: 3px solid ${({ theme, $required }) =>
     $required ? theme.colors.warning : theme.colors.accent};
+
+  @media (max-width: 767px) {
+    padding: 12px;
+    gap: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const RefundIconWrap = styled.span<{ $required: boolean }>`
@@ -424,6 +508,10 @@ const RefundTitle = styled.div<{ $required: boolean }>`
 
 const FallbackBody = styled.div`
   padding: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 /* ——— Helpers ——— */
@@ -856,7 +944,7 @@ const RefundStrip = styled.div<{ $required: boolean }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
+  padding: ${({ theme }) => `${theme.spacing.md}`};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.8125rem;
@@ -864,6 +952,12 @@ const RefundStrip = styled.div<{ $required: boolean }>`
     $required ? theme.colors.warning : theme.colors.accent};
 
   svg { flex-shrink: 0; }
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => `${theme.spacing.sm}`};
+    font-size: 0.75rem;
+    gap: 4px;
+  }
 `;
 
 export function HistoryPreview({ response, fullPrice, currencyCode }: { response: string; fullPrice?: number; currencyCode?: string }) {

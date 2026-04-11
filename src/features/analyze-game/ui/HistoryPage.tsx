@@ -79,6 +79,10 @@ const Page = styled.div`
   max-width: 900px;
   margin: 0 auto;
   padding: ${({ theme }) => `${theme.spacing.xl} ${theme.spacing.lg}`};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm} 0;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -88,6 +92,13 @@ const HeaderRow = styled.div`
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.md};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: 767px) {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+    margin-bottom: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const Title = styled.h1`
@@ -96,6 +107,10 @@ const Title = styled.h1`
   font-size: 1.5rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.text};
+
+  @media (max-width: 767px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const Actions = styled.div`
@@ -112,6 +127,12 @@ const Toolbar = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: 767px) {
+    gap: ${({ theme }) => theme.spacing.md};
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+    margin-bottom: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const SearchRow = styled.div`
@@ -201,6 +222,11 @@ const FilterBar = styled.div`
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacing.md};
   align-items: center;
+
+  @media (max-width: 767px) {
+    gap: 6px;
+    padding: 0 ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const FilterGroup = styled.div`
@@ -243,6 +269,10 @@ const FilterChip = styled.button<{ $active: boolean }>`
   &:active {
     transform: translateY(0) scale(0.95);
   }
+
+  @media (max-width: 1024px) {
+    &:hover, &:active { transform: none; }
+  }
 `;
 
 const ResultCount = styled.span`
@@ -251,6 +281,12 @@ const ResultCount = styled.span`
   font-size: 0.8125rem;
   color: ${({ theme }) => theme.colors.textMuted};
   flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    margin-left: 0;
+    font-size: 0.75rem;
+  }
 `;
 
 /* ——— Detailed view ——— */
@@ -262,6 +298,10 @@ const List = styled.ul`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
+
+  @media (max-width: 767px) {
+    gap: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 const HistoryCard = styled.li<{ $expanded: boolean }>`
@@ -281,7 +321,13 @@ const HistoryCard = styled.li<{ $expanded: boolean }>`
     border-color: ${theme.colors.borderLight};
     box-shadow: ${theme.shadow.md};
   `
-      : ""}
+      : ""};
+
+  @media (max-width: 767px) {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 `;
 
 const CardMain = styled.button`
@@ -310,6 +356,12 @@ const CardHeader = styled.div`
   padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
   background: ${({ theme }) => theme.colors.surfaceElevated};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 12px;
+  }
 `;
 
 const CardTitleBlock = styled.div`
@@ -324,6 +376,10 @@ const CardTitle = styled.span`
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text};
   line-height: 1.35;
+
+  @media (max-width: 767px) {
+    font-size: 0.9375rem;
+  }
 `;
 
 const CardMeta = styled.span`
@@ -332,6 +388,11 @@ const CardMeta = styled.span`
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.8125rem;
   color: ${({ theme }) => theme.colors.textSecondary};
+
+  @media (max-width: 767px) {
+    font-size: 0.75rem;
+    margin-top: 6px;
+  }
 `;
 
 const DeleteBtn = styled.button`
@@ -341,7 +402,7 @@ const DeleteBtn = styled.button`
   font-size: 0.8125rem;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.error};
-  background: ${({ theme }) => theme.colors.errorMuted};
+  background: transparent;
   border: 1px solid ${({ theme }) => theme.colors.error};
   border-radius: ${({ theme }) => theme.radius.sm};
   cursor: pointer;
@@ -350,12 +411,17 @@ const DeleteBtn = styled.button`
     color ${({ theme }) => theme.transition.fast};
 
   &:hover {
-    filter: brightness(1.08);
+    background: ${({ theme }) => theme.colors.errorMuted};
   }
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.accent};
     outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 0.75rem;
+    padding: 3px 8px;
   }
 `;
 
@@ -363,6 +429,10 @@ const CardActions = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.xs};
   flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    align-self: flex-start;
+  }
 `;
 
 const ReanalyzeBtn = styled.button`
@@ -388,19 +458,31 @@ const ReanalyzeBtn = styled.button`
     outline: 2px solid ${({ theme }) => theme.colors.accent};
     outline-offset: 2px;
   }
+
+  @media (max-width: 767px) {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
 `;
 
 const PreviewContent = styled.div`
   padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.sm}`};
+  }
 `;
 
 const PreviewBody = styled.div`
   padding: ${({ theme }) => `0 ${theme.spacing.lg} ${theme.spacing.md}`};
+
+  @media (max-width: 767px) {
+    padding: 0 ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const ExpandHint = styled.span`
   display: block;
-  margin-top: ${({ theme }) => theme.spacing.sm};
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.75rem;
   color: ${({ theme }) => theme.colors.textMuted};
@@ -410,6 +492,10 @@ const ExpandedSection = styled.div`
   padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg} ${theme.spacing.lg}`};
   border-top: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.bg};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 /* ——— List view ——— */
@@ -419,6 +505,12 @@ const ListTable = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
   overflow: hidden;
+
+  @media (max-width: 767px) {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
 `;
 
 const ListHeader = styled.div`
@@ -435,7 +527,11 @@ const ListHeader = styled.div`
   color: ${({ theme }) => theme.colors.textMuted};
   align-items: center;
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
+    display: none;
+  }
+
+  @media (min-width: 768px) and (max-width: 1024px) {
     grid-template-columns: 48px 1fr 80px 60px;
     & > :nth-child(3),
     & > :nth-child(4) {
@@ -465,7 +561,24 @@ const ListRow = styled.div`
     background: ${({ theme }) => theme.colors.surfaceHover};
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+
+    & > :nth-child(3),
+    & > :nth-child(4),
+    & > :nth-child(5) {
+      display: none;
+    }
+    & > :nth-child(6) {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1024px) {
     grid-template-columns: 48px 1fr 80px 60px;
     & > :nth-child(3),
     & > :nth-child(4) {
@@ -478,6 +591,10 @@ const ListExpandedSection = styled.div`
   padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg} ${theme.spacing.lg}`};
   border-top: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme }) => theme.colors.bg};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const ListExpandedToolbar = styled.div`
@@ -525,6 +642,12 @@ const ListGameName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 767px) {
+    white-space: normal;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
 `;
 
 const ListMeta = styled.span`
@@ -576,16 +699,42 @@ const ListGameCell = styled.div`
   gap: 6px;
   min-width: 0;
   overflow: hidden;
+
+  @media (max-width: 767px) {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
 `;
 
-const ListDeleteBtn = styled.button`
+const ListGameTopRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+`;
+
+const ListMobileMeta = styled.span`
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
+    font-size: 0.7rem;
+    color: ${({ theme }) => theme.colors.textMuted};
+  }
+`;
+
+const ListDeleteBtn = styled.button<{ $confirm?: boolean }>`
   padding: 4px 8px;
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.75rem;
   font-weight: 500;
-  color: ${({ theme }) => theme.colors.textMuted};
-  background: transparent;
-  border: 1px solid transparent;
+  color: ${({ theme, $confirm }) => $confirm ? theme.colors.error : theme.colors.textMuted};
+  background: ${({ theme, $confirm }) => $confirm ? theme.colors.errorMuted : "transparent"};
+  border: 1px solid ${({ theme, $confirm }) => $confirm ? theme.colors.error : "transparent"};
   border-radius: ${({ theme }) => theme.radius.sm};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transition.fast};
@@ -620,6 +769,11 @@ const EmptyState = styled.div`
   background: ${({ theme }) => theme.colors.surface};
   border: 1px dashed ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
+
+  @media (max-width: 767px) {
+    margin: 0 ${({ theme }) => theme.spacing.sm};
+    padding: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 /* ——— Helpers ——— */
@@ -1076,8 +1230,14 @@ export function HistoryPage() {
                     </MiniScore>
                   </div>
                   <ListGameCell>
-                    <ListGameName title={item.gameName}>{item.gameName}</ListGameName>
-                    {metrics.earlyAccess && <EarlyAccessTag>EA</EarlyAccessTag>}
+                    <ListGameTopRow>
+                      <ListGameName title={item.gameName}>{item.gameName}</ListGameName>
+                      {metrics.earlyAccess && <EarlyAccessTag>EA</EarlyAccessTag>}
+                    </ListGameTopRow>
+                    <ListMobileMeta>
+                      {formatPrice(item.price, currency)} · {formatDateShort(item.timestamp)}
+                      {metrics.riskLevel !== "unknown" && ` · ${metrics.riskLevel} risk`}
+                    </ListMobileMeta>
                   </ListGameCell>
                   <ListMeta>{formatPrice(item.price, currency)}</ListMeta>
                   <ListMeta>{formatDateShort(item.timestamp)}</ListMeta>
@@ -1089,6 +1249,7 @@ export function HistoryPage() {
                   <div style={{ textAlign: "right" }}>
                     <ListDeleteBtn
                       type="button"
+                      $confirm={confirmDeleteId === item.id}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleListDelete(item.id);
