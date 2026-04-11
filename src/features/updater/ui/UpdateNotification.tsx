@@ -87,7 +87,7 @@ const Btn = styled.button<{ $primary?: boolean }>`
   background: ${({ $primary, theme }) =>
     $primary ? theme.colors.accent : "transparent"};
   color: ${({ $primary, theme }) =>
-    $primary ? "#fff" : theme.colors.textSecondary};
+    $primary ? theme.colors.text : theme.colors.textSecondary};
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;

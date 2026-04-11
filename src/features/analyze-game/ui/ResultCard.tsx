@@ -1,998 +1,42 @@
 "use client";
 
 import React, { useMemo } from "react";
-import styled, { css, keyframes } from "styled-components";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useApp } from "@/app/providers/AppProvider";
-import { Icon } from "@/shared/ui";
+import { useTheme } from "styled-components";
+import { parseResponseSections, extractMetrics } from "@/features/analyze-game/lib/response-parser";
+import type { ParsedSection } from "@/features/analyze-game/lib/response-parser";
+import { renderScoreHero } from "./result/ScoreHero";
+import { renderMetricsRow } from "./result/MetricsRow";
+import { renderSection, displaySortKey, isInternalSection } from "./result/SectionRenderer";
 import {
-  parseResponseSections,
-  extractMetrics,
-  computeTargetPrice,
-  getSectionType,
-  isInternalSection,
-  type ParsedSection,
-  type RiskLevel,
-} from "@/features/analyze-game/lib/response-parser";
-
-/* ——— Animations ——— */
-
-const fadeUp = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
-
-const blink = keyframes`
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0; }
-`;
-
-const pulse = keyframes`
-  0%, 100% { opacity: 0.12; }
-  50%      { opacity: 0.25; }
-`;
-
-/* ——— Markdown body (shared) ——— */
-
-export const MarkdownBody = styled.div`
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: ${({ theme }) => theme.colors.text};
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: ${({ theme }) => theme.font.sans};
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.text};
-    margin: 1.25em 0 0.5em;
-    line-height: 1.35;
-  }
-  h1:first-child, h2:first-child, h3:first-child { margin-top: 0; }
-  h1 { font-size: 1.375rem; }
-  h2 { font-size: 1.2rem; }
-  h3 { font-size: 1.05rem; }
-
-  p { margin: 0.65em 0; }
-  p:first-child { margin-top: 0; }
-  p:last-child { margin-bottom: 0; }
-
-  ul, ol { margin: 0.65em 0; padding-left: 1.35rem; }
-  li { margin: 0.3em 0; }
-  li::marker { color: ${({ theme }) => theme.colors.textMuted}; }
-
-  strong { font-weight: 600; color: ${({ theme }) => theme.colors.text}; }
-  em { font-style: italic; color: ${({ theme }) => theme.colors.textSecondary}; }
-
-  a {
-    color: ${({ theme }) => theme.colors.accent};
-    text-decoration: none;
-    &:hover { color: ${({ theme }) => theme.colors.accentHover}; text-decoration: underline; }
-  }
-
-  code {
-    font-family: ${({ theme }) => theme.font.mono};
-    font-size: 0.84em;
-    padding: 0.15em 0.4em;
-    border-radius: ${({ theme }) => theme.radius.sm};
-    background: ${({ theme }) => theme.colors.surfaceElevated};
-    border: 1px solid ${({ theme }) => theme.colors.border};
-    color: ${({ theme }) => theme.colors.text};
-  }
-
-  pre {
-    margin: 0.85em 0;
-    padding: ${({ theme }) => theme.spacing.md};
-    border-radius: ${({ theme }) => theme.radius.md};
-    background: ${({ theme }) => theme.colors.bg};
-    border: 1px solid ${({ theme }) => theme.colors.border};
-    overflow-x: auto;
-    code { padding: 0; border: none; background: transparent; font-size: 0.8125rem; }
-  }
-
-  blockquote {
-    margin: 0.85em 0;
-    padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
-    border-left: 3px solid ${({ theme }) => theme.colors.accent};
-    background: ${({ theme }) => theme.colors.accentMuted};
-    border-radius: 0 ${({ theme }) => theme.radius.sm} ${({ theme }) => theme.radius.sm} 0;
-    color: ${({ theme }) => theme.colors.textSecondary};
-  }
-
-  hr { display: none; }
-
-  @media (max-width: 767px) {
-    font-size: 0.8125rem;
-    line-height: 1.55;
-
-    h1 { font-size: 1.1rem; }
-    h2 { font-size: 1rem; }
-    h3 { font-size: 0.9375rem; }
-
-    ul, ol { padding-left: 1.1rem; }
-
-    pre {
-      padding: ${({ theme }) => theme.spacing.sm};
-      code { font-size: 0.75rem; }
-    }
-  }
-
-  table { width: 100%; border-collapse: collapse; margin: 0.85em 0; font-size: 0.875rem; }
-  th, td {
-    border: 1px solid ${({ theme }) => theme.colors.border};
-    padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-    text-align: left;
-  }
-  th {
-    background: ${({ theme }) => theme.colors.surfaceElevated};
-    color: ${({ theme }) => theme.colors.text};
-    font-weight: 600;
-  }
-`;
-
-/* ——— Streaming indicators ——— */
-
-const StreamRow = styled.span`
-  display: inline-flex;
-  align-items: center;
-  vertical-align: baseline;
-`;
-
-const StreamCursor = styled.span`
-  display: inline-block;
-  width: 0.55em;
-  height: 1.1em;
-  margin-left: 2px;
-  background: ${({ theme }) => theme.colors.accent};
-  border-radius: 2px;
-  animation: ${blink} 1s step-end infinite;
-  vertical-align: text-bottom;
-`;
-
-const ThinkingLabel = styled.span`
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
-
-function ThinkingDisplay({ text }: { text: string }) {
-  const label = text || "Thinking...";
-  return (
-    <ThinkingLabel aria-hidden>
-      {label}<StreamCursor />
-    </ThinkingLabel>
-  );
-}
-
-/* ——— Result card shell ——— */
-
-const Card = styled.article`
-  margin-top: ${({ theme }) => theme.spacing.xl};
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  box-shadow: ${({ theme }) => theme.shadow.md};
-  overflow: hidden;
-  animation: ${fadeUp} ${({ theme }) => theme.transition.normal};
-
-  @media (max-width: 767px) {
-    margin-top: ${({ theme }) => theme.spacing.md};
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    box-shadow: none;
-  }
-`;
-
-const Header = styled.header`
-  padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
-  background: ${({ theme }) => theme.colors.surfaceElevated};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-
-  @media (max-width: 767px) {
-    padding: 8px 12px;
-  }
-`;
-
-const GameTitle = styled.h2`
-  margin: 0;
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.text};
-  line-height: 1.3;
-
-  @media (max-width: 767px) {
-    font-size: 1rem;
-  }
-`;
-
-const GameMeta = styled.p`
-  margin: ${({ theme }) => theme.spacing.xs} 0 0;
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const EarlyAccessBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  margin-left: ${({ theme }) => theme.spacing.sm};
-  padding: 2px ${({ theme }) => theme.spacing.sm};
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: ${({ theme }) => theme.colors.warning};
-  background: ${({ theme }) => theme.colors.warningMuted};
-  border: 1px solid ${({ theme }) => theme.colors.warning};
-  border-radius: ${({ theme }) => theme.radius.sm};
-  vertical-align: middle;
-`;
-
-/* ——— Score hero ——— */
-
-const ScoreHero = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing.lg};
-  padding: ${({ theme }) => theme.spacing.lg};
-  background: ${({ theme }) => theme.colors.bg};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-
-  @media (max-width: 767px) {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: ${({ theme }) => theme.spacing.sm};
-    padding: 12px;
-  }
-`;
-
-const ScoreRing = styled.div<{ $score: number }>`
-  flex-shrink: 0;
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: ${({ theme }) => theme.colors.text};
-  background: ${({ theme }) => theme.colors.surface};
-  border: 4px solid ${({ $score, theme }) =>
-    $score >= 80
-      ? theme.colors.success
-      : $score >= 60
-        ? theme.colors.accent
-        : $score >= 40
-          ? theme.colors.warning
-          : theme.colors.error};
-  box-shadow: 0 0 20px ${({ $score, theme }) =>
-    $score >= 80
-      ? theme.colors.successMuted
-      : $score >= 60
-        ? theme.colors.accentMuted
-        : $score >= 40
-          ? theme.colors.warningMuted
-          : theme.colors.errorMuted};
-
-  @media (max-width: 767px) {
-    width: 56px;
-    height: 56px;
-    font-size: 1.2rem;
-    border-width: 3px;
-  }
-`;
-
-const ScoreRingWrap = styled.div`
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-`;
-
-const ScoreRingTag = styled.span`
-  font-size: 0.5625rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${({ theme }) => theme.colors.warning};
-`;
-
-const ScoreDetails = styled.div`
-  flex: 1;
-  min-width: 0;
-
-  @media (max-width: 767px) {
-    width: 100%;
-  }
-`;
-
-const ScoreLabel = styled.div`
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: ${({ theme }) => theme.colors.textMuted};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-`;
-
-
-const ScoreSummaryText = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  margin-top: ${({ theme }) => theme.spacing.xs};
-
-  @media (max-width: 767px) {
-    font-size: 0.8125rem;
-    line-height: 1.4;
-  }
-`;
-
-const CurrentScoreNote = styled.div`
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.textMuted};
-  margin-top: 2px;
-`;
-
-/* ——— Metrics row ——— */
-
-const MetricsRow = styled.div`
-  display: flex;
-  gap: 1px;
-  background: ${({ theme }) => theme.colors.border};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-
-  @media (max-width: 767px) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-`;
-
-const MetricCell = styled.div<{ $accent?: string }>`
-  flex: 1;
-  padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.md}`};
-  background: ${({ theme }) => theme.colors.surface};
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-
-  @media (max-width: 767px) {
-    padding: 8px 10px;
-
-    &:last-child:nth-child(odd) {
-      grid-column: 1 / -1;
-    }
-  }
-`;
-
-const MetricLabel = styled.div`
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: ${({ theme }) => theme.colors.textMuted};
-`;
-
-const MetricValue = styled.div<{ $color?: string }>`
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: ${({ $color, theme }) => $color || theme.colors.text};
-  word-break: break-word;
-`;
-
-/* ——— Skeleton placeholders ——— */
-
-const SkeletonBar = styled.div<{ $width?: string; $height?: string }>`
-  width: ${({ $width }) => $width || "100%"};
-  height: ${({ $height }) => $height || "0.875rem"};
-  border-radius: ${({ theme }) => theme.radius.sm};
-  background: ${({ theme }) => theme.colors.textMuted};
-  animation: ${pulse} 1.8s ease-in-out infinite;
-`;
-
-const SkeletonRing = styled.div`
-  flex-shrink: 0;
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.colors.surfaceElevated};
-  border: 4px solid ${({ theme }) => theme.colors.border};
-  animation: ${pulse} 1.8s ease-in-out infinite;
-
-  @media (max-width: 767px) {
-    width: 56px;
-    height: 56px;
-    border-width: 3px;
-  }
-`;
-
-/* ——— Section cards ——— */
-
-type SectionAccent = "default" | "positive" | "negative" | "warning" | "risk-none" | "risk-medium" | "risk-high";
-
-const accentBorder = (accent: SectionAccent) => css`
-  border-left: 3px solid ${({ theme }) =>
-    accent === "positive"
-      ? theme.colors.success
-      : accent === "negative"
-        ? theme.colors.error
-        : accent === "warning"
-          ? theme.colors.warning
-          : accent === "risk-high"
-            ? theme.colors.error
-            : accent === "risk-medium"
-              ? theme.colors.warning
-              : accent === "risk-none"
-                ? theme.colors.success
-                : theme.colors.border};
-`;
-
-const SectionCard = styled.div<{ $accent: SectionAccent }>`
-  padding: ${({ theme }) => theme.spacing.lg};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  ${({ $accent }) => accentBorder($accent)};
-
-  @media (max-width: 767px) {
-    padding: 10px 12px;
-  }
-`;
-
-const SectionHeading = styled.h3<{ $color?: string }>`
-  margin: 0 0 ${({ theme }) => theme.spacing.sm};
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: ${({ $color, theme }) => $color || theme.colors.textSecondary};
-`;
-
-const SectionContent = styled.div`
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: ${({ theme }) => theme.colors.text};
-
-  @media (max-width: 767px) {
-    font-size: 0.8125rem;
-    line-height: 1.55;
-  }
-`;
-
-/* ——— Refund banner ——— */
-
-const RefundBanner = styled.div<{ $required: boolean }>`
-  display: flex;
-  align-items: flex-start;
-  gap: ${({ theme }) => theme.spacing.md};
-  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
-  background: ${({ theme, $required }) =>
-    $required ? theme.colors.warningMuted : theme.colors.accentMuted};
-  border-bottom: 1px solid ${({ theme, $required }) =>
-    $required ? theme.colors.warning : theme.colors.accent};
-  border-left: 3px solid ${({ theme, $required }) =>
-    $required ? theme.colors.warning : theme.colors.accent};
-
-  @media (max-width: 767px) {
-    padding: 12px;
-    gap: ${({ theme }) => theme.spacing.sm};
-  }
-`;
-
-const RefundIconWrap = styled.span<{ $required: boolean }>`
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  margin-top: 2px;
-  color: ${({ theme, $required }) => $required ? theme.colors.warning : theme.colors.accent};
-`;
-
-const RefundTitle = styled.div<{ $required: boolean }>`
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: ${({ theme, $required }) => $required ? theme.colors.warning : theme.colors.accent};
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-`;
-
-/* ——— Fallback body ——— */
-
-const FallbackBody = styled.div`
-  padding: ${({ theme }) => theme.spacing.lg};
-
-  @media (max-width: 767px) {
-    padding: ${({ theme }) => theme.spacing.sm};
-  }
-`;
-
-/* ——— Helpers ——— */
-
-function SectionMarkdown({ content }: { content: string }) {
+  Card,
+  Header,
+  GameTitle,
+  GameMeta,
+  EarlyAccessBadge,
+  StreamRow,
+  StreamCursor,
+  ThinkingLabel,
+  MarkdownBody,
+  SkeletonBarSpaced,
+  SectionCard,
+  SectionContent,
+  FallbackBody,
+  ResultWrapper,
+  PreviewGrid,
+  PreviewLabel,
+  PreviewValue,
+  PreviewScoreCircle,
+} from "./result-card-styles";
+
+export { parseResponseSections, MarkdownBody };
+
+export function AnalysisMarkdown({ source }: { source: string }) {
   return (
     <MarkdownBody>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{source}</ReactMarkdown>
     </MarkdownBody>
-  );
-}
-
-function riskAccent(level: RiskLevel): SectionAccent {
-  if (level === "high") return "risk-high";
-  if (level === "medium") return "risk-medium";
-  if (level === "none") return "risk-none";
-  return "default";
-}
-
-function riskColor(level: RiskLevel, theme: { colors: Record<string, string> }): string {
-  if (level === "high") return theme.colors.error;
-  if (level === "medium") return theme.colors.warning;
-  if (level === "none") return theme.colors.success;
-  return theme.colors.textSecondary;
-}
-
-function confidenceColor(level: string, theme: { colors: Record<string, string> }): string {
-  const lower = level.toLowerCase();
-  if (lower === "very high" || lower === "high") return theme.colors.success;
-  if (lower === "medium") return theme.colors.warning;
-  return theme.colors.error;
-}
-
-function scoreColor(score: number, theme: { colors: Record<string, string> }): string {
-  if (score >= 80) return theme.colors.success;
-  if (score >= 60) return theme.colors.accent;
-  if (score >= 40) return theme.colors.warning;
-  return theme.colors.error;
-}
-
-function priceColor(text: string, theme: { colors: Record<string, string> }): string {
-  const lower = text.toLowerCase();
-  if (lower.includes("don't buy") || lower.includes("don't buy")) return theme.colors.error;
-  return theme.colors.success;
-}
-
-/* ——— Renderers for each section type ——— */
-
-function renderScoreHero(
-  sections: ParsedSection[],
-  metrics: ReturnType<typeof extractMetrics>,
-  isStreaming: boolean,
-) {
-  const scoreSection = sections.find((s) => s.key.includes("enjoyment-score"));
-  const summarySection = sections.find((s) => s.key.includes("score-summary"));
-
-  if (metrics.score === null && !scoreSection && !isStreaming) return null;
-
-  const displayScore = metrics.earlyAccess
-    ? metrics.potentialScore
-    : metrics.score;
-
-  return (
-    <ScoreHero>
-      <ScoreRingWrap>
-        {metrics.earlyAccess && <ScoreRingTag>Potential</ScoreRingTag>}
-        {displayScore !== null ? (
-          <ScoreRing $score={displayScore}>{displayScore}</ScoreRing>
-        ) : isStreaming ? (
-          <SkeletonRing />
-        ) : null}
-      </ScoreRingWrap>
-      <ScoreDetails>
-        <ScoreLabel>Enjoyment Score</ScoreLabel>
-        {metrics.earlyAccess && metrics.score !== null && (
-          <CurrentScoreNote>Currently {metrics.score}/100</CurrentScoreNote>
-        )}
-        {summarySection ? (
-          <ScoreSummaryText>
-            <SectionMarkdown content={summarySection.content} />
-          </ScoreSummaryText>
-        ) : scoreSection ? (
-          <ScoreSummaryText>
-            <SectionMarkdown content={scoreSection.content} />
-          </ScoreSummaryText>
-        ) : isStreaming ? (
-          <>
-            <SkeletonBar $width="60%" style={{ marginTop: 6 }} />
-            <SkeletonBar $width="85%" style={{ marginTop: 6 }} />
-          </>
-        ) : null}
-      </ScoreDetails>
-    </ScoreHero>
-  );
-}
-
-function renderMetricsRow(
-  sections: ParsedSection[],
-  metrics: ReturnType<typeof extractMetrics>,
-  theme: { colors: Record<string, string> },
-  isStreaming: boolean,
-  fullPrice?: number,
-  currencyCode?: string,
-) {
-  const riskSection = sections.find((s) => s.key.includes("red-line-risk"));
-
-  const computed = metrics.score !== null && fullPrice != null
-    ? computeTargetPrice(metrics.score, metrics.riskLevel, metrics.confidence, fullPrice, metrics.refundRecommended)
-    : null;
-  const priceLabel = computed
-    ? computed.value != null ? formatCurrencyValue(computed.value, currencyCode) : computed.label
-    : metrics.targetPrice;
-
-  const potentialComputed = metrics.earlyAccess && metrics.potentialScore !== null && fullPrice != null
-    ? computeTargetPrice(metrics.potentialScore, metrics.riskLevel, metrics.confidence, fullPrice, metrics.refundRecommended)
-    : null;
-  const potentialPriceLabel = potentialComputed
-    ? potentialComputed.value != null ? formatCurrencyValue(potentialComputed.value, currencyCode) : potentialComputed.label
-    : null;
-
-  const hasMetrics = priceLabel || riskSection || metrics.confidence;
-  if (!hasMetrics && !isStreaming) return null;
-
-  if (isStreaming) {
-    return (
-      <MetricsRow>
-        <MetricCell>
-          <MetricLabel>Target Price</MetricLabel>
-          {priceLabel ? (
-            <MetricValue $color={priceColor(priceLabel, theme)}>{priceLabel}</MetricValue>
-          ) : (
-            <SkeletonBar $width="60%" $height="1rem" />
-          )}
-        </MetricCell>
-        {metrics.earlyAccess && (
-          <MetricCell>
-            <MetricLabel>At Release</MetricLabel>
-            {potentialPriceLabel ? (
-              <MetricValue $color={priceColor(potentialPriceLabel, theme)}>{potentialPriceLabel}</MetricValue>
-            ) : (
-              <SkeletonBar $width="60%" $height="1rem" />
-            )}
-          </MetricCell>
-        )}
-        <MetricCell>
-          <MetricLabel>Red-Line Risk</MetricLabel>
-          {riskSection ? (
-            <MetricValue $color={riskColor(metrics.riskLevel, theme)}>
-              {metrics.riskLevel === "unknown"
-                ? "See below"
-                : metrics.riskLevel.charAt(0).toUpperCase() + metrics.riskLevel.slice(1)}
-            </MetricValue>
-          ) : (
-            <SkeletonBar $width="50%" $height="1rem" />
-          )}
-        </MetricCell>
-        <MetricCell>
-          <MetricLabel>Confidence</MetricLabel>
-          {metrics.confidence ? (
-            <MetricValue $color={confidenceColor(metrics.confidence, theme)}>
-              {metrics.confidence}
-            </MetricValue>
-          ) : (
-            <SkeletonBar $width="55%" $height="1rem" />
-          )}
-        </MetricCell>
-      </MetricsRow>
-    );
-  }
-
-  return (
-    <MetricsRow>
-      {priceLabel && (
-        <MetricCell>
-          <MetricLabel>Target Price</MetricLabel>
-          <MetricValue $color={priceColor(priceLabel, theme)}>
-            {priceLabel}
-          </MetricValue>
-        </MetricCell>
-      )}
-      {metrics.earlyAccess && potentialPriceLabel && (
-        <MetricCell>
-          <MetricLabel>At Release</MetricLabel>
-          <MetricValue $color={priceColor(potentialPriceLabel, theme)}>
-            {potentialPriceLabel}
-          </MetricValue>
-        </MetricCell>
-      )}
-      {riskSection && (
-        <MetricCell>
-          <MetricLabel>Red-Line Risk</MetricLabel>
-          <MetricValue $color={riskColor(metrics.riskLevel, theme)}>
-            {metrics.riskLevel === "unknown"
-              ? "See below"
-              : metrics.riskLevel.charAt(0).toUpperCase() + metrics.riskLevel.slice(1)}
-          </MetricValue>
-        </MetricCell>
-      )}
-      {metrics.confidence && (
-        <MetricCell>
-          <MetricLabel>Confidence</MetricLabel>
-          <MetricValue $color={confidenceColor(metrics.confidence, theme)}>
-            {metrics.confidence}
-          </MetricValue>
-        </MetricCell>
-      )}
-    </MetricsRow>
-  );
-}
-
-function formatCurrencyValue(price: number, currencyCode: string | undefined): string {
-  const code = currencyCode || "USD";
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: code,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  } catch {
-    return `${code} ${price}`;
-  }
-}
-
-function renderSection(
-  section: ParsedSection,
-  metrics: ReturnType<typeof extractMetrics>,
-  isLast: boolean,
-  isStreaming: boolean,
-  theme: { colors: Record<string, string> },
-) {
-  const type = getSectionType(section.key);
-  const showCursor = isLast && isStreaming;
-
-  if (type === "score") return null;
-  if (section.key.includes("target-price")) return null;
-
-  if (type === "refund") {
-    const lower = section.content.toLowerCase();
-    const isRequired = !/not\s+\w*\s*(?:required|needed|necessary|recommended|applicable)|no\s+(?:guard|concerns|refund|special|high)|none\s+(?:needed|required)|unnecessary|n\/a|low risk|safe\s+(?:to buy|purchase)/.test(lower);
-    return (
-      <RefundBanner key={section.key} $required={isRequired}>
-        <RefundIconWrap $required={isRequired}><Icon name={isRequired ? "alert-triangle" : "info"} size={20} /></RefundIconWrap>
-        <SectionContent>
-          <RefundTitle $required={isRequired}>Refund Guard</RefundTitle>
-          <SectionMarkdown content={section.content} />
-          {showCursor && <StreamRow aria-hidden><StreamCursor /></StreamRow>}
-        </SectionContent>
-      </RefundBanner>
-    );
-  }
-
-  let accent: SectionAccent = "default";
-  let headingColor: string | undefined;
-
-  if (type === "positive") {
-    accent = "positive";
-    headingColor = theme.colors.success;
-  } else if (type === "negative") {
-    accent = "negative";
-    headingColor = theme.colors.error;
-  } else if (type === "risk") {
-    accent = riskAccent(metrics.riskLevel);
-    headingColor = riskColor(metrics.riskLevel, theme);
-  }
-
-  return (
-    <SectionCard key={section.key} $accent={accent}>
-      <SectionHeading $color={headingColor}>{section.heading}</SectionHeading>
-      <SectionContent>
-        <SectionMarkdown content={section.content} />
-        {showCursor && <StreamRow aria-hidden><StreamCursor /></StreamRow>}
-      </SectionContent>
-    </SectionCard>
-  );
-}
-
-/* ——— Structured result view ——— */
-
-const DISPLAY_ORDER: string[] = [
-  "refund-guard",
-  "positive-alignment",
-  "negative-factors",
-  "red-line-risk",
-  "public-sentiment",
-];
-
-function displaySortKey(key: string): number {
-  const idx = DISPLAY_ORDER.findIndex((p) => key.includes(p));
-  return idx === -1 ? DISPLAY_ORDER.length : idx;
-}
-
-function StructuredResult({
-  sections,
-  isStreaming,
-  theme,
-  fullPrice,
-  currencyCode,
-}: {
-  sections: ParsedSection[];
-  isStreaming: boolean;
-  theme: { colors: Record<string, string> };
-  fullPrice?: number;
-  currencyCode?: string;
-}) {
-  const metrics = extractMetrics(sections);
-
-  const contentSections = sections.filter(
-    (s) =>
-      s.key !== "preamble" &&
-      !s.key.includes("enjoyment-score") &&
-      !s.key.includes("score-summary") &&
-      !s.key.includes("target-price") &&
-      !isInternalSection(s.key),
-  );
-
-  const ordered = isStreaming
-    ? contentSections
-    : [...contentSections].sort((a, b) => displaySortKey(a.key) - displaySortKey(b.key));
-
-  return (
-    <>
-      {renderScoreHero(sections, metrics, isStreaming)}
-      {renderMetricsRow(sections, metrics, theme, isStreaming, fullPrice, currencyCode)}
-      {ordered.map((s, i) =>
-        renderSection(s, metrics, i === ordered.length - 1, isStreaming, theme),
-      )}
-    </>
-  );
-}
-
-/* ——— Public components ——— */
-
-export interface AnalysisMarkdownProps {
-  source: string;
-  showStreamCursor?: boolean;
-  thinkingText?: string;
-}
-
-export function AnalysisMarkdown({ source, showStreamCursor, thinkingText }: AnalysisMarkdownProps) {
-  const waitingForFirst = showStreamCursor && !source;
-
-  return (
-    <MarkdownBody>
-      {waitingForFirst ? (
-        <ThinkingDisplay text={thinkingText ?? ""} />
-      ) : (
-        <>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{source}</ReactMarkdown>
-          {showStreamCursor ? (
-            <StreamRow aria-hidden><StreamCursor /></StreamRow>
-          ) : null}
-        </>
-      )}
-    </MarkdownBody>
-  );
-}
-
-export interface ResultCardProps {
-  response: string;
-  gameName: string;
-  price: number;
-  isStreaming: boolean;
-  thinkingText?: string;
-}
-
-function formatPrice(price: number, currencyCode: string | undefined): string {
-  const code = currencyCode || "USD";
-  try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: code }).format(price);
-  } catch {
-    return `${code} ${price.toFixed(2)}`;
-  }
-}
-
-export function ResultCard({ response, gameName, price, isStreaming, thinkingText }: ResultCardProps) {
-  const { state } = useApp();
-  const priceLabel = formatPrice(price, state.setupAnswers?.currency);
-
-  const { sections, useStructured, earlyAccess } = useMemo(() => {
-    const parsed = parseResponseSections(response);
-    const hasSections = parsed.filter((s) => s.key !== "preamble").length >= 1;
-    const preamble = parsed.find((s) => s.key === "preamble");
-    return {
-      sections: parsed,
-      useStructured: hasSections,
-      earlyAccess: Boolean(preamble && /\[EARLY_ACCESS\]/i.test(preamble.content)),
-    };
-  }, [response]);
-
-  const waitingForFirst = isStreaming && !response;
-
-  return (
-    <Card>
-      <Header>
-        <GameTitle>
-          {gameName}
-          {earlyAccess && <EarlyAccessBadge>Early Access</EarlyAccessBadge>}
-        </GameTitle>
-        <GameMeta>{priceLabel}</GameMeta>
-      </Header>
-
-      {waitingForFirst ? (
-        <FallbackBody>
-          <MarkdownBody>
-            <ThinkingDisplay text={thinkingText ?? ""} />
-          </MarkdownBody>
-        </FallbackBody>
-      ) : (useStructured || isStreaming) ? (
-        <ThemedStructuredResult sections={sections} isStreaming={isStreaming} fullPrice={price} currencyCode={state.setupAnswers?.currency} />
-      ) : (
-        <FallbackBody>
-          <AnalysisMarkdown source={response} showStreamCursor={isStreaming} thinkingText={thinkingText} />
-        </FallbackBody>
-      )}
-    </Card>
-  );
-}
-
-const PreviewWrap = styled.div`
-  ${ScoreSummaryText} {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-`;
-
-const RefundStrip = styled.div<{ $required: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: ${({ theme }) => `${theme.spacing.md}`};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 0.8125rem;
-  color: ${({ theme, $required }) =>
-    $required ? theme.colors.warning : theme.colors.accent};
-
-  svg { flex-shrink: 0; }
-
-  @media (max-width: 767px) {
-    padding: ${({ theme }) => `${theme.spacing.sm}`};
-    font-size: 0.75rem;
-    gap: 4px;
-  }
-`;
-
-export function HistoryPreview({ response, fullPrice, currencyCode }: { response: string; fullPrice?: number; currencyCode?: string }) {
-  const sections = useMemo(() => parseResponseSections(response), [response]);
-  const metrics = useMemo(() => extractMetrics(sections), [sections]);
-  const hasStructure = sections.filter((s) => s.key !== "preamble").length >= 3;
-
-  if (!hasStructure) return null;
-
-  const refundSection = sections.find((s) => s.key.includes("refund-guard"));
-  const theme = {
-    colors: {
-      success: "#22c55e",
-      accent: "#7c8aff",
-      warning: "#f59e0b",
-      error: "#ef4444",
-      text: "#e4e4f0",
-      textSecondary: "#8888a8",
-      textMuted: "#555570",
-    },
-  };
-
-  const refundRequired = metrics.refundRecommended;
-
-  return (
-    <PreviewWrap>
-      {renderScoreHero(sections, metrics, false)}
-      {renderMetricsRow(sections, metrics, theme, false, fullPrice, currencyCode)}
-      {refundSection && (
-        <RefundStrip $required={refundRequired}>
-          <Icon name={refundRequired ? "alert-triangle" : "info"} size={14} />
-          <span><strong>Refund Guard:</strong> {refundRequired ? "Recommended" : "Not required"}</span>
-        </RefundStrip>
-      )}
-    </PreviewWrap>
   );
 }
 
@@ -1007,17 +51,139 @@ export function ThemedStructuredResult({
   fullPrice?: number;
   currencyCode?: string;
 }) {
-  const theme = {
-    colors: {
-      success: "#22c55e",
-      accent: "#7c8aff",
-      warning: "#f59e0b",
-      error: "#ef4444",
-      text: "#e4e4f0",
-      textSecondary: "#8888a8",
-      textMuted: "#555570",
-    },
-  };
+  const theme = useTheme() as { colors: Record<string, string> };
+  const metrics = useMemo(() => extractMetrics(sections), [sections]);
 
-  return <StructuredResult sections={sections} isStreaming={isStreaming} theme={theme} fullPrice={fullPrice} currencyCode={currencyCode} />;
+  const bodySections = useMemo(
+    () =>
+      sections
+        .filter((s) => s.key !== "preamble" && !isInternalSection(s.key))
+        .sort((a, b) => displaySortKey(a.key) - displaySortKey(b.key)),
+    [sections],
+  );
+
+  return (
+    <ResultWrapper>
+      {renderScoreHero(sections, metrics, isStreaming)}
+      {renderMetricsRow(sections, metrics, theme, isStreaming, fullPrice, currencyCode)}
+      {bodySections.map((section, i) =>
+        renderSection(section, metrics, i === bodySections.length - 1, isStreaming, theme),
+      )}
+      {isStreaming && sections.length === 0 && (
+        <SectionCard $accent="default">
+          <SectionContent>
+            <SkeletonBarSpaced $width="80%" />
+            <SkeletonBarSpaced $width="65%" />
+            <SkeletonBarSpaced $width="90%" />
+            <StreamRow><StreamCursor /></StreamRow>
+          </SectionContent>
+        </SectionCard>
+      )}
+    </ResultWrapper>
+  );
+}
+
+export function HistoryPreview({
+  response,
+  fullPrice,
+  currencyCode,
+}: {
+  response: string;
+  fullPrice?: number;
+  currencyCode?: string;
+}) {
+  const theme = useTheme() as { colors: Record<string, string> };
+  const sections = useMemo(() => parseResponseSections(response), [response]);
+  const metrics = useMemo(() => extractMetrics(sections), [sections]);
+
+  return (
+    <PreviewGrid>
+      {metrics.score !== null && (
+        <div>
+          <PreviewLabel>Score</PreviewLabel>
+          <PreviewScoreCircle $score={metrics.score}>{metrics.score}</PreviewScoreCircle>
+        </div>
+      )}
+      {metrics.riskLevel !== "unknown" && (
+        <div>
+          <PreviewLabel>Risk</PreviewLabel>
+          <PreviewValue>
+            {metrics.riskLevel.charAt(0).toUpperCase() + metrics.riskLevel.slice(1)}
+          </PreviewValue>
+        </div>
+      )}
+      {metrics.confidence && (
+        <div>
+          <PreviewLabel>Confidence</PreviewLabel>
+          <PreviewValue>{metrics.confidence}</PreviewValue>
+        </div>
+      )}
+      {metrics.targetPrice && (
+        <div>
+          <PreviewLabel>Target Price</PreviewLabel>
+          <PreviewValue>{metrics.targetPrice}</PreviewValue>
+        </div>
+      )}
+    </PreviewGrid>
+  );
+}
+
+export function ResultCard({
+  response,
+  gameName,
+  price,
+  isStreaming,
+  thinkingText,
+}: {
+  response: string;
+  gameName: string;
+  price: number;
+  isStreaming: boolean;
+  thinkingText?: string;
+}) {
+  const sections = useMemo(() => parseResponseSections(response), [response]);
+  const hasStructure = sections.filter((s) => s.key !== "preamble").length >= 3;
+
+  if (!hasStructure && response) {
+    return (
+      <Card>
+        <Header>
+          <GameTitle>{gameName}</GameTitle>
+        </Header>
+        {thinkingText ? (
+          <SectionCard $accent="default">
+            <SectionContent><ThinkingLabel>{thinkingText}</ThinkingLabel></SectionContent>
+          </SectionCard>
+        ) : null}
+        <FallbackBody>
+          <AnalysisMarkdown source={response} />
+          {isStreaming && <StreamRow><StreamCursor /></StreamRow>}
+        </FallbackBody>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <Header>
+        <GameTitle>
+          {gameName}
+          {sections.some((s) => s.content.toLowerCase().includes("early access")) && (
+            <EarlyAccessBadge>Early Access</EarlyAccessBadge>
+          )}
+        </GameTitle>
+        <GameMeta>Price: {price > 0 ? `$${price}` : "Free"}</GameMeta>
+      </Header>
+      {thinkingText ? (
+        <SectionCard $accent="default">
+          <SectionContent><ThinkingLabel>{thinkingText}</ThinkingLabel></SectionContent>
+        </SectionCard>
+      ) : null}
+      <ThemedStructuredResult
+        sections={sections}
+        isStreaming={isStreaming}
+        fullPrice={price}
+      />
+    </Card>
+  );
 }

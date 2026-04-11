@@ -6,14 +6,9 @@ import { useAnalysis } from "@/features/analyze-game/model/useAnalysis";
 import { sessionCache } from "@/features/analyze-game/model/session-cache";
 import { AnalyzeForm } from "./AnalyzeForm";
 import { ResultCard } from "./ResultCard";
-import { Button } from "@/shared/ui/Button";
+import { Button, PageWrapper, ButtonRow } from "@/shared/ui";
 
-const Page = styled.div`
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: ${({ theme }) => `${theme.spacing.xl} ${theme.spacing.lg}`};
-
+const Page = styled(PageWrapper)`
   @media (max-width: 1024px) {
     padding: ${({ theme }) => `${theme.spacing.xl} ${theme.spacing.md}`};
   }
@@ -23,10 +18,8 @@ const Page = styled.div`
   }
 `;
 
-const Toolbar = styled.div`
-  display: flex;
+const Toolbar = styled(ButtonRow)`
   justify-content: flex-end;
-  gap: ${({ theme }) => theme.spacing.sm};
   margin-top: ${({ theme }) => theme.spacing.md};
 
   @media (max-width: 767px) {

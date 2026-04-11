@@ -84,12 +84,19 @@ const ErrorText = styled.span`
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  hint?: string;
   id?: string;
   icon?: React.ReactNode;
 }
 
+const HintText = styled.span`
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+`;
+
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, id, icon, className, disabled, ...rest },
+  { label, error, hint, id, icon, className, disabled, ...rest },
   ref,
 ) {
   const genId = useId();
@@ -107,7 +114,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           $withIcon={Boolean(icon)}
           disabled={disabled}
           aria-invalid={hasError || undefined}
-          aria-describedby={error ? `${inputId}-error` : undefined}
+          aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
           {...rest}
         />
       </FieldRow>
@@ -115,6 +122,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         <ErrorText id={`${inputId}-error`} role="alert">
           {error}
         </ErrorText>
+      ) : hint ? (
+        <HintText id={`${inputId}-hint`}>{hint}</HintText>
       ) : null}
     </Root>
   );

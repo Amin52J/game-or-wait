@@ -206,6 +206,10 @@ const PulseWrapper = styled.div`
   gap: ${({ theme }) => theme.spacing.lg};
 `;
 
+const SidebarFooterSkeleton = styled(Skeleton)`
+  margin-top: ${({ theme }) => theme.spacing.sm};
+`;
+
 export function AuthLoadingSkeleton() {
   return (
     <CenteredRoot>
@@ -246,7 +250,7 @@ export function HydrationSkeleton() {
             <Skeleton $width="100px" $height="12px" />
             <Skeleton $width="140px" $height="11px" />
           </SidebarFooterDesktop>
-          <Skeleton $width="100%" $height="32px" style={{ marginTop: 8 }} />
+          <SidebarFooterSkeleton $width="100%" $height="32px" />
         </SidebarFooter>
       </SidebarSkeleton>
 

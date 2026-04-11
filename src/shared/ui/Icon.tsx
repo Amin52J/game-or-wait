@@ -1,11 +1,19 @@
 "use client";
 import React from "react";
+import styled from "styled-components";
+
+const IconSvg = styled.svg`
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+`;
 
 export type IconName =
   | "search"
   | "library"
   | "history"
   | "settings"
+  | "calculator"
   | "edit"
   | "trash"
   | "check"
@@ -69,6 +77,18 @@ const paths: Record<IconName, React.ReactNode> = {
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
+      />
+    </>
+  ),
+  calculator: (
+    <>
+      <rect
+        x="4" y="2" width="16" height="20" rx="2"
+        stroke="currentColor" strokeWidth="2" fill="none"
+      />
+      <path
+        d="M8 6h8M8 10h2M12 10h2M8 14h2M12 14h2M8 18h2M12 18h8M16 10h2M16 14h2"
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"
       />
     </>
   ),
@@ -229,15 +249,14 @@ const paths: Record<IconName, React.ReactNode> = {
 
 export function Icon({ name, size = 16, className }: IconProps) {
   return (
-    <svg
+    <IconSvg
       width={size}
       height={size}
       viewBox="0 0 24 24"
       className={className}
       aria-hidden="true"
-      style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}
     >
       {paths[name]}
-    </svg>
+    </IconSvg>
   );
 }
