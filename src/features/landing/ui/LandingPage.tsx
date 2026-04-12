@@ -59,7 +59,7 @@ export function LandingPage({
           <LogoText>GameFit</LogoText>
         </LogoGroup>
         <NavActions>
-          <NavBtn as="a" href={DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
+          <NavBtn as="a" href={DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" $hideOnMobile>
             Download
           </NavBtn>
           <NavBtn onClick={() => onGetStarted("login")}>Log In</NavBtn>

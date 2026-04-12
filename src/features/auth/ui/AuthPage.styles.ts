@@ -17,17 +17,34 @@ export const Page = styled.div`
   align-items: center;
   justify-content: center;
   background: ${({ theme }) => theme.colors.bg};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: 0;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    padding: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 export const Card = styled.div`
   width: 100%;
-  max-width: 420px;
+  max-width: none;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.xl};
-  padding: ${({ theme }) => theme.spacing.xl};
+  border: none;
+  border-radius: 0;
+  padding: ${({ theme }) => theme.spacing.lg};
   animation: ${fadeIn} 0.4s ease;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    max-width: 420px;
+    min-height: auto;
+    display: block;
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    border-radius: ${({ theme }) => theme.radius.xl};
+    padding: ${({ theme }) => theme.spacing.xl};
+  }
 `;
 
 export const LogoRow = styled.div`
@@ -46,7 +63,11 @@ export const LogoText = styled.span`
   font-family: ${({ theme }) => theme.font.sans};
   font-weight: 700;
   font-size: 1.4rem;
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.text} 0%, ${({ theme }) => theme.colors.textSecondary} 100%);
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.colors.text} 0%,
+    ${({ theme }) => theme.colors.textSecondary} 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -73,7 +94,8 @@ export const TabBtn = styled.button<{ $active: boolean }>`
   color: ${({ theme, $active }) => ($active ? theme.colors.text : theme.colors.textSecondary)};
 
   &:hover {
-    background: ${({ theme, $active }) => ($active ? theme.colors.accentHover : theme.colors.surfaceHover)};
+    background: ${({ theme, $active }) =>
+      $active ? theme.colors.accentHover : theme.colors.surfaceHover};
   }
 
   &:active {
@@ -281,6 +303,7 @@ export const SuccessMsg = styled.div`
 export const BackBtn = styled.button`
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 6px;
   padding: 6px 12px;
   margin-bottom: ${({ theme }) => theme.spacing.md};

@@ -65,7 +65,7 @@ export const NavActions = styled.div`
   }
 `;
 
-export const NavBtn = styled.button<{ $primary?: boolean }>`
+export const NavBtn = styled.button<{ $primary?: boolean; $hideOnMobile?: boolean }>`
   padding: 6px 14px;
   border-radius: ${({ theme }) => theme.radius.md};
   border: 1px solid ${({ $primary, theme }) => ($primary ? "transparent" : theme.colors.border)};
@@ -76,6 +76,15 @@ export const NavBtn = styled.button<{ $primary?: boolean }>`
   font-family: ${({ theme }) => theme.font.sans};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transition.fast};
+  white-space: nowrap;
+
+  ${({ $hideOnMobile }) =>
+    $hideOnMobile &&
+    `
+    @media (max-width: 767px) {
+      display: none;
+    }
+  `}
 
   &:hover {
     background: ${({ $primary, theme }) =>
