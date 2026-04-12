@@ -6,7 +6,7 @@ import { sessionCache } from "@/features/analyze-game/model/session-cache";
 import { AnalyzeForm } from "./AnalyzeForm";
 import { ResultCard } from "./ResultCard";
 import { Button } from "@/shared/ui";
-import { Page, Toolbar, ErrorBox } from "./AnalyzePage.styles";
+import { Page, Toolbar, ExpandBar, ErrorBox } from "./AnalyzePage.styles";
 import { errorMessage } from "./AnalyzePage.utils";
 
 export function AnalyzePage() {
@@ -97,11 +97,6 @@ export function AnalyzePage() {
         </Toolbar>
       ) : isDone ? (
         <Toolbar>
-          {canExpand && (
-            <Button type="button" variant="secondary" size="md" onClick={expand}>
-              More Details
-            </Button>
-          )}
           <Button type="button" variant="secondary" size="md" onClick={handleNewAnalysis}>
             New Analysis
           </Button>
@@ -109,13 +104,22 @@ export function AnalyzePage() {
       ) : null}
 
       {showResult ? (
-        <ResultCard
-          response={displayResponse}
-          gameName={displayName}
-          price={displayPrice}
-          isStreaming={isStreaming || isExpanding}
-          thinkingText={thinkingText}
-        />
+        <>
+          <ResultCard
+            response={displayResponse}
+            gameName={displayName}
+            price={displayPrice}
+            isStreaming={isStreaming || isExpanding}
+            thinkingText={thinkingText}
+          />
+          {canExpand && (
+            <ExpandBar>
+              <Button type="button" variant="primary" size="lg" fullWidth onClick={expand}>
+                More Details
+              </Button>
+            </ExpandBar>
+          )}
+        </>
       ) : null}
 
       {error ? <ErrorBox role="alert">{errorMessage(error)}</ErrorBox> : null}

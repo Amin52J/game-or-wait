@@ -8,7 +8,8 @@ import { fetchSteamGames } from "@/features/auth/lib/steam";
 import { AIClient } from "@/entities/ai-provider/api/client";
 import type { AIProviderConfig, Game, SetupAnswers } from "@/shared/types";
 import { defaultSetupAnswers, defaultAiConfig, mergeGameLists, generateId } from "./SetupWizard.utils";
-import { Page, Center, Hero, Title, Subtitle, Card, StepContent, NavRow, Btn, NavRowActions, StatusPillTopMd } from "./SetupWizard.styles";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import { Page, Center, Hero, Title, Subtitle, Card, StepContent, NavRow, Btn, NavRowActions, StatusPillTopMd, FieldGroup, SectionTitle, PlayGrid, SliderGrid, SliderField, ChipGrid, OptionRow, Row } from "./SetupWizard.styles";
 import { ProgressStepper } from "./steps/ProgressStepper";
 import { StepAiProvider } from "./steps/StepAiProvider";
 import { StepImportLibrary } from "./steps/StepImportLibrary";
@@ -16,6 +17,75 @@ import { StepReview } from "./steps/StepReview";
 
 export { defaultSetupAnswers };
 export { StepPreferences } from "./steps/StepPreferences";
+
+const LazyStepPreferences = React.lazy(() =>
+  import("./steps/StepPreferences").then((m) => ({ default: m.StepPreferences })),
+);
+
+function PreferencesSkeleton() {
+  return (
+    <FieldGroup>
+      <div>
+        <SectionTitle><Skeleton $width="90px" $height="1em" /></SectionTitle>
+        <PlayGrid>
+          {[0, 1, 2].map((i) => <Skeleton key={i} $height="68px" $radius="12px" />)}
+        </PlayGrid>
+      </div>
+
+      <div>
+        <SectionTitle><Skeleton $width="180px" $height="1em" /></SectionTitle>
+        <SliderGrid>
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <SliderField key={i}>
+              <Skeleton $width="100%" $height="14px" />
+              <Skeleton $width="100%" $height="6px" $radius="3px" />
+            </SliderField>
+          ))}
+        </SliderGrid>
+      </div>
+
+      <div>
+        <SectionTitle><Skeleton $width="120px" $height="1em" /></SectionTitle>
+        <ChipGrid>
+          {Array.from({ length: 8 }, (_, i) => (
+            <Skeleton key={i} $height="38px" $radius="8px" />
+          ))}
+        </ChipGrid>
+      </div>
+
+      <div>
+        <SectionTitle><Skeleton $width="110px" $height="1em" /></SectionTitle>
+        <OptionRow>
+          {[0, 1, 2, 3].map((i) => <Skeleton key={i} $width="100px" $height="38px" $radius="8px" />)}
+        </OptionRow>
+      </div>
+
+      <div>
+        <SectionTitle><Skeleton $width="140px" $height="1em" /></SectionTitle>
+        <OptionRow>
+          {[0, 1, 2, 3].map((i) => <Skeleton key={i} $width="110px" $height="38px" $radius="8px" />)}
+        </OptionRow>
+      </div>
+
+      <div>
+        <SectionTitle><Skeleton $width="170px" $height="1em" /></SectionTitle>
+        <OptionRow>
+          {[0, 1, 2, 3].map((i) => <Skeleton key={i} $width="120px" $height="38px" $radius="8px" />)}
+        </OptionRow>
+      </div>
+
+      <Row>
+        <div><Skeleton $width="70px" $height="14px" style={{ marginBottom: 6 }} /><Skeleton $height="40px" /></div>
+        <div><Skeleton $width="50px" $height="14px" style={{ marginBottom: 6 }} /><Skeleton $height="40px" /></div>
+      </Row>
+
+      <div>
+        <Skeleton $width="160px" $height="14px" style={{ marginBottom: 6 }} />
+        <Skeleton $height="80px" $radius="8px" />
+      </div>
+    </FieldGroup>
+  );
+}
 
 export function SetupWizard() {
   const router = useRouter();
@@ -132,11 +202,6 @@ export function SetupWizard() {
     router.push("/analyze");
   };
 
-  // Lazy-import StepPreferences to keep this file slim
-  const StepPreferences = React.lazy(() =>
-    import("./steps/StepPreferences").then((m) => ({ default: m.StepPreferences })),
-  );
-
   return (
     <Page>
       <Center>
@@ -164,8 +229,8 @@ export function SetupWizard() {
               </>
             ) : null}
             {step === 2 ? (
-              <React.Suspense fallback={null}>
-                <StepPreferences answers={answers} setAnswers={setAnswers} />
+              <React.Suspense fallback={<PreferencesSkeleton />}>
+                <LazyStepPreferences answers={answers} setAnswers={setAnswers} />
               </React.Suspense>
             ) : null}
             {step === 3 ? (

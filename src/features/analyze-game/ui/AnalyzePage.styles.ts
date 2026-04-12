@@ -25,6 +25,14 @@ export const Toolbar = styled(ButtonRow)`
   }
 `;
 
+export const ExpandBar = styled.div`
+  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.sm} 0`};
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    padding: ${({ theme }) => `${theme.spacing.md} 0 0`};
+  }
+`;
+
 export const ErrorBox = styled.div`
   margin-top: ${({ theme }) => theme.spacing.lg};
   padding: ${({ theme }) => theme.spacing.md};
