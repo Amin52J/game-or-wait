@@ -8,6 +8,7 @@ import {
   PageTitle,
   PageSubtitle,
   ButtonRow,
+  HashLink,
   GuidanceBanner,
 } from "@/shared/ui";
 import { useGameLibrary } from "./GameLibrary.hooks";
@@ -58,10 +59,25 @@ export function GameLibrary() {
   return (
     <PageWrapper>
       <PageHeader>
-        <div>
+        <PageHeader>
           <PageTitle>Game Library</PageTitle>
-          <PageSubtitle>{lib.games.length} games in your library</PageSubtitle>
-        </div>
+          <PageSubtitle>
+            {lib.games.length} games in your library ·{" "}
+            <HashLink
+              href="/help#library"
+              style={{ color: "inherit", textDecoration: "underline" }}
+            >
+              Learn more
+            </HashLink>{" "}
+            ·{" "}
+            <HashLink
+              href="/help#scoring"
+              style={{ color: "inherit", textDecoration: "underline" }}
+            >
+              How scoring works
+            </HashLink>
+          </PageSubtitle>
+        </PageHeader>
         <ButtonRow>
           <Button variant="secondary" onClick={() => setShowImport(!showImport)}>
             {showImport ? "Hide Import" : "Import Games"}

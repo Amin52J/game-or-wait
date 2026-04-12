@@ -103,7 +103,13 @@ function dismiss(key: string) {
 
 function scrollToHash(hash: string) {
   const el = document.getElementById(hash);
-  if (el) {
+  if (!el) return;
+
+  const main = document.querySelector("main");
+  if (main) {
+    const elTop = el.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+    main.scrollTo({ top: elTop, behavior: "smooth" });
+  } else {
     el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }

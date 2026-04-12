@@ -24,5 +24,6 @@ export { Tabs, TabList, Tab, TabPanels, TabPanel } from "./Tabs";
 export { Icon } from "./Icon";
 export type { IconName } from "./Icon";
 export { Skeleton, SkeletonCircle, SkeletonText } from "./Skeleton";
+export { HashLink } from "./HashLink";
 export { GuidanceBanner } from "./GuidanceBanner";
 export type { GuidanceBannerProps } from "./GuidanceBanner";

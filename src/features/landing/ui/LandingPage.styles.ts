@@ -237,6 +237,71 @@ export const DownloadBtn = styled.a`
   }
 `;
 
+export const WhatIsSection = styled.section`
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 ${({ theme }) => theme.spacing.md} 60px;
+  animation: ${fadeUp} 0.6s ease 0.1s both;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    padding: 0 ${({ theme }) => theme.spacing.lg} 80px;
+  }
+`;
+
+export const WhatIsCard = styled.div`
+  padding: ${({ theme }) => theme.spacing.lg};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  text-align: left;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    padding: ${({ theme }) => theme.spacing.xl};
+  }
+`;
+
+export const WhatIsTitle = styled.h2`
+  font-size: clamp(1.3rem, 3vw, 1.6rem);
+  font-weight: 800;
+  margin: 0 0 ${({ theme }) => theme.spacing.md};
+  text-align: center;
+`;
+
+export const WhatIsText = styled.p`
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  line-height: 1.7;
+  margin: 0 0 ${({ theme }) => theme.spacing.lg};
+
+  strong {
+    color: ${({ theme }) => theme.colors.text};
+    font-weight: 600;
+  }
+`;
+
+export const WhatIsSteps = styled.ol`
+  list-style: none;
+  padding: 0;
+  margin: 0 0 ${({ theme }) => theme.spacing.lg};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md};
+`;
+
+export const WhatIsTip = styled.div`
+  padding: ${({ theme }) => theme.spacing.md};
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ theme }) => theme.colors.successMuted};
+  border: 1px solid ${({ theme }) => theme.colors.success};
+  color: ${({ theme }) => theme.colors.success};
+  font-size: 0.8125rem;
+  line-height: 1.6;
+
+  strong {
+    font-weight: 700;
+  }
+`;
+
 export const Features = styled.section`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

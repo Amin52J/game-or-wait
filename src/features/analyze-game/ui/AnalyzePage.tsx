@@ -7,7 +7,7 @@ import { sessionCache } from "@/features/analyze-game/model/session-cache";
 import { OnboardingChecklist } from "@/features/onboarding";
 import { AnalyzeForm } from "./AnalyzeForm";
 import { ResultCard } from "./ResultCard";
-import { Button, GuidanceBanner } from "@/shared/ui";
+import { Button, PageHeader, PageTitle, PageSubtitle, HashLink, GuidanceBanner } from "@/shared/ui";
 import { Page, Toolbar, ExpandBar, ExpandHint, ErrorBox } from "./AnalyzePage.styles";
 import { errorMessage } from "./AnalyzePage.utils";
 
@@ -108,6 +108,20 @@ export function AnalyzePage() {
 
   return (
     <Page>
+      <PageHeader>
+        <PageTitle>Analyze Game</PageTitle>
+        <PageSubtitle>
+          Enter a game and its price to get a personalized verdict ·{" "}
+          <HashLink href="/help#analyzing" style={{ color: "inherit", textDecoration: "underline" }}>
+            How it works
+          </HashLink>{" "}
+          ·{" "}
+          <HashLink href="/help#results" style={{ color: "inherit", textDecoration: "underline" }}>
+            Reading your results
+          </HashLink>
+        </PageSubtitle>
+      </PageHeader>
+
       <OnboardingChecklist />
 
       {showBanners && (

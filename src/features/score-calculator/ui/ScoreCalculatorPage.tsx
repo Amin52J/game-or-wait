@@ -10,6 +10,7 @@ import {
   PageTitle,
   PageSubtitle,
   ButtonRow,
+  HashLink,
   GuidanceBanner,
 } from "@/shared/ui";
 import { calculateGameScore, parseTimeInput, type GameScore } from "../lib/gameScorer";
@@ -53,7 +54,10 @@ export function ScoreCalculatorPage() {
         <PageTitle>Score Calculator</PageTitle>
         <PageSubtitle>
           If a game is worth scoring 76 and up, you should prioritize it yourself. If not, put in
-          the time played and whether you completed the game or not and get the score.
+          the time played and whether you completed the game or not and get the score.{" "}
+          <HashLink href="/help#scoring" style={{ color: "inherit", textDecoration: "underline" }}>
+            How scoring works
+          </HashLink>
         </PageSubtitle>
       </PageHeader>
 

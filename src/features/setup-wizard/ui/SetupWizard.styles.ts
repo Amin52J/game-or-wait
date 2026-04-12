@@ -82,6 +82,20 @@ export const SectionHintTightBottom = styled(SectionHint)`
   margin: 0 0 ${({ theme }) => theme.spacing.sm};
 `;
 
+export const InlineLink = styled.button`
+  all: unset;
+  display: inline;
+  color: ${({ theme }) => theme.colors.accent};
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.85;
+  }
+`;
+
 export const FieldGroup = styled.div`
   display: flex;
   flex-direction: column;

@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { AIProviderConfig, AIProviderType } from "@/shared/types";
 import { DEFAULT_MODELS } from "@/shared/types";
+import { ApiKeyInfoModal } from "@/features/help-guide";
 import { ApiKeyGuide } from "./ApiKeyGuide";
 import {
   FieldGroup,
@@ -22,6 +23,7 @@ import {
   ProviderCard,
   ProviderName,
   ProviderDesc,
+  InlineLink,
 } from "../SetupWizard.styles";
 
 export function StepAiProvider({
@@ -41,6 +43,7 @@ export function StepAiProvider({
   testLoading: boolean;
   onTest: () => void;
 }) {
+  const [showApiKeyInfo, setShowApiKeyInfo] = useState(false);
   const models = DEFAULT_MODELS[config.type];
 
   const setType = (type: AIProviderType) => {
@@ -91,7 +94,10 @@ export function StepAiProvider({
           An API key is a unique code that lets GameFit connect to the AI provider you chose above.
           You get it free from the provider&apos;s website — it takes about 2 minutes. The key stays
           in your browser and is never sent to us. Each analysis costs a fraction of a cent, billed
-          directly by the provider.
+          directly by the provider.{" "}
+          <InlineLink type="button" onClick={() => setShowApiKeyInfo(true)}>
+            Learn more
+          </InlineLink>
         </SectionHint>
         <PasswordWrap>
           <PasswordInput
@@ -165,6 +171,7 @@ export function StepAiProvider({
       {testStatus === "err" ? (
         <StatusPill>Connection failed — check your key and try again</StatusPill>
       ) : null}
+      <ApiKeyInfoModal open={showApiKeyInfo} onClose={() => setShowApiKeyInfo(false)} />
     </FieldGroup>
   );
 }

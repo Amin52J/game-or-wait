@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GuidanceBanner } from "@/shared/ui";
+import { GuidanceBanner, HashLink } from "@/shared/ui";
 import { ImportSectionRoot } from "./GameLibrary.styles";
 import { SteamImport } from "./SteamImport";
 import { EpicImport } from "./EpicImport";
@@ -21,6 +21,12 @@ export function ImportSection({ handleImport, onHide }: ImportSectionProps) {
         automatically merged by game name. You can export your library from apps like
         Playnite, GOG Galaxy, or import directly from Steam.
       </GuidanceBanner>
+      <HashLink
+        href="/help#importing"
+        style={{ fontSize: "0.8125rem", textDecoration: "underline" }}
+      >
+        Importing from apps guide
+      </HashLink>
       <SteamImport />
       <EpicImport />
       <FileImport handleImport={handleImport} />

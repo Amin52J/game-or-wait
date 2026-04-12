@@ -25,6 +25,12 @@ import {
   HeroCTA,
   HeroActions,
   DownloadBtn,
+  WhatIsSection,
+  WhatIsCard,
+  WhatIsTitle,
+  WhatIsText,
+  WhatIsSteps,
+  WhatIsTip,
   Features,
   FeatureCard,
   FeatureIcon,
@@ -84,6 +90,54 @@ export function LandingPage({
           </DownloadBtn>
         </HeroActions>
       </Hero>
+
+      <WhatIsSection>
+        <WhatIsCard>
+          <WhatIsTitle>What is GameFit?</WhatIsTitle>
+          <WhatIsText>
+            GameFit is your personal game purchasing assistant. It uses AI to analyze whether a game
+            is a good fit <strong>for you specifically</strong> — based on your gaming taste, play
+            history, and preferences — rather than giving a generic review score.
+          </WhatIsText>
+          <WhatIsSteps>
+            <Step>
+              <StepNum>1</StepNum>
+              <StepContent>
+                <StepTitle>Define your taste</StepTitle>
+                <StepDesc>
+                  Tell GameFit what you like — play style, difficulty preference, dealbreakers, and
+                  what matters most to you in a game (story, combat, exploration, etc.).
+                </StepDesc>
+              </StepContent>
+            </Step>
+            <Step>
+              <StepNum>2</StepNum>
+              <StepContent>
+                <StepTitle>Build your library</StepTitle>
+                <StepDesc>
+                  Add games you&apos;ve played and score them. This becomes the AI&apos;s reference
+                  point for understanding your taste.
+                </StepDesc>
+              </StepContent>
+            </Step>
+            <Step>
+              <StepNum>3</StepNum>
+              <StepContent>
+                <StepTitle>Get personalized verdicts</StepTitle>
+                <StepDesc>
+                  Enter any game and its price. The AI searches the web for reviews, compares them
+                  against your taste profile and library, and gives you a personalized enjoyment
+                  prediction with a target price.
+                </StepDesc>
+              </StepContent>
+            </Step>
+          </WhatIsSteps>
+          <WhatIsTip>
+            <strong>The more games you score, the smarter it gets.</strong> Even 10–15 scored games
+            make a noticeable difference in accuracy.
+          </WhatIsTip>
+        </WhatIsCard>
+      </WhatIsSection>
 
       <Features>
         {FEATURES.map((f) => (

@@ -23,8 +23,8 @@ export const PageHeader = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.md};
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  gap: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
 `;
 
 export const PageTitle = styled.h1`

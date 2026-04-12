@@ -163,20 +163,26 @@ export function SetupWizard() {
     return true;
   };
 
+  const scrollTop = () => {
+    const main = document.querySelector("main");
+    if (main) main.scrollTo({ top: 0, behavior: "instant" });
+    else window.scrollTo({ top: 0 });
+  };
+
   const goNext = () => {
     if (!isDevMode && step === 1 && !validateStep1()) return;
     setStep((s) => Math.min(4, s + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollTop();
   };
 
   const goBack = () => {
     setStep((s) => Math.max(1, s - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollTop();
   };
 
   const skipLibrary = () => {
     setStep(4);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollTop();
   };
 
   const finish = () => {

@@ -5,7 +5,7 @@ import { PageTitle, SectionTitle, ButtonRow } from "@/shared/ui";
 import type { Theme } from "@/shared/config/theme";
 
 export const SettingsPageTitle = styled(PageTitle)`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
 `;
 
 export const KeyFieldWrap = styled.div`
@@ -71,8 +71,8 @@ export const Toast = styled.div<{ $type: "success" | "error" }>`
   border-radius: ${({ theme }) => theme.radius.md};
   background: ${({ theme, $type }) =>
     $type === "success" ? theme.colors.successMuted : theme.colors.errorMuted};
-  border: 1px solid ${({ theme, $type }) =>
-    $type === "success" ? theme.colors.success : theme.colors.error};
+  border: 1px solid
+    ${({ theme, $type }) => ($type === "success" ? theme.colors.success : theme.colors.error)};
   color: ${({ theme, $type }) => ($type === "success" ? theme.colors.success : theme.colors.error)};
   font-size: 0.85rem;
   font-weight: 500;
