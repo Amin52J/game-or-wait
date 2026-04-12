@@ -18,12 +18,6 @@ export function UpdateNotification() {
   useEffect(() => {
     if (!isTauri()) return;
 
-    const prev = sessionStorage.getItem(DISMISS_KEY);
-    if (prev) {
-      setDismissed(true);
-      return;
-    }
-
     let cancelled = false;
 
     const timer = setTimeout(async () => {
@@ -39,11 +33,15 @@ export function UpdateNotification() {
         const data = await res.json();
         const tag: string = data.tag_name ?? "";
         if (compareVersions(tag, appVersion) > 0) {
+          const latest = tag.replace(/^v/, "");
+          const dismissedVersion = localStorage.getItem(DISMISS_KEY);
+          if (dismissedVersion === latest) return;
+
           setCurrentVersion(appVersion);
-          setLatestVersion(tag.replace(/^v/, ""));
+          setLatestVersion(latest);
         }
-      } catch {
-        // non-critical — silently ignore
+      } catch (err) {
+        console.warn("Update check failed:", err);
       }
     }, 3_000);
 
@@ -56,7 +54,7 @@ export function UpdateNotification() {
   if (!latestVersion || !currentVersion || dismissed) return null;
 
   const handleDismiss = () => {
-    sessionStorage.setItem(DISMISS_KEY, latestVersion);
+    localStorage.setItem(DISMISS_KEY, latestVersion);
     setDismissed(true);
   };
 
