@@ -34,6 +34,8 @@ export const theme = {
     lg: "24px",
     xl: "32px",
     xxl: "48px",
+    xxxl: "64px",
+    xxxxl: "72px",
   },
   font: {
     sans: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",

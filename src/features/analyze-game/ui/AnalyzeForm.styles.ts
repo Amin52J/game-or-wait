@@ -7,11 +7,10 @@ export const FormRoot = styled.form`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
   width: 100%;
-  padding: 0 ${({ theme }) => theme.spacing.sm};
+  padding: 0;
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     gap: ${({ theme }) => theme.spacing.lg};
-    padding: 0;
   }
 `;
 

@@ -4,8 +4,9 @@ import styled from "styled-components";
 
 export const ShellRoot = styled.div`
   display: flex;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: ${({ theme }) => theme.colors.bg};
   background-image:
     radial-gradient(
@@ -26,12 +27,9 @@ export const Main = styled.main<{ $fullWidth: boolean }>`
   flex: 1;
   min-width: 0;
   overflow-y: auto;
-  scrollbar-gutter: stable;
-  padding: ${({ theme }) => theme.spacing.sm};
-  padding-top: ${({ $fullWidth, theme }) =>
-    $fullWidth ? theme.spacing.sm : `calc(${theme.spacing.sm} + 64px)`};
+  padding-top: 0;
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    padding: ${({ theme }) => theme.spacing.lg};
+    scrollbar-gutter: stable;
   }
 `;

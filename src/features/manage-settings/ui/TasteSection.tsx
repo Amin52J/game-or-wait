@@ -19,8 +19,9 @@ export function TasteSection({
     <SectionCard>
       <SectionTitle>Game Taste</SectionTitle>
       <SectionDesc>
-        Your gaming preferences, priorities, and dealbreakers. Changes will regenerate the AI
-        instructions automatically.
+        Your gaming preferences, priorities, and dealbreakers. Saving will regenerate the AI
+        instructions — all future analyses will use the updated preferences. Past analyses in
+        your History are not affected.
       </SectionDesc>
       <StepPreferences answers={tasteAnswers} setAnswers={setTasteAnswers} />
       <MarginedButtonRow>

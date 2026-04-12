@@ -6,10 +6,14 @@ export const PageWrapper = styled.div`
   max-width: 900px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => `${theme.spacing.xxxxl} ${theme.spacing.md}`};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    padding: 0;
+    padding: ${({ theme }) => theme.spacing.md};
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.desktop}) {
+    padding: ${({ theme }) => theme.spacing.md} 0;
   }
 `;
 

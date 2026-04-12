@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigation } from "@/app/providers/NavigationProvider";
 import {
   PageSlot,
@@ -15,6 +15,14 @@ import { PAGES, matchRoute } from "./KeepAlivePages.utils";
 export function KeepAlivePages() {
   const { activePath } = useNavigation();
   const anyMatch = PAGES.some((p) => matchRoute(activePath, p.path));
+  const prevPathRef = useRef(activePath);
+
+  useEffect(() => {
+    if (prevPathRef.current === activePath) return;
+    prevPathRef.current = activePath;
+    const main = document.querySelector("main");
+    if (main) main.scrollTo({ top: 0, behavior: "instant" });
+  }, [activePath]);
 
   const [mounted, setMounted] = useState<Set<string>>(() => {
     const initial = new Set<string>();

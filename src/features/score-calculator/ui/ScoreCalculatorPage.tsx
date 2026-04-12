@@ -10,6 +10,7 @@ import {
   PageTitle,
   PageSubtitle,
   ButtonRow,
+  GuidanceBanner,
 } from "@/shared/ui";
 import { calculateGameScore, parseTimeInput, type GameScore } from "../lib/gameScorer";
 import { FormCard } from "./ScoreCalculatorPage.styles";
@@ -55,6 +56,13 @@ export function ScoreCalculatorPage() {
           the time played and whether you completed the game or not and get the score.
         </PageSubtitle>
       </PageHeader>
+
+      <GuidanceBanner variant="info" dismissKey="score_calc_guide" linkText="Full scoring guide" linkHref="/help#scoring">
+        <strong>This calculator handles games scored 0–75</strong> (games you thought were
+        okay, mediocre, or bad). If you truly loved a game, score it <strong>76–100
+        manually</strong> in your library instead — only you know the difference between a
+        game you loved and one you merely liked.
+      </GuidanceBanner>
 
       <FormCard onSubmit={handleSubmit}>
         <Input

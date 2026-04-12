@@ -9,12 +9,11 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   html {
-    scrollbar-gutter: stable;
     scroll-behavior: smooth;
   }
 
   html, body {
-    height: 100%;
+    height: 100vh;
     font-family: ${({ theme }) => theme.font.sans};
     background: ${({ theme }) => theme.colors.bg};
     color: ${({ theme }) => theme.colors.text};

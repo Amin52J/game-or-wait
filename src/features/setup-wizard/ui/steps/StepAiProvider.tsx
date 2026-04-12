@@ -75,10 +75,24 @@ export function StepAiProvider({
             <ProviderDesc>Any OpenAI-compatible endpoint</ProviderDesc>
           </ProviderCard>
         </ProviderGrid>
+        {(config.type === "google" || config.type === "custom") && (
+          <NoteBox style={{ marginTop: 12 }}>
+            <strong>Note:</strong> Anthropic and OpenAI include built-in web search, which lets the
+            AI pull up-to-date reviews and community sentiment for each analysis.{" "}
+            {config.type === "google" ? "Google Gemini" : "Custom endpoints"} may not support web
+            search, which can reduce the accuracy of public sentiment data in your results.
+          </NoteBox>
+        )}
       </div>
 
       <div>
         <Label htmlFor="gf-api-key">API key</Label>
+        <SectionHint>
+          An API key is a unique code that lets GameFit connect to the AI provider you chose above.
+          You get it free from the provider&apos;s website — it takes about 2 minutes. The key stays
+          in your browser and is never sent to us. Each analysis costs a fraction of a cent, billed
+          directly by the provider.
+        </SectionHint>
         <PasswordWrap>
           <PasswordInput
             id="gf-api-key"

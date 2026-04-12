@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Button, Input, Checkbox } from "@/shared/ui";
+import { Button, Input, Checkbox, GuidanceBanner } from "@/shared/ui";
 import {
   calculateGameScore,
   parseTimeInput,
@@ -11,7 +11,6 @@ import {
   ModalBackdrop,
   ModalCard,
   ModalTitle,
-  ModalHint,
   ModalActions,
   ScorePreview,
   ScorePreviewRing,
@@ -42,6 +41,11 @@ export function ScoreCalcModal({
     <ModalBackdrop onClick={onClose}>
       <ModalCard onClick={(e) => e.stopPropagation()}>
         <ModalTitle>Calculate Score — {gameName}</ModalTitle>
+        <GuidanceBanner variant="info" dismissKey="score_calc_modal_guide" linkText="Full scoring guide" linkHref="/help#scoring">
+          This calculator handles games scored <strong>0–75</strong> — games you thought were okay,
+          mediocre, or bad. If you truly loved a game, score it <strong>76–100 manually</strong>{" "}
+          instead — only you know the difference between a game you loved and one you merely liked.
+        </GuidanceBanner>
         <Input
           label="Time played"
           id="calc-time"

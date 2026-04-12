@@ -12,7 +12,7 @@ import {
 } from "../SetupWizard.styles";
 
 export function ApiKeyGuide({ provider }: { provider: AIProviderType }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   if (provider === "custom") return null;
 

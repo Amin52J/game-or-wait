@@ -72,7 +72,7 @@ export const SectionTitle = styled.h2`
 `;
 
 export const SectionHint = styled.p`
-  margin: ${({ theme }) => `-${theme.spacing.sm}`} 0 ${({ theme }) => theme.spacing.md};
+  margin: 0 0 ${({ theme }) => theme.spacing.md};
   font-size: 0.8125rem;
   line-height: 1.5;
   color: ${({ theme }) => theme.colors.textMuted};
@@ -506,7 +506,9 @@ export const HelpPanel = styled.div`
 
   a {
     color: ${({ theme }) => theme.colors.accent};
-    &:hover { text-decoration: underline; }
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -887,7 +889,8 @@ export const PlatformBtn = styled.button<{ $color: string; $connected?: boolean 
   gap: ${({ theme }) => theme.spacing.sm};
   padding: 10px ${({ theme }) => theme.spacing.md};
   border-radius: ${({ theme }) => theme.radius.md};
-  border: 1px solid ${({ $connected, theme }) => ($connected ? theme.colors.success : theme.colors.border)};
+  border: 1px solid
+    ${({ $connected, theme }) => ($connected ? theme.colors.success : theme.colors.border)};
   background: ${({ $color, $connected }) => ($connected ? "transparent" : $color)};
   color: ${({ $connected, theme }) => ($connected ? theme.colors.success : theme.colors.text)};
   font-size: 0.8125rem;
@@ -911,7 +914,9 @@ export const PlatformBtn = styled.button<{ $color: string; $connected?: boolean 
     }
   }
 
-  svg { fill: currentColor; }
+  svg {
+    fill: currentColor;
+  }
 `;
 
 export const PlatformGuideBox = styled.details`
@@ -920,7 +925,9 @@ export const PlatformGuideBox = styled.details`
   background: ${({ theme }) => theme.colors.surface};
   padding: 0;
 
-  &[open] summary { margin-bottom: ${({ theme }) => theme.spacing.sm}; }
+  &[open] summary {
+    margin-bottom: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 export const PlatformGuideSummary = styled.summary`
@@ -934,8 +941,12 @@ export const PlatformGuideSummary = styled.summary`
   cursor: pointer;
   list-style: none;
 
-  &::-webkit-details-marker { display: none; }
-  &::marker { content: ""; }
+  &::-webkit-details-marker {
+    display: none;
+  }
+  &::marker {
+    content: "";
+  }
 `;
 
 export const PlatformGuideContent = styled.div`
@@ -944,8 +955,17 @@ export const PlatformGuideContent = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
   line-height: 1.6;
 
-  ol { margin: 0; padding-left: 1.2rem; }
-  a { color: ${({ theme }) => theme.colors.accent}; text-decoration: none; &:hover { text-decoration: underline; } }
+  ol {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+  a {
+    color: ${({ theme }) => theme.colors.accent};
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 `;
 
 export const PlatformStatusText = styled.span`

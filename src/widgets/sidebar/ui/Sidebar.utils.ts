@@ -6,6 +6,7 @@ export const NAV_ITEMS: readonly { href: string; label: string; icon: IconName }
   { href: "/score", label: "Score", icon: "calculator" },
   { href: "/history", label: "History", icon: "history" },
   { href: "/settings", label: "Settings", icon: "settings" },
+  { href: "/help", label: "Help", icon: "help-circle" },
 ];
 
 export function isNavActive(pathname: string, href: string): boolean {

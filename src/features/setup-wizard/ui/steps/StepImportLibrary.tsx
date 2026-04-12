@@ -3,7 +3,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { parseAnyFormat } from "@/entities/game/lib/csv-parser";
-import { openSteamLoginPopup, fetchSteamGames, extractSteamIdFromParams } from "@/features/auth/lib/steam";
+import {
+  openSteamLoginPopup,
+  fetchSteamGames,
+  extractSteamIdFromParams,
+} from "@/features/auth/lib/steam";
 import { openEpicLoginTab, fetchEpicGames } from "@/features/auth/lib/epic";
 import type { Game } from "@/shared/types";
 import { mergeGameLists, computeScoreBuckets, generateId } from "../SetupWizard.utils";
@@ -167,13 +171,17 @@ export function StepImportLibrary({
         <PlatformRow>
           <PlatformBtn
             type="button"
-            $color="#171a21"
+            $color="#111120"
             $connected={steamCount !== null}
             onClick={handleSteamConnect}
             disabled={steamLoading}
           >
             <img src="/steam-logo.svg" alt="" width="16" height="16" />
-            {steamLoading ? "Connecting…" : steamCount !== null ? `Steam (${steamCount} games)` : "Steam"}
+            {steamLoading
+              ? "Connecting…"
+              : steamCount !== null
+                ? `Steam (${steamCount} games)`
+                : "Steam"}
           </PlatformBtn>
         </PlatformRow>
         {steamError && <StatusPill>{steamError}</StatusPill>}
@@ -187,12 +195,10 @@ export function StepImportLibrary({
       <PlatformSection>
         <Label>Epic Games</Label>
         {epicCount !== null ? (
-          <PlatformStatusText>
-            Imported {epicCount} games from Epic Games.
-          </PlatformStatusText>
+          <PlatformStatusText>Imported {epicCount} games from Epic Games.</PlatformStatusText>
         ) : epicStep === "idle" ? (
           <PlatformRow>
-            <PlatformBtn type="button" $color="#2f2f2f" onClick={handleEpicLogin}>
+            <PlatformBtn type="button" $color="#111120" onClick={handleEpicLogin}>
               <img src="/epic-logo.svg" alt="" width="16" height="16" />
               Connect Epic Games
             </PlatformBtn>
@@ -200,14 +206,17 @@ export function StepImportLibrary({
         ) : (
           <EpicAuthStack>
             <PlatformStatusText>
-              A new tab opened to Epic Games. Log in, then copy the authorization code shown on the page and paste it below.
+              A new tab opened to Epic Games. Log in, then copy the authorization code shown on the
+              page and paste it below.
             </PlatformStatusText>
             <EpicAuthRow>
               <FlexGrowTextInput
                 placeholder="Paste authorization code…"
                 value={epicCode}
                 onChange={(e) => setEpicCode(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleEpicSubmitCode(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleEpicSubmitCode();
+                }}
               />
               <Btn
                 type="button"
@@ -244,7 +253,16 @@ export function StepImportLibrary({
           <Btn type="button" $variant="secondary" onClick={applyPaste}>
             Parse pasted text
           </Btn>
-          <Btn type="button" $variant="ghost" onClick={() => { setImportedGames([]); setSteamCount(null); setEpicCount(null); setEpicStep("idle"); }}>
+          <Btn
+            type="button"
+            $variant="ghost"
+            onClick={() => {
+              setImportedGames([]);
+              setSteamCount(null);
+              setEpicCount(null);
+              setEpicStep("idle");
+            }}
+          >
             Clear imported games
           </Btn>
         </InlineActions>

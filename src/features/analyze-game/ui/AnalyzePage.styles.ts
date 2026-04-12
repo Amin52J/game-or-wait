@@ -4,14 +4,14 @@ import styled from "styled-components";
 import { PageWrapper, ButtonRow } from "@/shared/ui";
 
 export const Page = styled(PageWrapper)`
-  padding: ${({ theme }) => theme.spacing.sm} 0;
+  padding: ${({ theme }) => `${theme.spacing.xxxxl} ${theme.spacing.md}`};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    padding: ${({ theme }) => `${theme.spacing.xl} ${theme.spacing.md}`};
+    padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.md}`};
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoint.desktop}) {
-    padding: 0;
+    padding: ${({ theme }) => theme.spacing.lg} 0;
   }
 `;
 
@@ -30,6 +30,20 @@ export const ExpandBar = styled.div`
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     padding: ${({ theme }) => `${theme.spacing.md} 0 0`};
+  }
+`;
+
+export const ExpandHint = styled.p`
+  margin: ${({ theme }) => theme.spacing.xs} 0 0;
+  padding: 0 ${({ theme }) => theme.spacing.sm};
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+  text-align: center;
+  line-height: 1.5;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    padding: 0;
   }
 `;
 

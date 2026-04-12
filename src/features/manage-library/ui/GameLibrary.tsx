@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { Button, PageWrapper, PageHeader, PageTitle, PageSubtitle, ButtonRow } from "@/shared/ui";
+import React, { useMemo, useRef, useState } from "react";
+import {
+  Button,
+  PageWrapper,
+  PageHeader,
+  PageTitle,
+  PageSubtitle,
+  ButtonRow,
+  GuidanceBanner,
+} from "@/shared/ui";
 import { useGameLibrary } from "./GameLibrary.hooks";
 import { ImportSection } from "./ImportSection";
 import { LibraryStats } from "./LibraryStats";
@@ -10,6 +18,36 @@ import { GameTable } from "./GameTable";
 import { AddGameModal } from "./AddGameModal";
 import { ScoreCalcModal } from "./ScoreCalcModal";
 import { LibraryPagination } from "./LibraryPagination";
+
+import type { Game } from "@/shared/types";
+
+function LibraryBanners({ games, scored }: { games: Game[]; scored: number }) {
+  const unscoredCount = useMemo(() => games.length - scored, [games.length, scored]);
+
+  if (games.length > 0 && scored === 0) {
+    return (
+      <GuidanceBanner variant="warning" linkText="How scoring works" linkHref="/help#scoring">
+        <strong>None of your {games.length} games have a score yet.</strong> The AI only sees scored
+        games during analysis. Use the score calculator (click the calculator icon on any row) or
+        enter scores manually.
+      </GuidanceBanner>
+    );
+  }
+
+  if (games.length > 0 && unscoredCount > 0 && scored < 10) {
+    return (
+      <GuidanceBanner variant="info" linkText="Learn about scoring" linkHref="/help#scoring">
+        <strong>
+          {scored} of {games.length} games scored.
+        </strong>{" "}
+        {unscoredCount} game{unscoredCount === 1 ? " is" : "s are"} unscored and invisible to the
+        AI. Aim for at least 10 scored games for accurate analyses.
+      </GuidanceBanner>
+    );
+  }
+
+  return null;
+}
 
 export function GameLibrary() {
   const tableRef = useRef<HTMLDivElement>(null);
@@ -33,7 +71,11 @@ export function GameLibrary() {
           </Button>
           <Button
             variant="secondary"
-            onClick={() => { lib.setAddName(""); lib.setAddScore(""); lib.setShowAddModal(true); }}
+            onClick={() => {
+              lib.setAddName("");
+              lib.setAddScore("");
+              lib.setShowAddModal(true);
+            }}
           >
             + Add Game
           </Button>
@@ -48,6 +90,8 @@ export function GameLibrary() {
           )}
         </ButtonRow>
       </PageHeader>
+
+      <LibraryBanners games={lib.games} scored={lib.scored.length} />
 
       {showImport && (
         <ImportSection handleImport={lib.handleImport} onHide={() => setShowImport(false)} />

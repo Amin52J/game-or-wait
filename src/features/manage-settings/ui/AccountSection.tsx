@@ -5,7 +5,11 @@ import { Button, Input, SectionCard, SectionTitle, SectionDesc } from "@/shared/
 import { useAuth } from "@/app/providers/AuthProvider";
 import { FormRow, FormGroup, MarginedButtonRow } from "./SettingsPage.styles";
 
-export function AccountSection({ onToast }: { onToast: (msg: string, type: "success" | "error") => void }) {
+export function AccountSection({
+  onToast,
+}: {
+  onToast: (msg: string, type: "success" | "error") => void;
+}) {
   const { user } = useAuth();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,7 +44,7 @@ export function AccountSection({ onToast }: { onToast: (msg: string, type: "succ
   return (
     <SectionCard>
       <SectionTitle>Account</SectionTitle>
-      <SectionDesc>Change your password. You must be signed in with email to use this.</SectionDesc>
+      <SectionDesc>Change your password.</SectionDesc>
 
       <FormRow>
         <FormGroup>
@@ -66,7 +70,11 @@ export function AccountSection({ onToast }: { onToast: (msg: string, type: "succ
       </FormRow>
 
       <MarginedButtonRow>
-        <Button variant="primary" onClick={handleChangePassword} disabled={busy || !newPassword || !confirmPassword}>
+        <Button
+          variant="primary"
+          onClick={handleChangePassword}
+          disabled={busy || !newPassword || !confirmPassword}
+        >
           {busy ? "Updating…" : "Change Password"}
         </Button>
       </MarginedButtonRow>

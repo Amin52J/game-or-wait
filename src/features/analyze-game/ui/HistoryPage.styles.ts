@@ -11,26 +11,29 @@ export const Page = styled.div`
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing.sm} 0;
+  padding: ${({ theme }) => `${theme.spacing.xxxxl} ${theme.spacing.md}`};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    padding: 0;
+    padding: ${({ theme }) => theme.spacing.md};
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.desktop}) {
+    padding: ${({ theme }) => theme.spacing.md} 0;
   }
 `;
 
 export const HeaderRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.md};
-  padding: 0 ${({ theme }) => theme.spacing.sm};
+  padding: 0;
   margin-bottom: ${({ theme }) => theme.spacing.sm};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     flex-direction: row;
-    align-items: center;
-    padding: 0;
+    align-items: flex-start;
     margin-bottom: ${({ theme }) => theme.spacing.lg};
   }
 `;
@@ -58,11 +61,10 @@ export const Toolbar = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
-  padding: 0 ${({ theme }) => theme.spacing.sm};
+  padding: 0;
   margin-bottom: ${({ theme }) => theme.spacing.sm};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    padding: 0;
     margin-bottom: ${({ theme }) => theme.spacing.lg};
   }
 `;
@@ -134,8 +136,7 @@ export const ViewBtn = styled.button<{ $active: boolean }>`
     color ${({ theme }) => theme.transition.fast};
   background: ${({ theme, $active }) =>
     $active ? theme.colors.accentMuted : theme.colors.surface};
-  color: ${({ theme, $active }) =>
-    $active ? theme.colors.accent : theme.colors.textMuted};
+  color: ${({ theme, $active }) => ($active ? theme.colors.accent : theme.colors.textMuted)};
 
   &:hover {
     color: ${({ theme }) => theme.colors.text};
@@ -151,12 +152,11 @@ export const FilterBar = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 0 ${({ theme }) => theme.spacing.sm};
+  padding: 0;
   align-items: center;
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     gap: ${({ theme }) => theme.spacing.md};
-    padding: 0;
   }
 `;
 
@@ -227,8 +227,8 @@ export const HistoryCard = styled.li<{ $expanded: boolean }>`
       : ""};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    border: 1px solid ${({ theme, $expanded }) =>
-      $expanded ? theme.colors.borderLight : theme.colors.border};
+    border: 1px solid
+      ${({ theme, $expanded }) => ($expanded ? theme.colors.borderLight : theme.colors.border)};
     border-radius: ${({ theme }) => theme.radius.lg};
   }
 `;
@@ -670,9 +670,9 @@ export const ListDeleteBtn = styled.button<{ $confirm?: boolean }>`
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.75rem;
   font-weight: 500;
-  color: ${({ theme, $confirm }) => $confirm ? theme.colors.error : theme.colors.textMuted};
-  background: ${({ theme, $confirm }) => $confirm ? theme.colors.errorMuted : "transparent"};
-  border: 1px solid ${({ theme, $confirm }) => $confirm ? theme.colors.error : "transparent"};
+  color: ${({ theme, $confirm }) => ($confirm ? theme.colors.error : theme.colors.textMuted)};
+  background: ${({ theme, $confirm }) => ($confirm ? theme.colors.errorMuted : "transparent")};
+  border: 1px solid ${({ theme, $confirm }) => ($confirm ? theme.colors.error : "transparent")};
   border-radius: ${({ theme }) => theme.radius.sm};
   cursor: pointer;
   transition: all ${({ theme }) => theme.transition.fast};
