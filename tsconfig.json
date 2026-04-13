@@ -39,6 +39,10 @@
     "node_modules",
     ".next",
     "src-tauri",
-    "supabase/functions"
+    "supabase/functions",
+    "e2e",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/__tests__"
   ]
 }

@@ -1,0 +1,7 @@
+# Sync version from package.json into tauri.conf.json and Cargo.toml
+node scripts/sync-version.mjs
+git add src-tauri/tauri.conf.json src-tauri/Cargo.toml 2>/dev/null
+
+# Quality gates
+npm run typecheck
+npm run lint

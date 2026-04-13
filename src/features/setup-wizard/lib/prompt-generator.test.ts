@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateInstructions } from "./prompt-generator";
+import { generateInstructions, getExtendedSectionNames } from "./prompt-generator";
 import type { SetupAnswers } from "@/shared/types";
 
 function makeAnswers(overrides: Partial<SetupAnswers> = {}): SetupAnswers {
@@ -125,5 +125,126 @@ describe("prompt-generator", () => {
   it("includes refund guard in pricing", () => {
     const result = generateInstructions(makeAnswers());
     expect(result).toContain("Refund");
+  });
+
+  it("includes custom dealbreakers in Red-Line Risk", () => {
+    const result = generateInstructions(
+      makeAnswers({ customDealbreakers: ["excessive microtransactions"] }),
+    );
+    expect(result).toContain("excessive microtransactions");
+  });
+
+  it("includes heavy_reading dealbreaker", () => {
+    const result = generateInstructions(
+      makeAnswers({ dealbreakers: ["heavy_reading"] }),
+    );
+    expect(result).toContain("reading-heavy");
+  });
+
+  it("includes gaas dealbreaker", () => {
+    const result = generateInstructions(
+      makeAnswers({ dealbreakers: ["gaas"] }),
+    );
+    expect(result).toContain("GAAS");
+  });
+
+  it("includes religious_themes dealbreaker", () => {
+    const result = generateInstructions(
+      makeAnswers({ dealbreakers: ["religious_themes"] }),
+    );
+    expect(result).toContain("religious themes");
+  });
+
+  it("includes shallow_crafting dealbreaker", () => {
+    const result = generateInstructions(
+      makeAnswers({ dealbreakers: ["shallow_crafting"] }),
+    );
+    expect(result).toContain("busywork crafting");
+  });
+
+  it("includes slow_start dealbreaker", () => {
+    const result = generateInstructions(
+      makeAnswers({ dealbreakers: ["slow_start"] }),
+    );
+    expect(result).toContain("slow early hours");
+  });
+
+  it("generates personalized sections for high combat importance", () => {
+    const sections = getExtendedSectionNames(
+      makeAnswers({ combatImportance: 5 }),
+    );
+    expect(sections).toContain("Combat Feel & Feedback");
+  });
+
+  it("generates personalized sections for high puzzle importance", () => {
+    const sections = getExtendedSectionNames(
+      makeAnswers({ puzzleImportance: 5 }),
+    );
+    expect(sections).toContain("Puzzle Design & Variety");
+  });
+
+  it("generates personalized sections for high strategy importance", () => {
+    const sections = getExtendedSectionNames(
+      makeAnswers({ strategyImportance: 5 }),
+    );
+    expect(sections).toContain("Strategic Depth & Decision-Making");
+  });
+
+  it("generates personalized sections for high exploration importance", () => {
+    const sections = getExtendedSectionNames(
+      makeAnswers({ explorationImportance: 5 }),
+    );
+    expect(sections).toContain("World Design & Exploration");
+  });
+
+  it("falls back to Detailed Assessment when no high-importance sections", () => {
+    const sections = getExtendedSectionNames(
+      makeAnswers({
+        storyImportance: 2,
+        gameplayImportance: 2,
+        explorationImportance: 2,
+        combatImportance: 2,
+        puzzleImportance: 2,
+        strategyImportance: 2,
+        dealbreakers: [],
+      }),
+    );
+    expect(sections).toContain("Detailed Assessment");
+  });
+
+  it("getExtendedSectionNames always includes base sections", () => {
+    const sections = getExtendedSectionNames(makeAnswers());
+    expect(sections).toContain("Library Signals");
+    expect(sections).toContain("What the Game Is");
+    expect(sections).toContain("Summary");
+  });
+
+  it("includes voice acting section for preferred", () => {
+    const result = generateInstructions(
+      makeAnswers({ voiceActingPreference: "preferred" }),
+    );
+    expect(result).toContain("voice");
+  });
+
+  it("includes all dealbreakers combined", () => {
+    const result = generateInstructions(
+      makeAnswers({
+        dealbreakers: [
+          "grind", "always_online", "bad_controls",
+          "wayfinding", "gaas", "heavy_reading",
+          "religious_themes", "shallow_crafting", "slow_start",
+        ],
+        customDealbreakers: ["pay-to-win"],
+        voiceActingPreference: "essential",
+      }),
+    );
+    expect(result).toContain("always-online");
+    expect(result).toContain("wayfinding");
+    expect(result).toContain("GAAS");
+    expect(result).toContain("reading-heavy");
+    expect(result).toContain("religious themes");
+    expect(result).toContain("busywork crafting");
+    expect(result).toContain("slow early hours");
+    expect(result).toContain("pay-to-win");
   });
 });

@@ -62,4 +62,37 @@ describe("storage", () => {
     expect(state.games).toEqual([]);
     expect(state.instructions).toBe("");
   });
+
+  it("saveState handles localStorage errors gracefully", () => {
+    const origSetItem = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = () => {
+      throw new Error("QuotaExceededError");
+    };
+    expect(() => saveState(INITIAL_STATE)).not.toThrow();
+    localStorage.setItem = origSetItem;
+  });
+
+  it("importData merges with INITIAL_STATE", () => {
+    const json = JSON.stringify({ instructions: "custom" });
+    const state = importData(json);
+    expect(state.instructions).toBe("custom");
+    expect(state.games).toEqual([]);
+  });
+
+  it("importData throws on invalid JSON", () => {
+    expect(() => importData("not valid json")).toThrow();
+  });
+
+  it("exportData returns prettified JSON", () => {
+    saveState({ ...INITIAL_STATE, instructions: "test" });
+    const data = exportData();
+    expect(data).toContain("\n");
+    expect(data).toContain("  ");
+  });
+
+  it("clearData is idempotent", () => {
+    clearData();
+    clearData();
+    expect(loadState()).toEqual(INITIAL_STATE);
+  });
 });
