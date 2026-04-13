@@ -155,8 +155,8 @@ jobs:
         id: bump-pr
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: bump version to ${{ steps.version.outputs.version }}"
+          token: ${{ secrets.PAT_TOKEN }}
+          commit-message: "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
           title: "chore: bump version to ${{ steps.version.outputs.version }}"
           body: "Automated version bump to `${{ steps.version.outputs.version }}` after successful release."
           branch: chore/bump-version-${{ steps.version.outputs.version }}
@@ -169,7 +169,7 @@ jobs:
       - name: Enable auto-merge on version bump PR
         if: steps.bump-pr.outputs.pull-request-number
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: gh pr merge ${{ steps.bump-pr.outputs.pull-request-number }} --auto --squash
 
       - name: Create GitHub Release

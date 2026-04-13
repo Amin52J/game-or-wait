@@ -22,22 +22,28 @@ import { fileURLToPath } from "url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-// ── read current version ──
+// ── read current version from git tag (source of truth) ──
 const pkgPath = resolve(root, "package.json");
 const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-const [major, minor, patch] = pkg.version.split(".").map(Number);
 
-// ── find last tag ──
+let lastTag;
 let range;
 try {
-  const lastTag = execSync("git describe --tags --abbrev=0", {
+  lastTag = execSync("git describe --tags --abbrev=0", {
     encoding: "utf-8",
     cwd: root,
   }).trim();
   range = `${lastTag}..HEAD`;
 } catch {
+  lastTag = null;
   range = "HEAD";
 }
+
+// Derive base version from the latest git tag (not package.json) so that
+// the calculation is correct even when a previous version-bump PR hasn't
+// merged yet.
+const tagVersion = lastTag ? lastTag.replace(/^v/, "") : pkg.version;
+const [major, minor, patch] = tagVersion.split(".").map(Number);
 
 // ── collect commit subjects ──
 const log = execSync(`git log ${range} --pretty=format:%s`, {
@@ -82,7 +88,9 @@ switch (bump) {
 // ── write package.json ──
 pkg.version = newVersion;
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf-8");
-console.log(`bump-version: ${pkg.version !== newVersion ? pkg.version + " → " : ""}${bump} bump → ${newVersion}`);
+console.log(
+  `bump-version: ${pkg.version !== newVersion ? pkg.version + " → " : ""}${bump} bump → ${newVersion}`,
+);
 
 // ── propagate via sync-version ──
 execSync("node scripts/sync-version.mjs", { stdio: "inherit", cwd: root });
