@@ -1,19 +1,4 @@
-import { test, expect, FAKE_USER } from "./fixtures";
-import * as fs from "fs";
-import * as path from "path";
-
-function readProjectRef(): string {
-  const envPath = path.resolve(__dirname, "..", ".env");
-  const envContent = fs.readFileSync(envPath, "utf-8");
-  const match = envContent.match(
-    /NEXT_PUBLIC_SUPABASE_URL=https:\/\/([^.]+)\.supabase\.co/,
-  );
-  if (!match) throw new Error("Cannot extract Supabase project ref from .env");
-  return match[1];
-}
-
-const PROJECT_REF = readProjectRef();
-const SUPABASE_GLOB = `**/${PROJECT_REF}.supabase.co`;
+import { test, expect, FAKE_USER, SUPABASE_GLOB, AUTH_STORAGE_KEY } from "./fixtures";
 
 test.describe("History Page", () => {
   test("shows analysis history with existing entries", async ({ authenticatedPage: page }) => {
@@ -72,10 +57,9 @@ test.describe("History Page", () => {
     await page.route(`${SUPABASE_GLOB}/functions/v1/**`, (r) =>
       r.fulfill({ status: 200, contentType: "application/json", body: "{}" }));
 
-    const storageKey = `sb-${PROJECT_REF}-auth-token`;
     await page.addInitScript(({ key, session }) => {
       localStorage.setItem(key, JSON.stringify(session));
-    }, { key: storageKey, session: FAKE_SESSION });
+    }, { key: AUTH_STORAGE_KEY, session: FAKE_SESSION });
 
     await page.goto("/analyze");
     await page.getByLabel("Main navigation").getByText("History").click();

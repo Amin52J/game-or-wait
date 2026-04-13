@@ -2,14 +2,36 @@ import { test as base, type Page } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 
-function readProjectRef(): string {
-  const envPath = path.resolve(__dirname, "..", ".env");
-  const envContent = fs.readFileSync(envPath, "utf-8");
-  const match = envContent.match(
+function extractRefFromUrl(url: string): string | null {
+  const match = url.match(/https:\/\/([^.]+)\.supabase\.co/);
+  return match ? match[1] : null;
+}
+
+function extractRefFromFile(filename: string): string | null {
+  const filePath = path.resolve(__dirname, "..", filename);
+  if (!fs.existsSync(filePath)) return null;
+  const content = fs.readFileSync(filePath, "utf-8");
+  const match = content.match(
     /NEXT_PUBLIC_SUPABASE_URL=https:\/\/([^.]+)\.supabase\.co/,
   );
-  if (!match) throw new Error("Cannot extract Supabase project ref from .env");
-  return match[1];
+  return match ? match[1] : null;
+}
+
+function readProjectRef(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? extractRefFromUrl(process.env.NEXT_PUBLIC_SUPABASE_URL)
+    : null;
+  if (fromEnv) return fromEnv;
+
+  const fromDotEnv = extractRefFromFile(".env");
+  if (fromDotEnv) return fromDotEnv;
+
+  const fromProd = extractRefFromFile(".env.production");
+  if (fromProd) return fromProd;
+
+  throw new Error(
+    "Cannot resolve Supabase project ref. Set NEXT_PUBLIC_SUPABASE_URL or provide .env / .env.production",
+  );
 }
 
 const PROJECT_REF = readProjectRef();
@@ -226,4 +248,4 @@ export const test = base.extend<{
 });
 
 export { expect } from "@playwright/test";
-export { FAKE_USER, FAKE_SESSION, USER_SETTINGS, GAMES, ANALYSIS_HISTORY };
+export { FAKE_USER, FAKE_SESSION, USER_SETTINGS, GAMES, ANALYSIS_HISTORY, SUPABASE_GLOB, AUTH_STORAGE_KEY };
