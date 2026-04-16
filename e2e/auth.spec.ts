@@ -3,8 +3,10 @@ import { test, expect } from "./fixtures";
 test.describe("Auth flow — Landing page", () => {
   test("shows landing page when unauthenticated", async ({ unauthenticatedPage: page }) => {
     await page.goto("/");
-    await expect(page.getByText("Find out if a game is right for you before you buy")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Get Started" })).toBeVisible();
+    await expect(
+      page.getByText("Find out if a game is right for you before you buy"),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Get Started", exact: true })).toBeVisible();
   });
 
   test("landing page has Log In and Sign Up nav buttons", async ({ unauthenticatedPage: page }) => {
@@ -90,7 +92,9 @@ test.describe("Auth flow — Auth form", () => {
     await expect(page.locator("#auth-email")).toBeVisible();
 
     await page.getByRole("button", { name: "Back" }).click();
-    await expect(page.getByText("Find out if a game is right for you before you buy")).toBeVisible();
+    await expect(
+      page.getByText("Find out if a game is right for you before you buy"),
+    ).toBeVisible();
   });
 
   test("shows social login buttons (GitHub, Steam)", async ({ unauthenticatedPage: page }) => {
