@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">43.75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -112,28 +112,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,25 +149,25 @@ export interface HashLinkProps
   children: React.ReactNode;
 }
 &nbsp;
-function <span class="fstat-no" title="function not covered" >scrollToHash(h</span>ash: string) {
-  const el = <span class="cstat-no" title="statement not covered" >document.getElementById(hash);</span>
-<span class="cstat-no" title="statement not covered" >  if (!el) <span class="cstat-no" title="statement not covered" >return;</span></span>
+function scrollToHash(hash: string) {
+  const el = document.getElementById(hash);
+  if (!el) return;
 &nbsp;
-  const main = <span class="cstat-no" title="statement not covered" >document.querySelector("main");</span>
-<span class="cstat-no" title="statement not covered" >  if (main) {</span>
-    const elTop = <span class="cstat-no" title="statement not covered" >el.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;</span>
-<span class="cstat-no" title="statement not covered" >    main.scrollTo({ top: elTop, behavior: "smooth" });</span>
+  const main = document.querySelector("main");
+  if (main) {
+    const elTop = el.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+    main.scrollTo({ top: elTop, behavior: "smooth" });
   } else {
-<span class="cstat-no" title="statement not covered" >    el.scrollIntoView({ behavior: "smooth", block: "start" });</span>
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 &nbsp;
 export function HashLink({ href, children, ...rest }: HashLinkProps) {
   const handleClick = useCallback(() =&gt; {
-    const hrefStr = typeof href === "string" ? href : <span class="branch-1 cbranch-no" title="branch not covered" >href.hash ?? "";</span>
-    <span class="missing-if-branch" title="else path not taken" >E</span>if (hrefStr.includes("#")) {
+    const hrefStr = typeof href === "string" ? href : href.hash ?? "";
+    if (hrefStr.includes("#")) {
       const hash = hrefStr.split("#")[1];
-<span class="fstat-no" title="function not covered" >      setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >s</span>crollToHash(hash),</span> 300);
+      setTimeout(() =&gt; scrollToHash(hash), 300);
     }
   }, [href]);
 &nbsp;
@@ -184,7 +184,7 @@ export function HashLink({ href, children, ...rest }: HashLinkProps) {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-13T09:50:29.014Z
+                at 2026-04-16T19:26:09.198Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

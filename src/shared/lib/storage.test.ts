@@ -1,5 +1,12 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { loadState, saveState, exportData, importData, clearData } from "./storage";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import {
+  loadState,
+  saveState,
+  exportData,
+  importData,
+  clearData,
+  pickFileContent,
+} from "./storage";
 import { INITIAL_STATE } from "@/shared/types";
 
 beforeEach(() => {
@@ -94,5 +101,20 @@ describe("storage", () => {
     clearData();
     clearData();
     expect(loadState()).toEqual(INITIAL_STATE);
+  });
+
+  describe("pickFileContent", () => {
+    it("returns null in non-Tauri environment", async () => {
+      const result = await pickFileContent();
+      expect(result).toBeNull();
+    });
+
+    it("attempts Tauri dialog when __TAURI__ is present", async () => {
+      Object.defineProperty(window, "__TAURI__", { value: {}, configurable: true });
+      const result = await pickFileContent();
+      // Falls through to null since Tauri modules aren't available
+      expect(result).toBeNull();
+      delete (window as any).__TAURI__;
+    });
   });
 });

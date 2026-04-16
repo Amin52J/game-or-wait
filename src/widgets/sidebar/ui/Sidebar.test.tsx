@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { renderWithProviders, resetAllMocks, mockAuthContext, mockNavigationContext } from "@/__tests__/test-utils";
+import {
+  renderWithProviders,
+  resetAllMocks,
+  mockAuthContext,
+  mockNavigationContext,
+} from "@/__tests__/test-utils";
 import { Sidebar } from "./Sidebar";
 
 beforeEach(() => {
@@ -46,9 +51,9 @@ describe("Sidebar", () => {
     await waitFor(() => {
       expect(screen.getByText(/are you sure/i)).toBeInTheDocument();
     });
-    const logoutConfirm = screen.getAllByText("Log Out").find(
-      (el) => el.closest("[role='dialog']") || el.closest("div[class*='Modal']"),
-    );
+    const logoutConfirm = screen
+      .getAllByText("Log Out")
+      .find((el) => el.closest("[role='dialog']") || el.closest("div[class*='Modal']"));
     if (logoutConfirm) {
       await user.click(logoutConfirm);
       await waitFor(() => {
@@ -81,5 +86,89 @@ describe("Sidebar", () => {
   it("has hamburger menu toggle", () => {
     renderWithProviders(<Sidebar />);
     expect(screen.getByLabelText(/open menu|close menu/i)).toBeInTheDocument();
+  });
+
+  it("toggles mobile menu on hamburger click", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Sidebar />);
+    const toggle = screen.getByLabelText(/open menu/i);
+    await user.click(toggle);
+    expect(screen.getByLabelText(/close menu/i)).toBeInTheDocument();
+  });
+
+  it("displays user email when user is logged in", () => {
+    mockAuthContext.user = { id: "u1", email: "player@test.com" } as any;
+    renderWithProviders(<Sidebar />);
+    expect(screen.getByText("player@test.com")).toBeInTheDocument();
+  });
+
+  it("displays full_name from user_metadata when available", () => {
+    mockAuthContext.user = {
+      id: "u1",
+      email: "player@test.com",
+      user_metadata: { full_name: "John Doe" },
+    } as any;
+    renderWithProviders(<Sidebar />);
+    expect(screen.getByText("John Doe")).toBeInTheDocument();
+  });
+
+  it("displays email prefix when full_name is not available", () => {
+    mockAuthContext.user = {
+      id: "u1",
+      email: "player@test.com",
+      user_metadata: {},
+    } as any;
+    renderWithProviders(<Sidebar />);
+    expect(screen.getByText("player")).toBeInTheDocument();
+  });
+
+  it("does not display user block when user is null", () => {
+    mockAuthContext.user = null;
+    renderWithProviders(<Sidebar />);
+    expect(screen.queryByText("player@test.com")).not.toBeInTheDocument();
+  });
+
+  it("closes logout modal with Escape key", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Sidebar />);
+    await user.click(screen.getByText("Log Out"));
+    await waitFor(() => {
+      expect(screen.getByText(/are you sure/i)).toBeInTheDocument();
+    });
+    await user.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(screen.queryByText(/are you sure/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it("closes mobile menu with Escape key", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Sidebar />);
+    await user.click(screen.getByLabelText(/open menu/i));
+    expect(screen.getByLabelText(/close menu/i)).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(screen.getByLabelText(/open menu/i)).toBeInTheDocument();
+    });
+  });
+
+  it("closes logout modal when clicking Cancel", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Sidebar />);
+    await user.click(screen.getByText("Log Out"));
+    await waitFor(() => {
+      expect(screen.getByText(/are you sure/i)).toBeInTheDocument();
+    });
+    await user.click(screen.getByText("Cancel"));
+    await waitFor(() => {
+      expect(screen.queryByText(/are you sure/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it("calls setIntent when navigation link is clicked", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<Sidebar />);
+    await user.click(screen.getByText("Library"));
+    expect(mockNavigationContext.setIntent).toHaveBeenCalledWith("/library");
   });
 });

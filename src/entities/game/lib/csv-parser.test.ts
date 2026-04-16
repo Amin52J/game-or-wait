@@ -49,6 +49,21 @@ Game A,,`;
       expect(parseCSV("")).toEqual([]);
     });
 
+    it("falls back to first column when no name column is found", () => {
+      const csv = `Alpha,Bravo,Charlie
+Game A,sort1,85
+Game B,sort2,`;
+      const games = parseCSV(csv);
+      expect(games).toHaveLength(2);
+      expect(games[0].name).toBe("Game A");
+    });
+
+    it("returns empty when no headers at all", () => {
+      const csv = "\n\n\n";
+      const games = parseCSV(csv);
+      expect(games).toEqual([]);
+    });
+
     it("handles alternative column names", () => {
       const csv = `game,rating
 Test Game,85`;
@@ -132,6 +147,18 @@ Game A,90`;
       const text = "Game A\nGame B";
       const games = parseAnyFormat(text);
       expect(games).toHaveLength(2);
+    });
+
+    it("handles CSV with commas but no recognized headers", () => {
+      const csv = "Alpha,Bravo,Charlie\nval1,val2,val3";
+      const games = parseAnyFormat(csv);
+      expect(games.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("falls through invalid JSON to CSV or plain text", () => {
+      const text = "{invalid json";
+      const games = parseAnyFormat(text);
+      expect(games).toHaveLength(1);
     });
   });
 

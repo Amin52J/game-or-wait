@@ -1,5 +1,12 @@
-import { describe, it, expect } from "vitest";
-import { compareVersions, REPO, RELEASES_URL, API_URL, DISMISS_KEY } from "./UpdateNotification.utils";
+import { describe, it, expect, afterEach } from "vitest";
+import {
+  compareVersions,
+  isTauri,
+  REPO,
+  RELEASES_URL,
+  API_URL,
+  DISMISS_KEY,
+} from "./UpdateNotification.utils";
 
 describe("compareVersions", () => {
   it("returns 0 for equal versions", () => {
@@ -52,5 +59,20 @@ describe("constants", () => {
 
   it("DISMISS_KEY is a non-empty string", () => {
     expect(DISMISS_KEY.length).toBeGreaterThan(0);
+  });
+});
+
+describe("isTauri", () => {
+  afterEach(() => {
+    delete (window as any).__TAURI__;
+  });
+
+  it("returns false when __TAURI__ is not on window", () => {
+    expect(isTauri()).toBe(false);
+  });
+
+  it("returns true when __TAURI__ is on window", () => {
+    Object.defineProperty(window, "__TAURI__", { value: {}, configurable: true });
+    expect(isTauri()).toBe(true);
   });
 });

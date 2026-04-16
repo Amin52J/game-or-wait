@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { AIClient, testConnection } from "./client";
+import { AIClient, testConnection, trialAnalyze, TrialAnalysisError } from "./client";
 import type { AIProviderConfig, Game } from "@/shared/types";
+import { getSupabase } from "@/shared/api/supabase";
+
+vi.mock("@/shared/api/supabase", () => ({
+  getSupabase: vi.fn(),
+  isTauri: () => false,
+}));
 
 const anthropicConfig: AIProviderConfig = {
   type: "anthropic",
@@ -115,9 +121,8 @@ describe("AIClient", () => {
 
       const client = new AIClient(anthropicConfig);
       const chunks: string[] = [];
-      const result = await client.analyze(
-        "Test", 0, "system", [], "€",
-        (chunk) => chunks.push(chunk),
+      const result = await client.analyze("Test", 0, "system", [], "€", (chunk) =>
+        chunks.push(chunk),
       );
 
       expect(result).toBe("Hello World");
@@ -129,9 +134,9 @@ describe("AIClient", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const client = new AIClient(anthropicConfig);
-      await expect(
-        client.analyze("Test", 0, "system", [], "€"),
-      ).rejects.toThrow("Anthropic API error (401)");
+      await expect(client.analyze("Test", 0, "system", [], "€")).rejects.toThrow(
+        "Anthropic API error (401)",
+      );
     });
   });
 
@@ -208,9 +213,7 @@ describe("AIClient", () => {
     it("throws if no base URL configured", async () => {
       const config: AIProviderConfig = { type: "custom", apiKey: "", model: "m" };
       const client = new AIClient(config);
-      await expect(
-        client.analyze("Test", 0, "system", [], "$"),
-      ).rejects.toThrow("base URL");
+      await expect(client.analyze("Test", 0, "system", [], "$")).rejects.toThrow("base URL");
     });
 
     it("handles alternative response formats", async () => {
@@ -255,11 +258,10 @@ describe("AIClient", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const client = new AIClient(anthropicConfig);
-      const result = await client.expandAnalysis(
-        "Elden Ring",
-        "Original analysis here",
-        ["Narrative & Story Depth", "Combat Feel"],
-      );
+      const result = await client.expandAnalysis("Elden Ring", "Original analysis here", [
+        "Narrative & Story Depth",
+        "Combat Feel",
+      ]);
 
       expect(result).toContain("Extended Section");
       const body = JSON.parse(fetchMock.mock.calls[0][1].body);
@@ -323,10 +325,7 @@ describe("expandAnalysis with streaming", () => {
   });
 
   it("calls openaiStream for OpenAI expand", async () => {
-    const events = [
-      'data: {"choices":[{"delta":{"content":"## Detail"}}]}',
-      "data: [DONE]",
-    ];
+    const events = ['data: {"choices":[{"delta":{"content":"## Detail"}}]}', "data: [DONE]"];
     const fetchMock = mockFetchSSE(events);
     vi.stubGlobal("fetch", fetchMock);
 
@@ -491,5 +490,297 @@ describe("testConnection", () => {
 
     const result = await testConnection(anthropicConfig);
     expect(result).toBe(false);
+  });
+});
+
+describe("OpenAI reasoning/thinking in SSE", () => {
+  it("handles reasoning_content in OpenAI stream", async () => {
+    const events = [
+      'data: {"choices":[{"delta":{"reasoning_content":"thinking step"}}]}',
+      'data: {"choices":[{"delta":{"content":"Hello"}}]}',
+      "data: [DONE]",
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(openaiConfig);
+    const onStream = vi.fn();
+    const onThinking = vi.fn();
+    const result = await client.analyze("Test", 0, "sys", [], "$", onStream, undefined, onThinking);
+    expect(onThinking).toHaveBeenCalled();
+    expect(onStream).toHaveBeenCalledWith("Hello");
+    expect(result).toBe("Hello");
+  });
+
+  it("handles reasoning field in OpenAI stream delta", async () => {
+    const events = [
+      'data: {"choices":[{"delta":{"reasoning":"step 1"}}]}',
+      'data: {"choices":[{"delta":{"content":"Result"}}]}',
+      "data: [DONE]",
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(openaiConfig);
+    const onStream = vi.fn();
+    const onThinking = vi.fn();
+    const result = await client.analyze("Test", 0, "sys", [], "$", onStream, undefined, onThinking);
+    expect(onThinking).toHaveBeenCalled();
+    expect(result).toBe("Result");
+  });
+
+  it("skips reasoning when no onThinking callback", async () => {
+    const events = [
+      'data: {"choices":[{"delta":{"reasoning_content":"thinking"}}]}',
+      'data: {"choices":[{"delta":{"content":"Output"}}]}',
+      "data: [DONE]",
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(openaiConfig);
+    const onStream = vi.fn();
+    const result = await client.analyze("Test", 0, "sys", [], "$", onStream);
+    expect(result).toBe("Output");
+  });
+
+  it("handles malformed JSON in OpenAI SSE gracefully", async () => {
+    const events = [
+      "data: {invalid json}",
+      'data: {"choices":[{"delta":{"content":"OK"}}]}',
+      "data: [DONE]",
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(openaiConfig);
+    const onStream = vi.fn();
+    const result = await client.analyze("Test", 0, "sys", [], "$", onStream);
+    expect(result).toBe("OK");
+  });
+});
+
+describe("Google streaming", () => {
+  it("streams Google response", async () => {
+    const events = ['data: {"choices":[{"delta":{"content":"Streamed"}}]}', "data: [DONE]"];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(googleConfig);
+    const onStream = vi.fn();
+    const result = await client.analyze("Test", 0, "sys", [], "$", onStream);
+    expect(onStream).toHaveBeenCalledWith("Streamed");
+    expect(result).toBe("Streamed");
+  });
+
+  it("throws on Google streaming API error", async () => {
+    const fetchMock = mockFetchSSE([], 500);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(googleConfig);
+    const onStream = vi.fn();
+    await expect(client.analyze("Test", 0, "sys", [], "$", onStream)).rejects.toThrow(
+      "Google API error",
+    );
+  });
+
+  it("uses extended thinking params for Google streaming", async () => {
+    const config: AIProviderConfig = { ...googleConfig, extendedThinking: true };
+    const events = ['data: {"choices":[{"delta":{"content":"OK"}}]}', "data: [DONE]"];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(config);
+    const onStream = vi.fn();
+    await client.analyze("Test", 0, "sys", [], "$", onStream);
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.reasoning_effort).toBe("low");
+    expect(body.max_tokens).toBe(8192);
+    expect(body.stream).toBe(true);
+  });
+
+  it("uses default params for Google streaming without extended thinking", async () => {
+    const events = ['data: {"choices":[{"delta":{"content":"OK"}}]}', "data: [DONE]"];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new AIClient(googleConfig);
+    const onStream = vi.fn();
+    await client.analyze("Test", 0, "sys", [], "$", onStream);
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.max_tokens).toBe(4096);
+    expect(body.temperature).toBe(0);
+  });
+});
+
+describe("TrialAnalysisError", () => {
+  it("creates error with code and message", () => {
+    const err = new TrialAnalysisError("FREE_TRIAL_EXHAUSTED", "No more free analyses");
+    expect(err.code).toBe("FREE_TRIAL_EXHAUSTED");
+    expect(err.message).toBe("No more free analyses");
+    expect(err.name).toBe("TrialAnalysisError");
+    expect(err).toBeInstanceOf(Error);
+  });
+});
+
+describe("trialAnalyze", () => {
+  const mockSession = { access_token: "test-token" };
+  const mockSupabase = {
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: mockSession } }),
+    },
+  };
+
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://test.supabase.co");
+    vi.mocked(getSupabase).mockReturnValue(mockSupabase as any);
+    mockSupabase.auth.getSession.mockResolvedValue({ data: { session: mockSession } });
+  });
+
+  it("throws when not authenticated", async () => {
+    mockSupabase.auth.getSession.mockResolvedValue({ data: { session: null } });
+
+    await expect(trialAnalyze("Test", 10, "instructions", [], "$", vi.fn())).rejects.toThrow(
+      "Not authenticated",
+    );
+  });
+
+  it("streams response from edge function", async () => {
+    const events = [
+      'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Analysis"}}',
+      'data: {"type":"message_stop"}',
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const onStream = vi.fn();
+    const result = await trialAnalyze("Elden Ring", 60, "instructions", sampleGames, "€", onStream);
+    expect(onStream).toHaveBeenCalledWith("Analysis");
+    expect(result).toBe("Analysis");
+  });
+
+  it("throws TrialAnalysisError on FREE_TRIAL_EXHAUSTED", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+      json: async () => ({ error: "FREE_TRIAL_EXHAUSTED", message: "Limit reached" }),
+      text: async () => '{"error":"FREE_TRIAL_EXHAUSTED"}',
+      body: null,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(trialAnalyze("Test", 10, "sys", [], "$", vi.fn())).rejects.toThrow(
+      TrialAnalysisError,
+    );
+  });
+
+  it("throws generic error on other API failures", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: "Server error" }),
+      text: async () => '{"error":"Server error"}',
+      body: null,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(trialAnalyze("Test", 10, "sys", [], "$", vi.fn())).rejects.toThrow("Server error");
+  });
+
+  it("handles json parse failure in error response", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => {
+        throw new Error("bad json");
+      },
+      text: async () => "not json",
+      body: null,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(trialAnalyze("Test", 10, "sys", [], "$", vi.fn())).rejects.toThrow(
+      "Unknown error",
+    );
+  });
+
+  it("handles thinking delta events", async () => {
+    const events = [
+      'data: {"type":"content_block_delta","delta":{"type":"thinking_delta","thinking":"Let me think..."}}',
+      'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Result"}}',
+      'data: {"type":"message_stop"}',
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const onStream = vi.fn();
+    const onThinking = vi.fn();
+    const result = await trialAnalyze("Test", 10, "sys", [], "$", onStream, undefined, onThinking);
+    expect(onThinking).toHaveBeenCalled();
+    expect(result).toBe("Result");
+  });
+
+  it("handles content_block_start with web_search tool", async () => {
+    const events = [
+      'data: {"type":"content_block_start","content_block":{"type":"server_tool_use","name":"web_search"}}',
+      'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Found"}}',
+      'data: {"type":"message_stop"}',
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const onStream = vi.fn();
+    const onThinking = vi.fn();
+    const result = await trialAnalyze("Test", 10, "sys", [], "$", onStream, undefined, onThinking);
+    expect(onThinking).toHaveBeenCalledWith("Searching the web\u2026");
+    expect(result).toBe("Found");
+  });
+
+  it("handles content_block_start with tool_use type", async () => {
+    const events = [
+      'data: {"type":"content_block_start","content_block":{"type":"tool_use","name":"calculator"}}',
+      'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Calculated"}}',
+      'data: {"type":"message_stop"}',
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const onStream = vi.fn();
+    const onThinking = vi.fn();
+    const result = await trialAnalyze("Test", 10, "sys", [], "$", onStream, undefined, onThinking);
+    expect(onThinking).toHaveBeenCalledWith("Running calculator\u2026");
+    expect(result).toBe("Calculated");
+  });
+
+  it("filters only scored games for library data", async () => {
+    const games: Game[] = [
+      { id: "1", name: "Scored", score: 85 },
+      { id: "2", name: "Unscored", score: null },
+    ];
+    const events = [
+      'data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"OK"}}',
+    ];
+    const fetchMock = mockFetchSSE(events);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await trialAnalyze("Test", 10, "sys", games, "$", vi.fn());
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.user).toContain("Scored: 85/100");
+    expect(body.user).not.toContain("Unscored");
+  });
+
+  it("handles error without error field in response", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      json: async () => ({ message: "Bad request" }),
+      text: async () => '{"message":"Bad request"}',
+      body: null,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(trialAnalyze("Test", 10, "sys", [], "$", vi.fn())).rejects.toThrow(
+      "Analysis failed (400)",
+    );
   });
 });

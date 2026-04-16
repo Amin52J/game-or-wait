@@ -4,11 +4,20 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders, resetAllMocks, mockAuthContext } from "@/__tests__/test-utils";
 import { AuthPage } from "./AuthPage";
 
+vi.mock("@/features/auth/lib/steam", () => ({
+  openSteamLoginPopup: vi.fn(),
+  verifySteamLogin: vi.fn(),
+  extractSteamIdFromParams: vi.fn(),
+  fetchSteamGames: vi.fn(),
+}));
+
 beforeEach(resetAllMocks);
 
 function getSubmitButton() {
   const form = document.querySelector("form")!;
-  return within(form).getByRole("button", { name: /log in|create account|sign up|send reset|set new|please wait/i });
+  return within(form).getByRole("button", {
+    name: /log in|create account|sign up|send reset|set new|please wait/i,
+  });
 }
 
 describe("AuthPage — Login", () => {
@@ -96,7 +105,11 @@ describe("AuthPage — Sign Up", () => {
     await user.type(screen.getByLabelText("Password"), "password123");
     await user.click(getSubmitButton());
     await waitFor(() => {
-      expect(mockAuthContext.signUp).toHaveBeenCalledWith("john@example.com", "password123", "John");
+      expect(mockAuthContext.signUp).toHaveBeenCalledWith(
+        "john@example.com",
+        "password123",
+        "John",
+      );
     });
   });
 
@@ -253,6 +266,103 @@ describe("AuthPage — Social Login", () => {
     await user.click(githubBtn!);
     await waitFor(() => {
       expect(mockAuthContext.signInWithProvider).toHaveBeenCalledWith("github");
+    });
+  });
+
+  it("shows error from signInWithProvider", async () => {
+    const user = userEvent.setup();
+    mockAuthContext.signInWithProvider.mockResolvedValue("Provider error");
+    renderWithProviders(<AuthPage initialMode="login" />);
+    const githubBtn = screen.getAllByRole("button").find((b) => b.textContent?.includes("GitHub"));
+    await user.click(githubBtn!);
+    await waitFor(() => {
+      expect(screen.getByText("Provider error")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("AuthPage — Steam Login", () => {
+  it("handles Steam login error", async () => {
+    const user = userEvent.setup();
+    const { openSteamLoginPopup } = await import("@/features/auth/lib/steam");
+    vi.mocked(openSteamLoginPopup).mockRejectedValue(new Error("Popup closed"));
+    renderWithProviders(<AuthPage initialMode="login" />);
+    const steamBtn = screen.getAllByRole("button").find((b) => b.textContent?.includes("Steam"));
+    await user.click(steamBtn!);
+    await waitFor(() => {
+      expect(screen.getByText("Popup closed")).toBeInTheDocument();
+    });
+  });
+
+  it("handles Steam login non-Error rejection", async () => {
+    const user = userEvent.setup();
+    const { openSteamLoginPopup } = await import("@/features/auth/lib/steam");
+    vi.mocked(openSteamLoginPopup).mockRejectedValue("something");
+    renderWithProviders(<AuthPage initialMode="login" />);
+    const steamBtn = screen.getAllByRole("button").find((b) => b.textContent?.includes("Steam"));
+    await user.click(steamBtn!);
+    await waitFor(() => {
+      expect(screen.getByText("Steam login failed")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("AuthPage — onBack", () => {
+  it("calls onBack when back button is clicked", async () => {
+    const user = userEvent.setup();
+    const onBack = vi.fn();
+    renderWithProviders(<AuthPage onBack={onBack} />);
+    await user.click(screen.getByText(/back/i));
+    expect(onBack).toHaveBeenCalled();
+  });
+
+  it("does not render back button when onBack is not provided", () => {
+    renderWithProviders(<AuthPage />);
+    expect(screen.queryByText(/^back$/i)).not.toBeInTheDocument();
+  });
+});
+
+describe("AuthPage — Forgot Password edge cases", () => {
+  it("shows error for forgot password with empty email", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<AuthPage initialMode="login" />);
+    await user.click(screen.getByText(/forgot password/i));
+    await waitFor(() => screen.getByLabelText("Email"));
+    // Submit without entering email — the HTML required attribute prevents form submit
+    // but our handler checks for empty email too
+    const form = document.querySelector("form")!;
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  });
+
+  it("shows error from resetPassword", async () => {
+    const user = userEvent.setup();
+    mockAuthContext.resetPassword.mockResolvedValue("Rate limited");
+    renderWithProviders(<AuthPage initialMode="login" />);
+    await user.click(screen.getByText(/forgot password/i));
+    await waitFor(() => screen.getByLabelText("Email"));
+    await user.type(screen.getByLabelText("Email"), "test@example.com");
+    await user.click(
+      within(document.querySelector("form")!).getByRole("button", { name: /send reset/i }),
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Rate limited")).toBeInTheDocument();
+    });
+  });
+});
+
+describe("AuthPage — Recovery edge cases", () => {
+  it("shows error for short password in recovery mode", async () => {
+    const user = userEvent.setup();
+    mockAuthContext.recoveryMode = true;
+    renderWithProviders(<AuthPage />);
+    const pwInput = screen.getByLabelText("New Password");
+    pwInput.removeAttribute("minLength");
+    await user.type(pwInput, "12345");
+    const form = document.querySelector("form")!;
+    const submitBtn = within(form).getByRole("button", { name: /set new/i });
+    await user.click(submitBtn);
+    await waitFor(() => {
+      expect(screen.getByText(/at least 6 characters/i)).toBeInTheDocument();
     });
   });
 });

@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/15</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">61.53% </span>
+                <span class="strong">92.3% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/13</span>
+                <span class='fraction'>12/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -151,21 +151,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,11 +161,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -229,8 +229,8 @@ export function AddGameModal({
           value={addName}
           onChange={(e) =&gt; setAddName(e.target.value)}
           onKeyDown={(e) =&gt; {
-            <span class="missing-if-branch" title="if path not taken" >I</span>if (e.key === "Enter") <span class="cstat-no" title="statement not covered" >onAdd();</span>
-            <span class="missing-if-branch" title="if path not taken" >I</span>if (e.key === "Escape") <span class="cstat-no" title="statement not covered" >onClose();</span>
+            if (e.key === "Enter") onAdd();
+            if (e.key === "Escape") onClose();
           }}
           placeholder="Enter game name..."
         /&gt;
@@ -243,8 +243,8 @@ export function AddGameModal({
             <span class="missing-if-branch" title="else path not taken" >E</span>if (v === "" || (/^\d+$/.test(v) &amp;&amp; Number(v) &lt;= 100)) setAddScore(v);
           }}
           onKeyDown={(e) =&gt; {
-            <span class="missing-if-branch" title="if path not taken" >I</span>if (e.key === "Enter") <span class="cstat-no" title="statement not covered" >onAdd();</span>
-            <span class="missing-if-branch" title="if path not taken" >I</span>if (e.key === "Escape") <span class="cstat-no" title="statement not covered" >onClose();</span>
+            if (e.key === "Enter") onAdd();
+            if (e.key === "Escape") onClose();
           }}
           placeholder="0–100"
           type="number"
@@ -271,7 +271,7 @@ export function AddGameModal({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-13T09:50:29.014Z
+                at 2026-04-16T19:26:09.198Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
