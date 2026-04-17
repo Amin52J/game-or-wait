@@ -29,7 +29,9 @@ function getOAuthRedirectUrl(): string {
   return DEEP_LINK_CALLBACK;
 }
 
-async function signInWithProviderTauri(provider: "google" | "github" | "discord"): Promise<string | null> {
+async function signInWithProviderTauri(
+  provider: "google" | "github" | "discord",
+): Promise<string | null> {
   const sb = getSupabase();
 
   const { data, error } = await sb.auth.signInWithOAuth({
@@ -78,7 +80,10 @@ async function signInWithProviderTauri(provider: "google" | "github" | "discord"
           const refreshToken = hp.get("refresh_token");
 
           if (accessToken && refreshToken) {
-            const { error: err } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+            const { error: err } = await sb.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
             settle(err?.message ?? null);
             return;
           }
@@ -114,7 +119,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = sb.auth.onAuthStateChange((event, s) => {
+    const {
+      data: { subscription },
+    } = sb.auth.onAuthStateChange((event, s) => {
       if (event === "PASSWORD_RECOVERY") {
         setRecoveryMode(true);
       }
@@ -154,42 +161,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, name?: string): Promise<string | null> => {
-    const { data, error } = await getSupabase().auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name || email.split("@")[0], has_password: true },
-        emailRedirectTo: isTauri() ? undefined : window.location.origin,
-      },
-    });
-    if (error) {
-      if (error.status === 429 || /rate|too many requests/i.test(error.message)) {
-        return "Too many signup attempts. Please wait a few minutes and try again.";
+  const signUp = useCallback(
+    async (email: string, password: string, name?: string): Promise<string | null> => {
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const res = await fetch(`${supabaseUrl}/functions/v1/custom-signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, name: name || email.split("@")[0] }),
+        });
+        const body = await res.json();
+        if (!res.ok) {
+          return body.error || "Signup failed. Please try again.";
+        }
+        return null;
+      } catch {
+        return "Signup failed. Please check your connection and try again.";
       }
-      return error.message;
-    }
-    if (data.user && data.user.identities?.length === 0) {
-      return "An account with this email already exists. Try signing in instead.";
-    }
-    return null;
-  }, []);
+    },
+    [],
+  );
 
   const signIn = useCallback(async (email: string, password: string): Promise<string | null> => {
     const { error } = await getSupabase().auth.signInWithPassword({ email, password });
     return error?.message ?? null;
   }, []);
 
-  const signInWithProvider = useCallback(async (provider: "google" | "github" | "discord"): Promise<string | null> => {
-    if (isTauri()) {
-      return signInWithProviderTauri(provider);
-    }
-    const { error } = await getSupabase().auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: window.location.origin },
-    });
-    return error?.message ?? null;
-  }, []);
+  const signInWithProvider = useCallback(
+    async (provider: "google" | "github" | "discord"): Promise<string | null> => {
+      if (isTauri()) {
+        return signInWithProviderTauri(provider);
+      }
+      const { error } = await getSupabase().auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: window.location.origin },
+      });
+      return error?.message ?? null;
+    },
+    [],
+  );
 
   const signOut = useCallback(async () => {
     setRecoveryMode(false);
@@ -197,13 +207,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetPassword = useCallback(async (email: string): Promise<string | null> => {
-    const redirectTo = isTauri() ? undefined : window.location.origin;
-    const { error } = await getSupabase().auth.resetPasswordForEmail(email, { redirectTo });
-    return error?.message ?? null;
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const redirectTo = isTauri() ? undefined : window.location.origin;
+      const res = await fetch(`${supabaseUrl}/functions/v1/custom-recovery`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, redirectTo }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        return body.error || "Failed to send reset link. Please try again.";
+      }
+      return null;
+    } catch {
+      return "Failed to send reset link. Please check your connection and try again.";
+    }
   }, []);
 
   const updatePassword = useCallback(async (password: string): Promise<string | null> => {
-    const { error } = await getSupabase().auth.updateUser({ password, data: { has_password: true } });
+    const { error } = await getSupabase().auth.updateUser({
+      password,
+      data: { has_password: true },
+    });
     if (!error) setRecoveryMode(false);
     return error?.message ?? null;
   }, []);
@@ -213,9 +239,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user, session, loading, recoveryMode,
-        signUp, signIn, signInWithProvider, signOut,
-        resetPassword, updatePassword, clearRecoveryMode,
+        user,
+        session,
+        loading,
+        recoveryMode,
+        signUp,
+        signIn,
+        signInWithProvider,
+        signOut,
+        resetPassword,
+        updatePassword,
+        clearRecoveryMode,
       }}
     >
       {children}
