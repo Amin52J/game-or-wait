@@ -1,4 +1,4 @@
-const CACHE_NAME = "gamefit-v1";
+const CACHE_NAME = "gameorwait-v1";
 const PRECACHE_URLS = ["/", "/icon.svg"];
 
 self.addEventListener("install", (event) => {

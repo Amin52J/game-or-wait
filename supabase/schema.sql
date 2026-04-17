@@ -1,4 +1,4 @@
--- GameFit database schema for Supabase
+-- GameOrWait database schema for Supabase
 -- Run this in the Supabase SQL Editor after creating your project.
 
 -- Profiles (extends auth.users)

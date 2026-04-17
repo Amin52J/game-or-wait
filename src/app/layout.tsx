@@ -8,13 +8,13 @@ import { ServiceWorkerRegistration } from "@/app/providers/ServiceWorkerRegistra
 import { AppShell } from "@/widgets/app-shell";
 
 export const metadata: Metadata = {
-  title: "GameFit — Personalized Game Analysis",
+  title: "GameOrWait — Personalized Game Analysis",
   description: "AI-powered game recommendation engine based on your personal taste",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "GameFit",
+    title: "GameOrWait",
   },
 };
 

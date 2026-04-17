@@ -52,7 +52,7 @@ export function ProviderSection({
           ) : (
             <>
               <strong>All 5 starter analyses used.</strong> Add your own API key below to
-              continue using GameFit.
+              continue using GameOrWait.
             </>
           )}
         </TrialStatusBox>

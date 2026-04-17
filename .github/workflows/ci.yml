@@ -123,7 +123,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy out --project-name=gamefit
+          command: pages deploy out --project-name=GameOrWait
 
   release:
     needs: [deploy]
@@ -192,8 +192,8 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="v${VERSION}"
-          NSIS="src-tauri/target/release/bundle/nsis/GameFit_${VERSION}_x64-setup.exe"
-          MSI="src-tauri/target/release/bundle/msi/GameFit_${VERSION}_x64_en-US.msi"
+          NSIS="src-tauri/target/release/bundle/nsis/GameOrWait_${VERSION}_x64-setup.exe"
+          MSI="src-tauri/target/release/bundle/msi/GameOrWait_${VERSION}_x64_en-US.msi"
 
           # Delete existing release/tag if re-running for the same version
           gh release delete "$TAG" --yes 2>/dev/null || true

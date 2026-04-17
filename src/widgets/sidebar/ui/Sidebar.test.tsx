@@ -25,9 +25,9 @@ describe("Sidebar", () => {
     expect(screen.getByText("Help")).toBeInTheDocument();
   });
 
-  it("renders GameFit logo", () => {
+  it("renders GameOrWait logo", () => {
     renderWithProviders(<Sidebar />);
-    expect(screen.getByText("GameFit")).toBeInTheDocument();
+    expect(screen.getByText("GameOrWait")).toBeInTheDocument();
   });
 
   it("renders log out button", () => {

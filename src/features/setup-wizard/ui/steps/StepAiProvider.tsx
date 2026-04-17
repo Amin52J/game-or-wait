@@ -82,7 +82,7 @@ export function StepAiProvider({
 
       <div>
         <SectionTitle>AI provider</SectionTitle>
-        <SectionHint>Choose a provider and connect your API key. GameFit supports all major AI providers.</SectionHint>
+        <SectionHint>Choose a provider and connect your API key. GameOrWait supports all major AI providers.</SectionHint>
         <ProviderGrid>
           <ProviderCard type="button" $selected={config.type === "anthropic"} onClick={() => setType("anthropic")}>
             <ProviderName>Anthropic</ProviderName>
@@ -114,7 +114,7 @@ export function StepAiProvider({
       <div>
         <Label htmlFor="gf-api-key">API key</Label>
         <SectionHint>
-          An API key is a unique code that lets GameFit connect to the AI provider you chose above.
+          An API key is a unique code that lets GameOrWait connect to the AI provider you chose above.
           You get it free from the provider&apos;s website — it takes about 2 minutes. The key stays
           in your browser and is never sent to us. Each analysis costs a fraction of a cent, billed
           directly by the provider.{" "}

@@ -93,7 +93,7 @@ export function TrialExhaustedCard() {
     <Card>
       <Title>All 5 starter analyses used</Title>
       <Desc>
-        To keep using GameFit, set up your own API key — it takes about 2
+        To keep using GameOrWait, set up your own API key — it takes about 2
         minutes and most providers include starter credits.
       </Desc>
 

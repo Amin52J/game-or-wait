@@ -1,9 +1,8 @@
 import { createElement } from "react";
 
-export const DOWNLOAD_URL =
-  "https://github.com/Amin52J/game-fit/releases/latest";
+export const DOWNLOAD_URL = "https://github.com/Amin52J/game-or-wait/releases/latest";
 
-export const GITHUB_URL = "https://github.com/Amin52J/game-fit";
+export const GITHUB_URL = "https://github.com/Amin52J/game-or-wait";
 
 export function WinIcon() {
   return createElement(
@@ -18,7 +17,7 @@ export function WinIcon() {
     createElement("path", {
       d: "M0 2.3l6.5-.9v6.3H0zm7.3-.9L16 0v7.7H7.3zM16 8.4v7.6l-8.7-1.2V8.4zM6.5 14.7L0 13.8V8.4h6.5z",
       fill: "currentColor",
-    })
+    }),
   );
 }
 
@@ -41,7 +40,7 @@ function svgIcon(d: string, extras?: React.ReactNode) {
       strokeLinecap: "round",
       strokeLinejoin: "round",
       fill: "none",
-    })
+    }),
   );
 }
 
@@ -62,48 +61,42 @@ function GitHubIcon() {
       strokeLinecap: "round",
       strokeLinejoin: "round",
       fill: "none",
-    })
+    }),
   );
 }
 
 export { GitHubIcon };
 
-const AnalyzeIcon = () =>
-  svgIcon("M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35");
+const AnalyzeIcon = () => svgIcon("M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35");
 
 const LibraryIcon = () =>
   svgIcon(
-    "M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5ZM4 19.5A2.5 2.5 0 0 1 6.5 17H20"
+    "M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5ZM4 19.5A2.5 2.5 0 0 1 6.5 17H20",
   );
 
 const TasteIcon = () =>
-  svgIcon(
-    "M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4ZM19 10v2a7 7 0 0 1-14 0v-2M12 19v3"
-  );
+  svgIcon("M12 2a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4ZM19 10v2a7 7 0 0 1-14 0v-2M12 19v3");
 
-const ProviderIcon = () =>
-  svgIcon(
-    "M12 2L2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5"
-  );
+const ProviderIcon = () => svgIcon("M12 2L2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5");
 
-const PrivacyIcon = () =>
-  svgIcon(
-    "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"
-  );
+const PrivacyIcon = () => svgIcon("M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z");
 
-const DesktopIcon = () =>
-  svgIcon(
-    "M2 3h20v14H2zM8 21h8M12 17v4"
-  );
+const DesktopIcon = () => svgIcon("M2 3h20v14H2zM8 21h8M12 17v4");
 
 const CalculatorIcon = () =>
   svgIcon(
     "M8 6h8M8 10h2M12 10h2M8 14h2M12 14h2M8 18h2M12 18h8M16 10h2M16 14h2",
     createElement("rect", {
       key: "r",
-      x: 4, y: 2, width: 16, height: 20, rx: 2,
-      stroke: "currentColor", strokeWidth: 2, fill: "none",
-    })
+      x: 4,
+      y: 2,
+      width: 16,
+      height: 20,
+      rx: 2,
+      stroke: "currentColor",
+      strokeWidth: 2,
+      fill: "none",
+    }),
   );
 
 export const FEATURES = [
@@ -125,7 +118,7 @@ export const FEATURES = [
   {
     icon: TasteIcon(),
     title: "Personalized Taste Profile",
-    desc: "Answer a few preference questions and GameFit builds a custom taste profile that shapes every analysis.",
+    desc: "Answer a few preference questions and GameOrWait builds a custom taste profile that shapes every analysis.",
   },
   {
     icon: PrivacyIcon(),
@@ -146,7 +139,7 @@ export const HOW_IT_WORKS_STEPS = [
   },
   {
     title: "Set up your profile",
-    desc: "Choose \"Skip — use our key\" to skip the API key step, then answer taste questions and import your game library.",
+    desc: 'Choose "Skip — use our key" to skip the API key step, then answer taste questions and import your game library.',
   },
   {
     title: "Score your library",

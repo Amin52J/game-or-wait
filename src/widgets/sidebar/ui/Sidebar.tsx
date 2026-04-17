@@ -80,7 +80,7 @@ export function Sidebar() {
       <SidebarRoot $open={mobileOpen} aria-label="Main navigation">
         <LogoBlock href="/analyze" onClick={closeMobile}>
           <LogoIcon src="/icon.svg" alt="" width={32} height={32} aria-hidden />
-          <LogoText>GameFit</LogoText>
+          <LogoText>GameOrWait</LogoText>
         </LogoBlock>
         <Nav>
           {NAV_ITEMS.map(({ href, label, icon }) => (
@@ -116,7 +116,7 @@ export function Sidebar() {
         <ModalOverlay onClick={() => setShowLogoutModal(false)}>
           <ModalCard onClick={(e) => e.stopPropagation()}>
             <ModalTitle>Log out?</ModalTitle>
-            <ModalDesc>Are you sure you want to log out of GameFit?</ModalDesc>
+            <ModalDesc>Are you sure you want to log out of GameOrWait?</ModalDesc>
             <ModalActions>
               <ModalBtn type="button" onClick={() => setShowLogoutModal(false)}>
                 Cancel

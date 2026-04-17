@@ -1,5 +1,5 @@
 {
-  "name": "game-fit",
+  "name": "game-or-wait",
   "version": "1.14.1",
   "private": true,
   "license": "PolyForm-Noncommercial-1.0.0",
@@ -24,7 +24,7 @@
     "test:all": "npm run typecheck && npm run test && npm run test:e2e",
     "cf:build": "npm run typecheck && npm run test:coverage && next build",
     "cf:preview": "npx wrangler pages dev out",
-    "cf:deploy": "npx wrangler pages deploy out --project-name=gamefit"
+    "cf:deploy": "npx wrangler pages deploy out --project-name=gameorwait"
   },
   "description": "AI-powered game recommendation engine based on your personal taste",
   "dependencies": {

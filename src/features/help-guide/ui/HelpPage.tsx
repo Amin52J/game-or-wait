@@ -18,7 +18,7 @@ import {
 } from "./HelpPage.styles";
 
 const SECTIONS = [
-  { id: "what-is-gamefit", label: "What is GameFit?" },
+  { id: "what-is-GameOrWait", label: "What is GameOrWait?" },
   { id: "free-trial", label: "Starter analyses" },
   { id: "api-key", label: "API keys explained" },
   { id: "library", label: "Your game library" },
@@ -35,7 +35,7 @@ export function HelpPage() {
       <HelpHeader>
         <HelpTitle>Help &amp; Guide</HelpTitle>
         <HelpSubtitle>
-          Everything you need to know about using GameFit, from initial setup to getting the most
+          Everything you need to know about using GameOrWait, from initial setup to getting the most
           out of your game analyses.
         </HelpSubtitle>
       </HelpHeader>
@@ -48,18 +48,18 @@ export function HelpPage() {
         ))}
       </TOC>
 
-      {/* ───── What is GameFit? ───── */}
+      {/* ───── What is GameOrWait? ───── */}
       <Section>
-        <SectionAnchor id="what-is-gamefit">What is GameFit?</SectionAnchor>
+        <SectionAnchor id="what-is-GameOrWait">What is GameOrWait?</SectionAnchor>
         <P>
-          GameFit is your personal game purchasing assistant. It uses AI to analyze whether a game
+          GameOrWait is your personal game purchasing assistant. It uses AI to analyze whether a game
           is a good fit <strong>for you specifically</strong> — based on your gaming taste, play
           history, and preferences — rather than giving a generic review score.
         </P>
         <P>Here&apos;s how it works at a high level:</P>
         <OL>
           <li>
-            You tell GameFit what you like — play style, difficulty preference, dealbreakers, and
+            You tell GameOrWait what you like — play style, difficulty preference, dealbreakers, and
             what matters most to you in a game (story, combat, exploration, etc.).
           </li>
           <li>
@@ -139,15 +139,15 @@ export function HelpPage() {
       <Section>
         <SectionAnchor id="api-key">API keys explained</SectionAnchor>
         <P>
-          GameFit doesn&apos;t have its own AI — instead, it connects to an AI provider of your
+          GameOrWait doesn&apos;t have its own AI — instead, it connects to an AI provider of your
           choice (Anthropic, OpenAI, Google, or a custom endpoint). To do this, you need an{" "}
           <strong>API key</strong>.
         </P>
 
         <SubHeading>What is an API key?</SubHeading>
         <P>
-          An API key is like a password that lets GameFit talk to the AI service on your behalf. You
-          get it from the AI provider&apos;s website and paste it into GameFit during setup. Each
+          An API key is like a password that lets GameOrWait talk to the AI service on your behalf. You
+          get it from the AI provider&apos;s website and paste it into GameOrWait during setup. Each
           analysis uses a tiny amount of the provider&apos;s credit (usually fractions of a cent).
         </P>
 
@@ -169,9 +169,9 @@ export function HelpPage() {
         </OL>
 
         <Callout $variant="info">
-          <strong>Your key stays private.</strong> GameFit stores your API key only in your browser
-          — it is never sent to GameFit&apos;s servers. Requests go directly from your browser to
-          the AI provider. You are billed by the provider, not by GameFit.
+          <strong>Your key stays private.</strong> GameOrWait stores your API key only in your browser
+          — it is never sent to GameOrWait&apos;s servers. Requests go directly from your browser to
+          the AI provider. You are billed by the provider, not by GameOrWait.
         </Callout>
 
         <SubHeading>How much does it cost?</SubHeading>
@@ -216,7 +216,7 @@ export function HelpPage() {
       <Section>
         <SectionAnchor id="scoring">How scoring works</SectionAnchor>
         <P>
-          GameFit uses a 0–100 scoring scale. There are two different ways to score a game,
+          GameOrWait uses a 0–100 scoring scale. There are two different ways to score a game,
           depending on how much you liked it:
         </P>
 
@@ -284,7 +284,7 @@ export function HelpPage() {
       <Section>
         <SectionAnchor id="importing">Importing from apps</SectionAnchor>
         <P>
-          You can import your game library from several sources. GameFit accepts CSV, JSON, and
+          You can import your game library from several sources. GameOrWait accepts CSV, JSON, and
           plain text files.
         </P>
 
@@ -303,7 +303,7 @@ export function HelpPage() {
             Make sure the <strong>Name</strong> column is included (and optionally a score/rating
             column if you&apos;ve rated games in Playnite)
           </li>
-          <li>Save the file and drag it into GameFit&apos;s import area</li>
+          <li>Save the file and drag it into GameOrWait&apos;s import area</li>
         </OL>
 
         <SubHeading>From GOG Galaxy</SubHeading>
@@ -313,21 +313,21 @@ export function HelpPage() {
             <code>gog-galaxy-export</code> (search GitHub)
           </li>
           <li>Export your library as CSV</li>
-          <li>Drag the CSV into GameFit&apos;s import area</li>
+          <li>Drag the CSV into GameOrWait&apos;s import area</li>
         </OL>
 
         <SubHeading>From Steam</SubHeading>
         <P>
-          GameFit can import directly from Steam during setup or from the Library page. You just
+          GameOrWait can import directly from Steam during setup or from the Library page. You just
           need your Steam ID (the number in your profile URL) and your game list must be set to
           public in Steam&apos;s privacy settings.
         </P>
 
         <SubHeading>From Epic Games</SubHeading>
         <P>
-          GameFit can import your Epic Games library during setup or from the Library page. Click
+          GameOrWait can import your Epic Games library during setup or from the Library page. Click
           &quot;Connect Epic Games&quot;, log in on the tab that opens, then copy the authorization
-          code shown on the page and paste it back into GameFit. Your owned games will be imported
+          code shown on the page and paste it back into GameOrWait. Your owned games will be imported
           automatically.
         </P>
 
@@ -339,7 +339,7 @@ export function HelpPage() {
         </P>
 
         <Callout $variant="info">
-          <strong>Duplicate handling:</strong> When importing, GameFit automatically detects
+          <strong>Duplicate handling:</strong> When importing, GameOrWait automatically detects
           duplicates by name and keeps the entry with the higher score. You won&apos;t end up with
           duplicate entries.
         </Callout>
@@ -413,7 +413,7 @@ export function HelpPage() {
       <Section>
         <SectionAnchor id="faq">Frequently asked questions</SectionAnchor>
 
-        <SubHeading>Do I need an API key to use GameFit?</SubHeading>
+        <SubHeading>Do I need an API key to use GameOrWait?</SubHeading>
         <P>
           Not right away. Every new account includes <strong>5 starter analyses</strong> using
           our key — no setup needed. After that, you&apos;ll set up your own key from Anthropic,

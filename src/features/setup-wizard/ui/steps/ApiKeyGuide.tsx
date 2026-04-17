@@ -36,7 +36,7 @@ export function ApiKeyGuide({ provider }: { provider: AIProviderType }) {
             ).
           </HelpStepItem>
           <HelpStepItem>
-            Click <strong>Create Key</strong>, give it a name (e.g. &quot;GameFit&quot;), and click{" "}
+            Click <strong>Create Key</strong>, give it a name (e.g. &quot;GameOrWait&quot;), and click{" "}
             <strong>Create</strong>.
           </HelpStepItem>
           <HelpStepItem>
@@ -78,7 +78,7 @@ export function ApiKeyGuide({ provider }: { provider: AIProviderType }) {
             .
           </HelpStepItem>
           <HelpStepItem>
-            Click <strong>Create new secret key</strong>, name it (e.g. &quot;GameFit&quot;), and
+            Click <strong>Create new secret key</strong>, name it (e.g. &quot;GameOrWait&quot;), and
             click <strong>Create</strong>.
           </HelpStepItem>
           <HelpStepItem>

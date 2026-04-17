@@ -2,7 +2,7 @@
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") ?? "a.jafari.90@gmail.com";
-const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "GameFit <onboarding@resend.dev>";
+const EMAIL_FROM = Deno.env.get("EMAIL_FROM") ?? "GameOrWait <onboarding@resend.dev>";
 
 interface NotifyPayload {
   event: "signup" | "starter_analysis";

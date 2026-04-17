@@ -110,7 +110,7 @@ export function SetupWizard() {
 
   useEffect(() => {
     if (steamAutoImported.current) return;
-    const storedSteamId = sessionStorage.getItem("gamefit_steam_id");
+    const storedSteamId = sessionStorage.getItem("GameOrWait_steam_id");
     if (!storedSteamId) return;
     steamAutoImported.current = true;
 
@@ -212,8 +212,8 @@ export function SetupWizard() {
     setGames(importedGames);
     setInstructions(generateInstructions(answers));
     completeSetup();
-    sessionStorage.removeItem("gamefit_steam_id");
-    sessionStorage.removeItem("gamefit_steam_is_new");
+    sessionStorage.removeItem("GameOrWait_steam_id");
+    sessionStorage.removeItem("GameOrWait_steam_is_new");
     router.push("/analyze");
   };
 
@@ -221,7 +221,7 @@ export function SetupWizard() {
     <Page>
       <Center>
         <Hero>
-          <Title>Welcome to GameFit</Title>
+          <Title>Welcome to GameOrWait</Title>
           <Subtitle>Let&apos;s set up your personalized game analysis assistant</Subtitle>
         </Hero>
 

@@ -20,7 +20,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const DEEP_LINK_CALLBACK = "gamefit://auth/callback";
+const DEEP_LINK_CALLBACK = "gameorwait://auth/callback";
 const OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 
 function getOAuthRedirectUrl(): string {

@@ -20,11 +20,11 @@ interface HookPayload {
 }
 
 const SUBJECTS: Record<string, string> = {
-  signup: "Confirm your GameFit account",
-  recovery: "Reset your GameFit password",
-  magiclink: "Your GameFit login link",
+  signup: "Confirm your GameOrWait account",
+  recovery: "Reset your GameOrWait password",
+  magiclink: "Your GameOrWait login link",
   email_change: "Confirm your new email address",
-  invite: "You've been invited to GameFit",
+  invite: "You've been invited to GameOrWait",
 };
 
 const CTA_LABELS: Record<string, string> = {
@@ -55,7 +55,7 @@ function html(type: string, url: string, name: string): string {
     <tr><td align="center">
       <table width="480" cellpadding="0" cellspacing="0" style="background:#1a1a2e;border-radius:12px;padding:40px;border:1px solid #2a2a4a">
         <tr><td align="center" style="padding-bottom:24px">
-          <h1 style="color:#e0e0e0;font-size:22px;margin:0">GameFit</h1>
+          <h1 style="color:#e0e0e0;font-size:22px;margin:0">GameOrWait</h1>
         </td></tr>
         <tr><td style="color:#cccccc;font-size:15px;line-height:1.6;padding-bottom:24px">
           Hi${name ? ` ${name}` : ""},<br/><br/>
@@ -63,7 +63,7 @@ function html(type: string, url: string, name: string): string {
           ${type === "recovery" ? "We received a request to reset your password. Click below to choose a new one." : ""}
           ${type === "magiclink" ? "Click below to sign in to your account." : ""}
           ${type === "email_change" ? "Please confirm your new email address by clicking below." : ""}
-          ${type === "invite" ? "You've been invited to join GameFit. Click below to accept." : ""}
+          ${type === "invite" ? "You've been invited to join GameOrWait. Click below to accept." : ""}
         </td></tr>
         <tr><td align="center" style="padding-bottom:24px">
           <a href="${url}" style="display:inline-block;background:#6c63ff;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:600">${cta}</a>
@@ -95,9 +95,9 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: Deno.env.get("EMAIL_FROM") ?? "GameFit <onboarding@resend.dev>",
+        from: Deno.env.get("EMAIL_FROM") ?? "GameOrWait <onboarding@resend.dev>",
         to: [user.email],
-        subject: SUBJECTS[email_data.email_action_type] ?? "GameFit",
+        subject: SUBJECTS[email_data.email_action_type] ?? "GameOrWait",
         html: html(email_data.email_action_type, verifyUrl, name),
       }),
     });

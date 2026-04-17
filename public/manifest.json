@@ -1,6 +1,6 @@
 {
-  "name": "GameFit — Personalized Game Analysis",
-  "short_name": "GameFit",
+  "name": "GameOrWait — Personalized Game Analysis",
+  "short_name": "GameOrWait",
   "description": "AI-powered game recommendation engine based on your personal taste",
   "start_url": "/",
   "display": "standalone",

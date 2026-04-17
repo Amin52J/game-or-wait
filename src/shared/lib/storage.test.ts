@@ -57,13 +57,13 @@ describe("storage", () => {
   });
 
   it("loadState handles corrupted localStorage gracefully", () => {
-    localStorage.setItem("gamefit_state", "not json");
+    localStorage.setItem("gameorwait_state", "not json");
     const state = loadState();
     expect(state).toEqual(INITIAL_STATE);
   });
 
   it("loadState merges with INITIAL_STATE for missing fields", () => {
-    localStorage.setItem("gamefit_state", JSON.stringify({ isSetupComplete: true }));
+    localStorage.setItem("gameorwait_state", JSON.stringify({ isSetupComplete: true }));
     const state = loadState();
     expect(state.isSetupComplete).toBe(true);
     expect(state.games).toEqual([]);

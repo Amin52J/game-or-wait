@@ -132,7 +132,7 @@ export function StepImportLibrary({
     setSteamError(null);
     setSteamLoading(true);
     try {
-      let steamId = sessionStorage.getItem("gamefit_steam_id");
+      let steamId = sessionStorage.getItem("gameorwait_steam_id");
 
       if (!steamId) {
         const params = await openSteamLoginPopup();

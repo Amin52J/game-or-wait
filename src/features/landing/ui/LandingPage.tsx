@@ -72,10 +72,16 @@ export function LandingPage({
       <Nav>
         <LogoGroup>
           <LogoImg src="/icon.svg" alt="" width={32} height={32} />
-          <LogoText>GameFit</LogoText>
+          <LogoText>GameOrWait</LogoText>
         </LogoGroup>
         <NavActions>
-          <NavBtn as="a" href={DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" $hideOnMobile>
+          <NavBtn
+            as="a"
+            href={DOWNLOAD_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            $hideOnMobile
+          >
             Download
           </NavBtn>
           <NavBtn onClick={() => onGetStarted("login")}>Log In</NavBtn>
@@ -86,12 +92,11 @@ export function LandingPage({
       </Nav>
 
       <Hero>
-        <HeroBadge>Your Personal AI-Powered Game Reviewer</HeroBadge>
-        <HeroTitle>Find out if a game is right for you before you buy</HeroTitle>
+        <HeroBadge>Your Personal Game Reviewer</HeroBadge>
+        <HeroTitle>Never regret a game purchase again</HeroTitle>
         <HeroSub>
-          GameFit analyzes any game against your personal library and taste preferences to predict
-          how much you&apos;ll enjoy it, complete with a confidence score, risk assessment, and
-          price recommendation.
+          Tired of buying games you never finish? GameOrWait uses AI to predict whether you&apos;ll
+          actually enjoy a game and at what price point — based on your taste, not generic reviews.
         </HeroSub>
         <HeroActions>
           <HeroCTA onClick={() => onGetStarted()}>Get Started — It&apos;s Free</HeroCTA>
@@ -106,8 +111,8 @@ export function LandingPage({
           <FreeTrialBadge>No credit card · No API key · No setup</FreeTrialBadge>
           <FreeTrialTitle>5 analyses on us, then bring your own key</FreeTrialTitle>
           <FreeTrialDesc>
-            Not sure if GameFit is for you? Sign up and get 5 game analyses instantly — no
-            API key required. Experience the full AI-powered analysis before deciding to continue.
+            Not sure if GameOrWait is for you? Sign up and get 5 game analyses instantly — no API key
+            required. Experience the full AI-powered analysis before deciding to continue.
           </FreeTrialDesc>
           <FreeTrialHighlights>
             <FreeTrialHighlight>
@@ -123,9 +128,7 @@ export function LandingPage({
               Confidence score &amp; price recommendation
             </FreeTrialHighlight>
           </FreeTrialHighlights>
-          <FreeTrialCTA onClick={() => onGetStarted()}>
-            Get Started
-          </FreeTrialCTA>
+          <FreeTrialCTA onClick={() => onGetStarted()}>Get Started</FreeTrialCTA>
           <FreeTrialFootnote>
             After 5 analyses, set up your own API key (takes ~2 min) for unlimited use.
           </FreeTrialFootnote>
@@ -134,9 +137,9 @@ export function LandingPage({
 
       <WhatIsSection>
         <WhatIsCard>
-          <WhatIsTitle>What is GameFit?</WhatIsTitle>
+          <WhatIsTitle>What is GameOrWait?</WhatIsTitle>
           <WhatIsText>
-            GameFit is your personal game purchasing assistant. It uses AI to analyze whether a game
+            GameOrWait is your personal game purchasing assistant. It uses AI to analyze whether a game
             is a good fit <strong>for you specifically</strong> — based on your gaming taste, play
             history, and preferences — rather than giving a generic review score.
           </WhatIsText>
@@ -146,7 +149,7 @@ export function LandingPage({
               <StepContent>
                 <StepTitle>Define your taste</StepTitle>
                 <StepDesc>
-                  Tell GameFit what you like — play style, difficulty preference, dealbreakers, and
+                  Tell GameOrWait what you like — play style, difficulty preference, dealbreakers, and
                   what matters most to you in a game (story, combat, exploration, etc.).
                 </StepDesc>
               </StepContent>
@@ -213,13 +216,13 @@ export function LandingPage({
           </ContributeIcon>
           <ContributeTitle>Open Source on GitHub</ContributeTitle>
           <ContributeDesc>
-            GameFit is free and open source. Report bugs, suggest features, or contribute code —
+            GameOrWait is free and open source. Report bugs, suggest features, or contribute code —
             every bit helps make the project better.
           </ContributeDesc>
         </ContributeCard>
       </ContributeSection>
 
-      <LandingFooter>&copy; {new Date().getFullYear()} GameFit. All rights reserved.</LandingFooter>
+      <LandingFooter>&copy; {new Date().getFullYear()} GameOrWait. All rights reserved.</LandingFooter>
     </Page>
   );
 }

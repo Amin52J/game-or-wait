@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
     }
 
     // New user flow
-    const email = `steam_${steamId}@gamefit.steam`;
+    const email = `steam_${steamId}@gameorwait.steam`;
 
     const { data: newUser, error: createError } =
       await supabase.auth.admin.createUser({

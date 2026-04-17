@@ -14,7 +14,7 @@ test.describe("Navigation", () => {
 
   test("shows user info in sidebar footer", async ({ authenticatedPage: page }) => {
     await page.goto("/analyze");
-    await expect(page.getByText("e2e@gamefit.test")).toBeVisible();
+    await expect(page.getByText("e2e@GameOrWait.test")).toBeVisible();
   });
 
   test("navigate to Library page", async ({ authenticatedPage: page }) => {
@@ -61,7 +61,7 @@ test.describe("Navigation", () => {
     await page.getByRole("button", { name: "Log Out" }).click();
 
     await expect(page.getByText("Log out?")).toBeVisible();
-    await expect(page.getByText("Are you sure you want to log out of GameFit?")).toBeVisible();
+    await expect(page.getByText("Are you sure you want to log out of GameOrWait?")).toBeVisible();
     await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
   });
 

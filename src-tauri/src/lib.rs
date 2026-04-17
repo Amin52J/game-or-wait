@@ -7,7 +7,7 @@ pub fn run() {
     .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
       let urls: Vec<String> = args
         .iter()
-        .filter(|a| a.starts_with("gamefit://"))
+        .filter(|a| a.starts_with("gameorwait://"))
         .cloned()
         .collect();
       if !urls.is_empty() {
@@ -35,7 +35,7 @@ pub fn run() {
       #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
       {
         use tauri_plugin_deep_link::DeepLinkExt;
-        let _ = app.deep_link().register("gamefit");
+        let _ = app.deep_link().register("gameorwait");
       }
 
       let window = app.get_webview_window("main").unwrap();

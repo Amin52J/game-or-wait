@@ -16,7 +16,7 @@ test.describe("Help Page", () => {
     await expect(toc).toBeVisible();
 
     const sections = [
-      "What is GameFit?",
+      "What is GameOrWait?",
       "API keys explained",
       "Your game library",
       "How scoring works",
@@ -45,7 +45,7 @@ test.describe("Help Page", () => {
     await page.goto("/analyze");
     await page.getByLabel("Main navigation").getByText("Help").click();
 
-    const anchors = ["what-is-gamefit", "api-key", "library", "scoring", "importing", "analyzing", "results", "faq"];
+    const anchors = ["what-is-GameOrWait", "api-key", "library", "scoring", "importing", "analyzing", "results", "faq"];
     for (const id of anchors) {
       await expect(page.locator(`#${id}`)).toBeAttached();
     }

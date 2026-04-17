@@ -4,7 +4,7 @@ test.describe("Setup Wizard", () => {
   test("shows welcome screen with title", async ({ freshSetupPage: page }) => {
     await page.goto("/");
 
-    await expect(page.getByText("Welcome to GameFit")).toBeVisible();
+    await expect(page.getByText("Welcome to GameOrWait")).toBeVisible();
     await expect(
       page.getByText("Let's set up your personalized game analysis assistant"),
     ).toBeVisible();

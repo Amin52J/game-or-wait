@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "GameFit",
+  "productName": "GameOrWait",
   "version": "1.14.1",
-  "identifier": "com.gamefit.app",
+  "identifier": "com.GameOrWait.app",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "GameFit",
+        "title": "GameOrWait",
         "width": 1280,
         "height": 800,
         "minWidth": 900,
@@ -30,7 +30,7 @@
   "plugins": {
     "deep-link": {
       "desktop": {
-        "schemes": ["gamefit"]
+        "schemes": ["GameOrWait"]
       }
     }
   },

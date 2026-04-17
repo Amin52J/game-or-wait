@@ -1,6 +1,6 @@
 import { AppState, INITIAL_STATE } from "@/shared/types";
 
-const STORAGE_KEY = "gamefit_state";
+const STORAGE_KEY = "gameorwait_state";
 
 function isTauri(): boolean {
   return typeof window !== "undefined" && "__TAURI__" in window;

@@ -42,7 +42,7 @@ const FAKE_USER = {
   id: "e2e-user-id-0001",
   aud: "authenticated",
   role: "authenticated",
-  email: "e2e@gamefit.test",
+  email: "e2e@gameorwait.test",
   email_confirmed_at: "2025-01-01T00:00:00Z",
   created_at: "2025-01-01T00:00:00Z",
   updated_at: "2025-01-01T00:00:00Z",

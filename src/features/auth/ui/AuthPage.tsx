@@ -111,8 +111,8 @@ export function AuthPage({ initialMode = "login", onBack }: AuthPageProps) {
       if (otpError) {
         setError(otpError.message);
       } else if (steamId) {
-        sessionStorage.setItem("gamefit_steam_id", steamId);
-        if (isNew) sessionStorage.setItem("gamefit_steam_is_new", "1");
+        sessionStorage.setItem("GameOrWait_steam_id", steamId);
+        if (isNew) sessionStorage.setItem("GameOrWait_steam_is_new", "1");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Steam login failed");
@@ -132,7 +132,7 @@ export function AuthPage({ initialMode = "login", onBack }: AuthPageProps) {
         <Card>
           <LogoRow>
             <LogoImg src="/icon.svg" alt="" width={40} height={40} />
-            <LogoText>GameFit</LogoText>
+            <LogoText>GameOrWait</LogoText>
           </LogoRow>
 
           {error && <ErrorMsg>{error}</ErrorMsg>}
@@ -175,7 +175,7 @@ export function AuthPage({ initialMode = "login", onBack }: AuthPageProps) {
 
           <LogoRow>
             <LogoImg src="/icon.svg" alt="" width={40} height={40} />
-            <LogoText>GameFit</LogoText>
+            <LogoText>GameOrWait</LogoText>
           </LogoRow>
 
           {error && <ErrorMsg>{error}</ErrorMsg>}
@@ -218,7 +218,7 @@ export function AuthPage({ initialMode = "login", onBack }: AuthPageProps) {
 
         <LogoRow>
           <LogoImg src="/icon.svg" alt="" width={40} height={40} />
-          <LogoText>GameFit</LogoText>
+          <LogoText>GameOrWait</LogoText>
         </LogoRow>
 
         <TabRow>

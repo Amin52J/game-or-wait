@@ -14,15 +14,15 @@ export function ApiKeyInfoModal({
   return (
     <Modal open={open} onClose={onClose} title="API keys explained">
       <P>
-        GameFit doesn&apos;t have its own AI — instead, it connects to an AI provider of your
+        GameOrWait doesn&apos;t have its own AI — instead, it connects to an AI provider of your
         choice (Anthropic, OpenAI, Google, or a custom endpoint). To do this, you need an{" "}
         <strong>API key</strong>.
       </P>
 
       <SubHeading>What is an API key?</SubHeading>
       <P>
-        An API key is like a password that lets GameFit talk to the AI service on your behalf. You
-        get it from the AI provider&apos;s website and paste it into GameFit during setup. Each
+        An API key is like a password that lets GameOrWait talk to the AI service on your behalf. You
+        get it from the AI provider&apos;s website and paste it into GameOrWait during setup. Each
         analysis uses a tiny amount of the provider&apos;s credit (usually fractions of a cent).
       </P>
 
@@ -44,9 +44,9 @@ export function ApiKeyInfoModal({
       </OL>
 
       <Callout $variant="info">
-        <strong>Your key stays private.</strong> GameFit stores your API key only in your browser
-        — it is never sent to GameFit&apos;s servers. Requests go directly from your browser to
-        the AI provider. You are billed by the provider, not by GameFit.
+        <strong>Your key stays private.</strong> GameOrWait stores your API key only in your browser
+        — it is never sent to GameOrWait&apos;s servers. Requests go directly from your browser to
+        the AI provider. You are billed by the provider, not by GameOrWait.
       </Callout>
 
       <SubHeading>How much does it cost?</SubHeading>

@@ -1,7 +1,7 @@
-export const REPO = "Amin52J/game-fit";
+export const REPO = "Amin52J/game-or-wait";
 export const RELEASES_URL = `https://github.com/${REPO}/releases/latest`;
 export const API_URL = `https://api.github.com/repos/${REPO}/releases/latest`;
-export const DISMISS_KEY = "gamefit_update_dismissed";
+export const DISMISS_KEY = "gameorwait_update_dismissed";
 
 export function isTauri(): boolean {
   return typeof window !== "undefined" && "__TAURI__" in window;

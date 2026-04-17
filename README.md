@@ -1,4 +1,4 @@
-# GameFit — Personalized Game Analysis
+# GameOrWait — Personalized Game Analysis
 
 AI-powered game recommendation engine that predicts how much you'll enjoy a new game based on your personal library and taste preferences.
 
@@ -58,8 +58,8 @@ npm run tauri:build
 ```
 
 The installers will be generated at:
-- `src-tauri/target/release/bundle/nsis/GameFit_<version>_x64-setup.exe` (recommended)
-- `src-tauri/target/release/bundle/msi/GameFit_<version>_x64_en-US.msi`
+- `src-tauri/target/release/bundle/nsis/GameOrWait_<version>_x64-setup.exe` (recommended)
+- `src-tauri/target/release/bundle/msi/GameOrWait_<version>_x64_en-US.msi`
 
 ### Releasing a New Version
 
@@ -80,8 +80,8 @@ The installers will be generated at:
 5. Create a GitHub release:
    ```powershell
    gh release create v<version> `
-     "src-tauri/target/release/bundle/nsis/GameFit_<version>_x64-setup.exe" `
-     "src-tauri/target/release/bundle/msi/GameFit_<version>_x64_en-US.msi" `
+     "src-tauri/target/release/bundle/nsis/GameOrWait_<version>_x64-setup.exe" `
+     "src-tauri/target/release/bundle/msi/GameOrWait_<version>_x64_en-US.msi" `
      --title "v<version> - Release title" `
      --notes "Release notes here" `
      --latest
