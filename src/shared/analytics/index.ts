@@ -1,13 +1,5 @@
 import type { User } from "@supabase/supabase-js";
-import { getSupabase, isTauri } from "@/shared/api/supabase";
-
-function apiUrl(path: string): string {
-  if (typeof window === "undefined") return path;
-  if (isTauri() && process.env.NEXT_PUBLIC_APP_URL) {
-    return `${process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}${path}`;
-  }
-  return path;
-}
+import { getSupabase } from "@/shared/api/supabase";
 
 async function postTrack(
   event: string,
@@ -15,14 +7,20 @@ async function postTrack(
   insertId: string,
 ): Promise<void> {
   const sb = getSupabase();
-  const { data: { session } } = await sb.auth.getSession();
+  const {
+    data: { session },
+  } = await sb.auth.getSession();
   if (!session) return;
 
-  await fetch(apiUrl("/api/analytics/track"), {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) return;
+
+  await fetch(`${supabaseUrl}/functions/v1/track-event`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.access_token}`,
+      apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
     },
     body: JSON.stringify({
       event,
@@ -32,7 +30,7 @@ async function postTrack(
   });
 }
 
-/** Server-side Mixpanel via Next.js API (same-origin; avoids ad blockers). */
+/** Server-side Mixpanel via Supabase Edge Function (avoids ad blockers). */
 export async function trackSignup(user: User, properties?: Record<string, unknown>): Promise<void> {
   await postTrack("signup", properties, `${user.id}-signup`);
 }
