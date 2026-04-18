@@ -12,6 +12,7 @@ import {
   LogoText,
   Nav,
   NavLink,
+  ExternalNavLink,
   NavIcon,
   NavLabel,
   Footer,
@@ -93,10 +94,23 @@ export function Sidebar() {
                 closeMobile();
               }}
             >
-              <NavIcon><Icon name={icon} size={18} /></NavIcon>
+              <NavIcon>
+                <Icon name={icon} size={18} />
+              </NavIcon>
               <NavLabel>{label}</NavLabel>
             </NavLink>
           ))}
+          <ExternalNavLink
+            href="https://github.com/Amin52J/game-or-wait/discussions"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Opens in a new tab"
+          >
+            <NavIcon>
+              <Icon name="message-circle" size={18} />
+            </NavIcon>
+            <NavLabel>Feedback</NavLabel>
+          </ExternalNavLink>
         </Nav>
         <Footer>
           {user && (
@@ -106,7 +120,9 @@ export function Sidebar() {
             </UserBlock>
           )}
           <FooterBtn type="button" onClick={handleLogoutClick}>
-            <LogoutIcon><Icon name="log-out" size={18} /></LogoutIcon>
+            <LogoutIcon>
+              <Icon name="log-out" size={18} />
+            </LogoutIcon>
             <FooterBtnText>Log Out</FooterBtnText>
           </FooterBtn>
         </Footer>

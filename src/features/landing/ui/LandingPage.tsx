@@ -3,10 +3,12 @@
 import { useCallback, useRef, useState, useEffect } from "react";
 import { AuthPage } from "@/features/auth";
 import {
+  DISCUSSIONS_URL,
   DOWNLOAD_URL,
   FEATURES,
   GITHUB_URL,
   GitHubIcon,
+  DiscussionsIcon,
   HOW_IT_WORKS_STEPS,
   WinIcon,
 } from "./LandingPage.utils";
@@ -62,6 +64,7 @@ import {
   StepTitle,
   StepDesc,
   ContributeSection,
+  ContributeCards,
   ContributeCard,
   ContributeIcon,
   ContributeTitle,
@@ -287,16 +290,28 @@ export function LandingPage({
 
       <ContributeSection>
         <SectionTitle>Contribute</SectionTitle>
-        <ContributeCard href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-          <ContributeIcon>
-            <GitHubIcon />
-          </ContributeIcon>
-          <ContributeTitle>Open Source on GitHub</ContributeTitle>
-          <ContributeDesc>
-            GameOrWait is free and open source. Report bugs, suggest features, or contribute code —
-            every bit helps make the project better.
-          </ContributeDesc>
-        </ContributeCard>
+        <ContributeCards>
+          <ContributeCard href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+            <ContributeIcon>
+              <GitHubIcon />
+            </ContributeIcon>
+            <ContributeTitle>Open Source on GitHub</ContributeTitle>
+            <ContributeDesc>
+              GameOrWait is free and open source. Report bugs, suggest features, or contribute code
+              — every bit helps make the project better.
+            </ContributeDesc>
+          </ContributeCard>
+          <ContributeCard href={DISCUSSIONS_URL} target="_blank" rel="noopener noreferrer">
+            <ContributeIcon>
+              <DiscussionsIcon />
+            </ContributeIcon>
+            <ContributeTitle>Join the Discussion</ContributeTitle>
+            <ContributeDesc>
+              Share your feedback, ask questions, or suggest ideas on our GitHub Discussions page —
+              we&apos;d love to hear from you.
+            </ContributeDesc>
+          </ContributeCard>
+        </ContributeCards>
       </ContributeSection>
 
       <LandingFooter>

@@ -29,6 +29,8 @@ export type IconName =
   | "sort-desc"
   | "view-list"
   | "view-detail"
+  | "message-circle"
+  | "external-link"
   | "log-out";
 
 interface IconProps {
@@ -84,12 +86,21 @@ const paths: Record<IconName, React.ReactNode> = {
   calculator: (
     <>
       <rect
-        x="4" y="2" width="16" height="20" rx="2"
-        stroke="currentColor" strokeWidth="2" fill="none"
+        x="4"
+        y="2"
+        width="16"
+        height="20"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
       />
       <path
         d="M8 6h8M8 10h2M12 10h2M8 14h2M12 14h2M8 18h2M12 18h8M16 10h2M16 14h2"
-        stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
       />
     </>
   ),
@@ -242,6 +253,26 @@ const paths: Record<IconName, React.ReactNode> = {
   "view-detail": (
     <path
       d="M3 3h18v8H3zM3 14h18v7H3z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+  ),
+  "message-circle": (
+    <path
+      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+  ),
+  "external-link": (
+    <path
+      d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"

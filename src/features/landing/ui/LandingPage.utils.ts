@@ -4,6 +4,8 @@ export const DOWNLOAD_URL = "https://github.com/Amin52J/game-or-wait/releases/la
 
 export const GITHUB_URL = "https://github.com/Amin52J/game-or-wait";
 
+export const DISCUSSIONS_URL = "https://github.com/Amin52J/game-or-wait/discussions";
+
 export function WinIcon() {
   return createElement(
     "svg",
@@ -66,6 +68,27 @@ function GitHubIcon() {
 }
 
 export { GitHubIcon };
+
+export function DiscussionsIcon() {
+  return createElement(
+    "svg",
+    {
+      width: 20,
+      height: 20,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      "aria-hidden": true,
+    },
+    createElement("path", {
+      d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
+      stroke: "currentColor",
+      strokeWidth: 2,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      fill: "none",
+    }),
+  );
+}
 
 const AnalyzeIcon = () => svgIcon("M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35");
 

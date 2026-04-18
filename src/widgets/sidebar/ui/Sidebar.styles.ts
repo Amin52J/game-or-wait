@@ -153,6 +153,46 @@ export const NavLink = styled(Link)<{ $active: boolean }>`
   ${({ $active }) => $active && navLinkActive}
 `;
 
+export const ExternalNavLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  border-radius: ${({ theme }) => theme.radius.md};
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition:
+    color ${({ theme }) => theme.transition.fast},
+    background ${({ theme }) => theme.transition.fast},
+    border-color ${({ theme }) => theme.transition.fast},
+    box-shadow ${({ theme }) => theme.transition.fast},
+    transform ${({ theme }) => theme.transition.fast};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    background: ${({ theme }) => theme.colors.surfaceHover};
+    transform: translateX(2px);
+  }
+
+  &:active {
+    transform: translateX(2px) scale(0.98);
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    justify-content: center;
+    padding: ${({ theme }) => theme.spacing.sm};
+  }
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.desktop}) {
+    justify-content: flex-start;
+    padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  }
+`;
+
 export const NavIcon = styled.span`
   display: flex;
   align-items: center;

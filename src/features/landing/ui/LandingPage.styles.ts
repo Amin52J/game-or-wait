@@ -683,7 +683,7 @@ export const StepDesc = styled.p`
 `;
 
 export const ContributeSection = styled.section`
-  max-width: 640px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 0 ${({ theme }) => theme.spacing.md} 60px;
   text-align: center;
@@ -694,7 +694,18 @@ export const ContributeSection = styled.section`
   }
 `;
 
+export const ContributeCards = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.lg};
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    flex-direction: row;
+  }
+`;
+
 export const ContributeCard = styled.a`
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
