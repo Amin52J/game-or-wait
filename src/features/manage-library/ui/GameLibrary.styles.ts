@@ -203,7 +203,7 @@ export const ScoreContainer = styled.div`
 `;
 
 export const InlineInput = styled.input`
-  width: 60px;
+  width: 64px;
   padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
   border-radius: ${({ theme }) => theme.radius.sm};
   border: 1px solid ${({ theme }) => theme.colors.accent};
@@ -212,6 +212,14 @@ export const InlineInput = styled.input`
   font-size: 0.85rem;
   outline: none;
   margin-left: 4px;
+
+  /* Hide number spinner arrows */
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 `;
 
 export const InlineNameInput = styled.input`

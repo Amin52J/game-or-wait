@@ -45,8 +45,16 @@ export function GameRow({
 }) {
   const isEditing = editingId === game.id;
 
+  const handleRowClick = () => {
+    if (!isEditing) startEdit(game);
+  };
+
   return (
-    <Row $editing={isEditing}>
+    <Row
+      $editing={isEditing}
+      onClick={handleRowClick}
+      style={{ cursor: isEditing ? undefined : "pointer" }}
+    >
       <GameName>
         {isEditing ? (
           <InlineNameInput
@@ -57,6 +65,12 @@ export function GameRow({
               if (e.key === "Escape") setEditingId(null);
             }}
             placeholder="Game name"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            data-bwignore
+            data-1p-ignore
+            data-lpignore="true"
           />
         ) : (
           game.name
@@ -75,17 +89,21 @@ export function GameRow({
               if (e.key === "Escape") setEditingId(null);
             }}
             autoFocus
-            placeholder="—"
+            placeholder="0–100"
             type="number"
             min={0}
             max={100}
             inputMode="numeric"
+            autoComplete="off"
+            data-bwignore
+            data-1p-ignore
+            data-lpignore="true"
           />
         ) : (
           <ScoreBadge $score={game.score}>{game.score !== null ? game.score : "—"}</ScoreBadge>
         )}
       </ScoreContainer>
-      <RowActions>
+      <RowActions onClick={(e) => e.stopPropagation()}>
         {isEditing ? (
           <>
             <IconBtn onClick={() => saveEdit(game)} title="Save">

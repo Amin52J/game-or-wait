@@ -9,7 +9,8 @@ import { AppShell } from "@/widgets/app-shell";
 
 export const metadata: Metadata = {
   title: "GameOrWait — Personalized Game Analysis",
-  description: "AI-powered game recommendation engine based on your personal taste",
+  description:
+    "Predict whether you'll actually enjoy a game and at what price point, based on your taste",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

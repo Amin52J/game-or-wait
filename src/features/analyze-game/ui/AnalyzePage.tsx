@@ -94,7 +94,11 @@ export function AnalyzePage() {
         </PageSubtitle>
       </PageHeader>
 
-      <OnboardingChecklist />
+      <OnboardingChecklist
+        onAnalyzeClick={() => {
+          document.getElementById("analyze-game-name")?.focus();
+        }}
+      />
 
       {isTrialMode && !trialExhausted && (
         <TrialBadge>

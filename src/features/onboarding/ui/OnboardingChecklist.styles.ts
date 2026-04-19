@@ -45,7 +45,8 @@ export const DismissBtn = styled.button`
   font-size: 0.75rem;
   padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
   border-radius: ${({ theme }) => theme.radius.sm};
-  transition: color ${({ theme }) => theme.transition.fast},
+  transition:
+    color ${({ theme }) => theme.transition.fast},
     background ${({ theme }) => theme.transition.fast};
 
   &:hover {
@@ -76,39 +77,52 @@ export const StepList = styled.div`
   gap: ${({ theme }) => theme.spacing.sm};
 `;
 
-export const StepRow = styled.a<{ $done: boolean }>`
+export const StepRow = styled.a<{ $done: boolean; $current?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
   padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
-  background: ${({ theme, $done }) => $done ? "transparent" : theme.colors.surfaceElevated};
-  border: 1px solid ${({ theme, $done }) => $done ? theme.colors.border : theme.colors.borderLight};
+  background: ${({ theme, $done, $current }) =>
+    $done ? "transparent" : $current ? theme.colors.accentMuted : theme.colors.surfaceElevated};
+  border: 1px solid
+    ${({ theme, $done, $current }) =>
+      $done ? theme.colors.border : $current ? theme.colors.accent : theme.colors.borderLight};
   border-radius: ${({ theme }) => theme.radius.md};
   text-decoration: none;
-  cursor: ${({ $done }) => $done ? "default" : "pointer"};
-  opacity: ${({ $done }) => $done ? 0.6 : 1};
-  transition: background ${({ theme }) => theme.transition.fast},
+  cursor: ${({ $done }) => ($done ? "default" : "pointer")};
+  opacity: ${({ $done }) => ($done ? 0.55 : 1)};
+  transition:
+    background ${({ theme }) => theme.transition.fast},
     border-color ${({ theme }) => theme.transition.fast};
 
   &:hover {
-    ${({ $done, theme }) => !$done && `
+    ${({ $done, theme }) =>
+      !$done &&
+      `
       background: ${theme.colors.surfaceHover};
       border-color: ${theme.colors.accent};
     `}
   }
 `;
 
-export const StepCheck = styled.span<{ $done: boolean }>`
+export const StepCheck = styled.span<{ $done: boolean; $current?: boolean }>`
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid ${({ theme, $done }) => $done ? theme.colors.success : theme.colors.border};
-  background: ${({ theme, $done }) => $done ? theme.colors.successMuted : "transparent"};
-  color: ${({ theme }) => theme.colors.success};
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-family: ${({ theme }) => theme.font.sans};
+  border: 2px solid
+    ${({ theme, $done, $current }) =>
+      $done ? theme.colors.success : $current ? theme.colors.accent : theme.colors.border};
+  background: ${({ theme, $done, $current }) =>
+    $done ? theme.colors.successMuted : $current ? theme.colors.accentMuted : "transparent"};
+  color: ${({ theme, $done, $current }) =>
+    $done ? theme.colors.success : $current ? theme.colors.accent : theme.colors.textMuted};
   transition: all ${({ theme }) => theme.transition.fast};
 `;
 
@@ -121,8 +135,8 @@ export const StepLabel = styled.div<{ $done: boolean }>`
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.8125rem;
   font-weight: 600;
-  color: ${({ theme, $done }) => $done ? theme.colors.textMuted : theme.colors.text};
-  text-decoration: ${({ $done }) => $done ? "line-through" : "none"};
+  color: ${({ theme, $done }) => ($done ? theme.colors.textMuted : theme.colors.text)};
+  text-decoration: ${({ $done }) => ($done ? "line-through" : "none")};
 `;
 
 export const StepDesc = styled.div`

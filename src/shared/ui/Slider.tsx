@@ -43,7 +43,11 @@ const StyledRange = styled.input.attrs({ type: "range" })`
   height: 6px;
   margin: 0;
   background: transparent;
-  cursor: pointer;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   &:focus {
     outline: none;

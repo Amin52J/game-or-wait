@@ -25,22 +25,14 @@ import type { Game } from "@/shared/types";
 function LibraryBanners({ games, scored }: { games: Game[]; scored: number }) {
   const unscoredCount = useMemo(() => games.length - scored, [games.length, scored]);
 
-  if (games.length > 0 && scored === 0) {
-    return (
-      <GuidanceBanner variant="warning" linkText="How scoring works" linkHref="/help#scoring">
-        None of your {games.length} games have a score yet.
-      </GuidanceBanner>
-    );
-  }
-
-  if (games.length > 0 && unscoredCount > 0 && scored < 10) {
+  if (games.length > 0 && unscoredCount > 0 && scored >= 10) {
     return (
       <GuidanceBanner variant="info" linkText="Learn about scoring" linkHref="/help#scoring">
         <strong>
           {scored} of {games.length} games scored.
         </strong>{" "}
         {unscoredCount} game{unscoredCount === 1 ? " is" : "s are"} unscored and invisible to the
-        AI. Aim for at least 10 scored games for accurate analyses.
+        AI.
       </GuidanceBanner>
     );
   }
@@ -52,6 +44,25 @@ export function GameLibrary() {
   const tableRef = useRef<HTMLDivElement>(null);
   const lib = useGameLibrary();
   const [calcGame, setCalcGame] = useState<{ id: string; name: string } | null>(null);
+
+  const totalGames = lib.games.length;
+  const scoredCount = lib.scored.length;
+  const needsMoreGames = totalGames < 10;
+  const needsMoreScoring = totalGames >= 10 && scoredCount < 10;
+
+  const openAddModal = () => {
+    lib.setAddName("");
+    lib.setAddScore("");
+    lib.setShowAddModal(true);
+  };
+
+  const startScoring = () => {
+    tableRef.current?.scrollIntoView({ behavior: "smooth" });
+    const firstGame = lib.pageGames[0];
+    if (firstGame) {
+      setTimeout(() => lib.startEdit(firstGame), 400);
+    }
+  };
 
   return (
     <PageWrapper>
@@ -75,20 +86,37 @@ export function GameLibrary() {
           </PageSubtitle>
         </PageHeader>
 
-        <LibraryBanners games={lib.games} scored={lib.scored.length} />
-        <AddGameButtonRow>
-          <Button
-            variant="primary"
-            onClick={() => {
-              lib.setAddName("");
-              lib.setAddScore("");
-              lib.setShowAddModal(true);
-            }}
-            style={{ width: "100%" }}
-          >
-            + Add Game
-          </Button>
-        </AddGameButtonRow>
+        <LibraryBanners games={lib.games} scored={scoredCount} />
+
+        {needsMoreScoring ? (
+          <GuidanceBanner variant="warning" linkText="How scoring works" linkHref="/help#scoring">
+            You have {totalGames} games but only {scoredCount} scored. Click any game row below to
+            score it. You need at least 10 scored games to run an analysis.
+          </GuidanceBanner>
+        ) : null}
+
+        {needsMoreGames ? (
+          <AddGameButtonRow>
+            <Button variant="primary" onClick={openAddModal} style={{ width: "100%" }}>
+              + Add Game
+            </Button>
+          </AddGameButtonRow>
+        ) : needsMoreScoring ? (
+          <AddGameButtonRow style={{ display: "flex", gap: "0.5rem" }}>
+            <Button variant="secondary" onClick={openAddModal} style={{ flex: 1 }}>
+              + Add Game
+            </Button>
+            <Button variant="primary" onClick={startScoring} style={{ flex: 1 }}>
+              Start Scoring
+            </Button>
+          </AddGameButtonRow>
+        ) : (
+          <AddGameButtonRow>
+            <Button variant="primary" onClick={openAddModal} style={{ width: "100%" }}>
+              + Add Game
+            </Button>
+          </AddGameButtonRow>
+        )}
       </PageHeader>
 
       <ImportSection handleImport={lib.handleImport} />

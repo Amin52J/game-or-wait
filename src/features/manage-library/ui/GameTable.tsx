@@ -59,13 +59,19 @@ export function GameTable({
         <SortableCol $active={sortField === "name"} onClick={() => toggleSort("name")}>
           Game
           <SortArrow $dir={sortField === "name" ? sortDir : null}>
-            <Icon name={sortField === "name" && sortDir === "asc" ? "chevron-up" : "chevron-down"} size={14} />
+            <Icon
+              name={sortField === "name" && sortDir === "asc" ? "chevron-up" : "chevron-down"}
+              size={14}
+            />
           </SortArrow>
         </SortableCol>
         <SortableCol $active={sortField === "score"} onClick={() => toggleSort("score")}>
           Score
           <SortArrow $dir={sortField === "score" ? sortDir : null}>
-            <Icon name={sortField === "score" && sortDir === "asc" ? "chevron-up" : "chevron-down"} size={14} />
+            <Icon
+              name={sortField === "score" && sortDir === "asc" ? "chevron-up" : "chevron-down"}
+              size={14}
+            />
           </SortArrow>
         </SortableCol>
         <TableHeaderActionsLabel>Actions</TableHeaderActionsLabel>

@@ -24,10 +24,15 @@ export function LibraryToolbar({
           value={inputValue}
           onChange={(e) => setSearch(e.target.value)}
           autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
           data-1p-ignore
           data-lpignore="true"
           data-form-type="other"
+          data-bwignore
           name="library-search"
+          id="library-search"
+          type="search"
         />
       </ToolbarSearchWrap>
       <FilterBar>

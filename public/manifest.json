@@ -1,7 +1,7 @@
 {
   "name": "GameOrWait — Personalized Game Analysis",
   "short_name": "GameOrWait",
-  "description": "AI-powered game recommendation engine based on your personal taste",
+  "description": "Predict whether you'll actually enjoy a game and at what price point, based on your taste",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#08080e",

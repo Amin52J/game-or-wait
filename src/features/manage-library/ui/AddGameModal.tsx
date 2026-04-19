@@ -34,6 +34,12 @@ export function AddGameModal({
             if (e.key === "Escape") onClose();
           }}
           placeholder="Enter game name..."
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          data-bwignore
+          data-1p-ignore
+          data-lpignore="true"
         />
         <Input
           label="Score (optional)"
@@ -52,6 +58,10 @@ export function AddGameModal({
           min={0}
           max={100}
           inputMode="numeric"
+          autoComplete="off"
+          data-bwignore
+          data-1p-ignore
+          data-lpignore="true"
         />
         <ModalActions>
           <Button variant="secondary" onClick={onClose}>

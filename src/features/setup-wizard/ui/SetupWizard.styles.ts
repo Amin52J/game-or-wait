@@ -716,7 +716,11 @@ export const RangeInput = styled.input`
   border-radius: 3px;
   appearance: none;
   background: ${({ theme }) => theme.colors.border};
-  cursor: pointer;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   &::-webkit-slider-thumb {
     appearance: none;

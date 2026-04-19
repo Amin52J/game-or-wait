@@ -97,7 +97,7 @@ export function AnalyzeForm({
       </FieldBlock>
 
       <FieldBlock>
-        <Label htmlFor="analyze-price">Full Price</Label>
+        <Label htmlFor="analyze-price">Full Price (before discounts)</Label>
         <PriceRow $invalid={priceInvalid}>
           <CurrencyPrefix aria-hidden>{currencyPrefix}</CurrencyPrefix>
           <PriceField

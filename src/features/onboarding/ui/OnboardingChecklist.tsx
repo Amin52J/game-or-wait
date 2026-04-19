@@ -38,7 +38,11 @@ interface Step {
   done: boolean;
 }
 
-export function OnboardingChecklist() {
+export interface OnboardingChecklistProps {
+  onAnalyzeClick?: () => void;
+}
+
+export function OnboardingChecklist({ onAnalyzeClick }: OnboardingChecklistProps = {}) {
   const { state } = useApp();
   const { setIntent } = useNavigation();
   const [dismissed, setDismissed] = useState(wasDismissed);
@@ -100,6 +104,7 @@ export function OnboardingChecklist() {
   if (allDone) return null;
 
   const pct = Math.round((doneCount / steps.length) * 100);
+  const currentIdx = steps.findIndex((s) => !s.done);
 
   return (
     <ChecklistRoot>
@@ -115,27 +120,37 @@ export function OnboardingChecklist() {
       </ProgressBarTrack>
 
       <StepList>
-        {steps.map((step) => (
-          <StepRow
-            key={step.id}
-            href={step.href}
-            $done={step.done}
-            onClick={(e) => {
-              if (step.done) {
+        {steps.map((step, idx) => {
+          const isCurrent = idx === currentIdx;
+          return (
+            <StepRow
+              key={step.id}
+              href={step.href}
+              $done={step.done}
+              $current={isCurrent}
+              onClick={(e) => {
+                if (step.done) {
+                  e.preventDefault();
+                  return;
+                }
                 e.preventDefault();
-                return;
-              }
-              e.preventDefault();
-              setIntent(step.href);
-            }}
-          >
-            <StepCheck $done={step.done}>{step.done && <Icon name="check" size={12} />}</StepCheck>
-            <StepInfo>
-              <StepLabel $done={step.done}>{step.label}</StepLabel>
-              <StepDesc>{step.desc}</StepDesc>
-            </StepInfo>
-          </StepRow>
-        ))}
+                if (step.id === "analyze" && onAnalyzeClick) {
+                  onAnalyzeClick();
+                } else {
+                  setIntent(step.href);
+                }
+              }}
+            >
+              <StepCheck $done={step.done} $current={isCurrent}>
+                {step.done ? <Icon name="check" size={12} /> : idx + 1}
+              </StepCheck>
+              <StepInfo>
+                <StepLabel $done={step.done}>{step.label}</StepLabel>
+                <StepDesc>{step.desc}</StepDesc>
+              </StepInfo>
+            </StepRow>
+          );
+        })}
       </StepList>
     </ChecklistRoot>
   );
