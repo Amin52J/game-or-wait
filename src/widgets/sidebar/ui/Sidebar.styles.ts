@@ -424,35 +424,7 @@ export const ModalBtn = styled.button<{ $danger?: boolean }>`
 `;
 
 export const MenuToggle = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  left: ${({ theme }) => theme.spacing.md};
-  top: ${({ theme }) => theme.spacing.md};
-  z-index: 250;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.md};
-  background: ${({ theme }) => theme.colors.surfaceElevated};
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-  box-shadow: ${({ theme }) => theme.shadow.md};
-  transition:
-    background ${({ theme }) => theme.transition.fast},
-    border-color ${({ theme }) => theme.transition.fast};
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.surfaceHover};
-    border-color: ${({ theme }) => theme.colors.borderLight};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent};
-    outline-offset: 2px;
-  }
+  display: none;
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     display: none;

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useApp } from "@/app/providers/AppProvider";
 import { FREE_ANALYSIS_LIMIT } from "@/shared/types";
 import { sessionCache } from "@/features/analyze-game/model/session-cache";
@@ -23,11 +23,20 @@ export interface AnalyzeFormProps {
   onSubmit: (gameName: string, price: number) => void;
   isLoading: boolean;
   trialExhausted?: boolean;
+  notEnoughScored?: boolean;
+  scoredCount?: number;
 }
 
-export function AnalyzeForm({ onSubmit, isLoading, trialExhausted }: AnalyzeFormProps) {
+export function AnalyzeForm({
+  onSubmit,
+  isLoading,
+  trialExhausted,
+  notEnoughScored,
+  scoredCount = 0,
+}: AnalyzeFormProps) {
   const { state, hydrated } = useApp();
   const pathname = usePathname();
+  const router = useRouter();
   const nameRef = useRef<HTMLInputElement>(null);
   const cached = sessionCache.get();
   const [gameName, setGameName] = useState(cached.gameName);
@@ -63,7 +72,7 @@ export function AnalyzeForm({ onSubmit, isLoading, trialExhausted }: AnalyzeForm
     [gameName, priceRaw, canAnalyze, onSubmit],
   );
 
-  const disabled = isLoading || showProviderError || trialExhausted;
+  const disabled = isLoading || showProviderError || trialExhausted || notEnoughScored;
 
   return (
     <FormRoot onSubmit={handleSubmit} noValidate>
@@ -76,7 +85,10 @@ export function AnalyzeForm({ onSubmit, isLoading, trialExhausted }: AnalyzeForm
           type="text"
           autoComplete="off"
           value={gameName}
-          onChange={(e) => { setGameName(e.target.value); sessionCache.set({ gameName: e.target.value }); }}
+          onChange={(e) => {
+            setGameName(e.target.value);
+            sessionCache.set({ gameName: e.target.value });
+          }}
           disabled={disabled}
           $invalid={nameInvalid}
           aria-invalid={nameInvalid || undefined}
@@ -85,7 +97,7 @@ export function AnalyzeForm({ onSubmit, isLoading, trialExhausted }: AnalyzeForm
       </FieldBlock>
 
       <FieldBlock>
-        <Label htmlFor="analyze-price">Price</Label>
+        <Label htmlFor="analyze-price">Full Price</Label>
         <PriceRow $invalid={priceInvalid}>
           <CurrencyPrefix aria-hidden>{currencyPrefix}</CurrencyPrefix>
           <PriceField
@@ -97,7 +109,10 @@ export function AnalyzeForm({ onSubmit, isLoading, trialExhausted }: AnalyzeForm
             step="0.01"
             placeholder="0.00"
             value={priceRaw}
-            onChange={(e) => { setPriceRaw(e.target.value); sessionCache.set({ priceRaw: e.target.value }); }}
+            onChange={(e) => {
+              setPriceRaw(e.target.value);
+              sessionCache.set({ priceRaw: e.target.value });
+            }}
             disabled={disabled}
             aria-invalid={priceInvalid || undefined}
           />
@@ -105,7 +120,23 @@ export function AnalyzeForm({ onSubmit, isLoading, trialExhausted }: AnalyzeForm
         {priceInvalid ? <FieldError>Enter a valid price (0 or greater).</FieldError> : null}
       </FieldBlock>
 
-      <Button type="submit" variant="primary" size="lg" fullWidth isLoading={isLoading} disabled={disabled}>
+      {notEnoughScored && (
+        <ErrorBanner onClick={() => router.push("/library")} style={{ cursor: "pointer" }}>
+          You need at least 10 scored games to run an analysis. You currently have {scoredCount}.
+          Head to your library and score some games first.
+          <br />
+          The more games you score, the more accurate the analysis will be.
+        </ErrorBanner>
+      )}
+
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        fullWidth
+        isLoading={isLoading}
+        disabled={disabled}
+      >
         Analyze
       </Button>
     </FormRoot>

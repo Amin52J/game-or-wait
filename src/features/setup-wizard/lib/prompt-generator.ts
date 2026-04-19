@@ -122,24 +122,34 @@ function buildNegativeFactors(a: SetupAnswers): string {
   const factors: string[] = [];
 
   if (a.dealbreakers.includes("bad_controls")) {
-    factors.push(`**Movement clunk**: Reviews consistently report stiff/tanky movement, sluggish turning, or animation-lock → −12.`);
+    factors.push(
+      `**Movement clunk**: Reviews consistently report stiff/tanky movement, sluggish turning, or animation-lock → −12.`,
+    );
   }
 
   if (a.dealbreakers.includes("religious_themes")) {
-    factors.push(`**Heavy religious themes**: Religious themes are a significant or central part of the experience → −10.`);
+    factors.push(
+      `**Heavy religious themes**: Religious themes are a significant or central part of the experience → −10.`,
+    );
   }
 
   if (a.dealbreakers.includes("shallow_crafting")) {
-    factors.push(`**Jank and shallow systems**: Reviews consistently report janky gameplay or hollow busywork crafting/looting → −15.`);
+    factors.push(
+      `**Jank and shallow systems**: Reviews consistently report janky gameplay or hollow busywork crafting/looting → −15.`,
+    );
   }
 
   if (a.gameplayImportance >= 4 || a.explorationImportance >= 4) {
-    factors.push(`**Meaningful systems bonus**: Reviews emphasise tightly connected systems where actions feel meaningful → +5.`);
+    factors.push(
+      `**Meaningful systems bonus**: Reviews emphasise tightly connected systems where actions feel meaningful → +5.`,
+    );
   }
 
   if (a.customDealbreakers?.length) {
     for (const custom of a.customDealbreakers) {
-      factors.push(`**Custom dealbreaker: ${custom}**: Reviews consistently confirm this is a significant issue → −10.`);
+      factors.push(
+        `**Custom dealbreaker: ${custom}**: Reviews consistently confirm this is a significant issue → −10.`,
+      );
     }
   }
 
@@ -155,7 +165,11 @@ Reviews consistently report repetitive gameplay, grind, padding, or a dull openi
 }
 
 function buildDialogueRules(a: SetupAnswers): string {
-  if (a.voiceActingPreference === "indifferent" || a.voiceActingPreference === "fine_with_text")
+  if (
+    a.voiceActingPreference === "indifferent" ||
+    a.voiceActingPreference === "fine_with_text" ||
+    a.voiceActingPreference === "any"
+  )
     return "";
 
   const points = a.voiceActingPreference === "essential" ? "−15" : "−10";

@@ -23,7 +23,7 @@ describe("matchRoute", () => {
   });
 
   it("does not match partial prefix without /", () => {
-    expect(matchRoute("/scores", "/score")).toBe(false);
+    expect(matchRoute("/historys", "/history")).toBe(false);
   });
 });
 
@@ -32,7 +32,6 @@ describe("PAGES", () => {
     const paths = PAGES.map((p) => p.path);
     expect(paths).toContain("/analyze");
     expect(paths).toContain("/library");
-    expect(paths).toContain("/score");
     expect(paths).toContain("/history");
     expect(paths).toContain("/settings");
     expect(paths).toContain("/help");

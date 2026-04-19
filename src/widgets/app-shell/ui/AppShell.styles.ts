@@ -28,8 +28,11 @@ export const Main = styled.main<{ $fullWidth: boolean }>`
   min-width: 0;
   overflow-y: auto;
   padding-top: 0;
+  padding-bottom: ${({ $fullWidth }) =>
+    $fullWidth ? "0" : "calc(56px + env(safe-area-inset-bottom, 0px))"};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     scrollbar-gutter: stable;
+    padding-bottom: 0;
   }
 `;

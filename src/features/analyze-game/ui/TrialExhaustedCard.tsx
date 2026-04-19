@@ -93,35 +93,33 @@ export function TrialExhaustedCard() {
     <Card>
       <Title>All 5 starter analyses used</Title>
       <Desc>
-        To keep using GameOrWait, set up your own API key — it takes about 2
-        minutes and most providers include starter credits.
+        To keep using GameOrWait, set up your own API key — it takes about 2 minutes and most
+        providers include starter credits.
       </Desc>
 
       <StepList>
         <li>
-          <strong>Pick a provider</strong> — we recommend{" "}
-          <strong>Anthropic (Claude)</strong> for the best results, but OpenAI and
-          Google work great too.
+          <strong>Pick a provider</strong> — we recommend <strong>Anthropic (Claude)</strong> for
+          the best results, but OpenAI and Google work great too.
         </li>
         <li>
-          <strong>Anthropic:</strong> Go to <code>console.anthropic.com</code>,
-          create an account, navigate to API Keys, and create a new key. New
-          accounts get free credits.
+          <strong>Anthropic:</strong> Go to <code>console.anthropic.com</code>, create an account,
+          navigate to API Keys, and create a new key. New accounts get free credits.
         </li>
         <li>
-          <strong>OpenAI:</strong> Go to <code>platform.openai.com</code>, sign
-          up, go to API Keys, and create a new secret key.
+          <strong>OpenAI:</strong> Go to <code>platform.openai.com</code>, sign up, go to API Keys,
+          and create a new secret key.
         </li>
         <li>
-          <strong>Google:</strong> Go to <code>aistudio.google.com</code>, sign in
-          with your Google account, and create an API key.
+          <strong>Google:</strong> Go to <code>aistudio.google.com</code>, sign in with your Google
+          account, and create an API key.
         </li>
         <li>
           <strong>Add the key</strong> in{" "}
           <HashLink href="/settings" style={{ textDecoration: "underline", color: "inherit" }}>
             Settings &rarr; AI Provider
           </HashLink>{" "}
-          and you&apos;re good to go. Each analysis costs a fraction of a cent.
+          and you&apos;re good to go. Each analysis costs a few cents.
         </li>
       </StepList>
 

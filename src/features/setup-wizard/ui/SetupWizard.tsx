@@ -7,9 +7,34 @@ import { generateInstructions } from "@/features/setup-wizard/lib/prompt-generat
 import { fetchSteamGames } from "@/features/auth/lib/steam";
 import { AIClient } from "@/entities/ai-provider/api/client";
 import type { AIProviderConfig, Game, SetupAnswers } from "@/shared/types";
-import { defaultSetupAnswers, defaultAiConfig, mergeGameLists, generateId } from "./SetupWizard.utils";
+import {
+  defaultSetupAnswers,
+  defaultAiConfig,
+  mergeGameLists,
+  generateId,
+} from "./SetupWizard.utils";
 import { Skeleton } from "@/shared/ui/Skeleton";
-import { Page, Center, Hero, Title, Subtitle, Card, StepContent, NavRow, Btn, NavRowActions, StatusPillTopMd, FieldGroup, SectionTitle, PlayGrid, SliderGrid, SliderField, ChipGrid, OptionRow, Row } from "./SetupWizard.styles";
+import {
+  Page,
+  Center,
+  Hero,
+  Title,
+  Subtitle,
+  Card,
+  StepContent,
+  NavRow,
+  Btn,
+  NavRowActions,
+  StatusPillTopMd,
+  FieldGroup,
+  SectionTitle,
+  PlayGrid,
+  SliderGrid,
+  SliderField,
+  ChipGrid,
+  OptionRow,
+  Row,
+} from "./SetupWizard.styles";
 import { ProgressStepper } from "./steps/ProgressStepper";
 import { StepAiProvider } from "./steps/StepAiProvider";
 import { StepImportLibrary } from "./steps/StepImportLibrary";
@@ -26,14 +51,20 @@ function PreferencesSkeleton() {
   return (
     <FieldGroup>
       <div>
-        <SectionTitle><Skeleton $width="90px" $height="1em" /></SectionTitle>
+        <SectionTitle>
+          <Skeleton $width="90px" $height="1em" />
+        </SectionTitle>
         <PlayGrid>
-          {[0, 1, 2].map((i) => <Skeleton key={i} $height="68px" $radius="12px" />)}
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} $height="68px" $radius="12px" />
+          ))}
         </PlayGrid>
       </div>
 
       <div>
-        <SectionTitle><Skeleton $width="180px" $height="1em" /></SectionTitle>
+        <SectionTitle>
+          <Skeleton $width="180px" $height="1em" />
+        </SectionTitle>
         <SliderGrid>
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <SliderField key={i}>
@@ -45,7 +76,9 @@ function PreferencesSkeleton() {
       </div>
 
       <div>
-        <SectionTitle><Skeleton $width="120px" $height="1em" /></SectionTitle>
+        <SectionTitle>
+          <Skeleton $width="120px" $height="1em" />
+        </SectionTitle>
         <ChipGrid>
           {Array.from({ length: 8 }, (_, i) => (
             <Skeleton key={i} $height="38px" $radius="8px" />
@@ -54,29 +87,47 @@ function PreferencesSkeleton() {
       </div>
 
       <div>
-        <SectionTitle><Skeleton $width="110px" $height="1em" /></SectionTitle>
+        <SectionTitle>
+          <Skeleton $width="110px" $height="1em" />
+        </SectionTitle>
         <OptionRow>
-          {[0, 1, 2, 3].map((i) => <Skeleton key={i} $width="100px" $height="38px" $radius="8px" />)}
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} $width="100px" $height="38px" $radius="8px" />
+          ))}
         </OptionRow>
       </div>
 
       <div>
-        <SectionTitle><Skeleton $width="140px" $height="1em" /></SectionTitle>
+        <SectionTitle>
+          <Skeleton $width="140px" $height="1em" />
+        </SectionTitle>
         <OptionRow>
-          {[0, 1, 2, 3].map((i) => <Skeleton key={i} $width="110px" $height="38px" $radius="8px" />)}
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} $width="110px" $height="38px" $radius="8px" />
+          ))}
         </OptionRow>
       </div>
 
       <div>
-        <SectionTitle><Skeleton $width="170px" $height="1em" /></SectionTitle>
+        <SectionTitle>
+          <Skeleton $width="170px" $height="1em" />
+        </SectionTitle>
         <OptionRow>
-          {[0, 1, 2, 3].map((i) => <Skeleton key={i} $width="120px" $height="38px" $radius="8px" />)}
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} $width="120px" $height="38px" $radius="8px" />
+          ))}
         </OptionRow>
       </div>
 
       <Row>
-        <div><Skeleton $width="70px" $height="14px" style={{ marginBottom: 6 }} /><Skeleton $height="40px" /></div>
-        <div><Skeleton $width="50px" $height="14px" style={{ marginBottom: 6 }} /><Skeleton $height="40px" /></div>
+        <div>
+          <Skeleton $width="70px" $height="14px" style={{ marginBottom: 6 }} />
+          <Skeleton $height="40px" />
+        </div>
+        <div>
+          <Skeleton $width="50px" $height="14px" style={{ marginBottom: 6 }} />
+          <Skeleton $height="40px" />
+        </div>
       </Row>
 
       <div>
@@ -91,14 +142,14 @@ export function SetupWizard() {
   const router = useRouter();
   const { setAIProvider, setGames, setInstructions, setSetupAnswers, completeSetup } = useApp();
 
-  const isDevMode = typeof window !== "undefined"
-    && new URLSearchParams(window.location.search).get("dev") === "true";
+  const isDevMode =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("dev") === "true";
 
   const [step, setStep] = useState(1);
   const [aiConfig, setAiConfig] = useState<AIProviderConfig>(defaultAiConfig);
   const [answers, setAnswers] = useState<SetupAnswers>(defaultSetupAnswers);
   const [importedGames, setImportedGames] = useState<Game[]>([]);
-  const [pasteText, setPasteText] = useState("");
   const [parseError, setParseError] = useState<string | null>(null);
   const [showKey, setShowKey] = useState(false);
   const [testStatus, setTestStatus] = useState<"idle" | "ok" | "err">("idle");
@@ -253,8 +304,6 @@ export function SetupWizard() {
               <StepImportLibrary
                 importedGames={importedGames}
                 setImportedGames={setImportedGames}
-                pasteText={pasteText}
-                setPasteText={setPasteText}
                 parseError={parseError}
                 setParseError={setParseError}
                 steamAutoImportCount={steamAutoImportCount}

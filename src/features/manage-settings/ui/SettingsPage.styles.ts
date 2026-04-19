@@ -5,7 +5,7 @@ import { PageTitle, SectionTitle, ButtonRow } from "@/shared/ui";
 import type { Theme } from "@/shared/config/theme";
 
 export const SettingsPageTitle = styled(PageTitle)`
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
 export const KeyFieldWrap = styled.div`
@@ -99,8 +99,7 @@ export const TrialStatusBox = styled.div<{ $exhausted: boolean }>`
   line-height: 1.55;
   border-radius: ${({ theme }) => theme.radius.md};
   border: 1px solid
-    ${({ theme, $exhausted }) =>
-      $exhausted ? theme.colors.warning : theme.colors.accent};
+    ${({ theme, $exhausted }) => ($exhausted ? theme.colors.warning : theme.colors.accent)};
   background: ${({ theme, $exhausted }) =>
     $exhausted ? theme.colors.warningMuted : theme.colors.accentMuted};
   color: ${({ theme }) => theme.colors.textSecondary};

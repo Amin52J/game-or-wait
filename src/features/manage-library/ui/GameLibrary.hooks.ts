@@ -70,15 +70,17 @@ export function useGameLibrary() {
       result = result.filter((g) => matchesRanges(g.score, activeRanges));
     }
     result.sort((a, b) => {
+      const nameA = (a.sortingName || a.name).toLowerCase();
+      const nameB = (b.sortingName || b.name).toLowerCase();
       if (sortField === "name") {
-        const nameA = (a.sortingName || a.name).toLowerCase();
-        const nameB = (b.sortingName || b.name).toLowerCase();
         const cmp = nameA.localeCompare(nameB);
         return sortDir === "asc" ? cmp : -cmp;
       }
       const sa = a.score ?? -1;
       const sb = b.score ?? -1;
-      return sortDir === "asc" ? sa - sb : sb - sa;
+      const scoreCmp = sortDir === "asc" ? sa - sb : sb - sa;
+      if (scoreCmp !== 0) return scoreCmp;
+      return nameA.localeCompare(nameB);
     });
     return result;
   }, [state.games, inputValue, activeRanges, sortField, sortDir]);

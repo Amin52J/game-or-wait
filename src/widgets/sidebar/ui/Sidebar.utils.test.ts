@@ -6,7 +6,6 @@ describe("NAV_ITEMS", () => {
     const labels = NAV_ITEMS.map((item) => item.label);
     expect(labels).toContain("Analyze");
     expect(labels).toContain("Library");
-    expect(labels).toContain("Score");
     expect(labels).toContain("History");
     expect(labels).toContain("Settings");
     expect(labels).toContain("Help");

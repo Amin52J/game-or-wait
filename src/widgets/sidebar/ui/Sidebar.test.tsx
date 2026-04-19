@@ -19,7 +19,6 @@ describe("Sidebar", () => {
     renderWithProviders(<Sidebar />);
     expect(screen.getByText("Analyze")).toBeInTheDocument();
     expect(screen.getByText("Library")).toBeInTheDocument();
-    expect(screen.getByText("Score")).toBeInTheDocument();
     expect(screen.getByText("History")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByText("Help")).toBeInTheDocument();

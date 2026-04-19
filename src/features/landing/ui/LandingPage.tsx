@@ -249,9 +249,9 @@ export function LandingPage({
               <StepContent>
                 <StepTitle>Get personalized verdicts</StepTitle>
                 <StepDesc>
-                  Enter any game and its price. The AI searches the web for reviews, compares them
-                  against your taste profile and library, and gives you a personalized enjoyment
-                  prediction with a target price.
+                  Enter any game and its full price. The AI searches the web for reviews, compares
+                  them against your taste profile and library, and gives you a personalized
+                  enjoyment prediction with a target price.
                 </StepDesc>
               </StepContent>
             </Step>

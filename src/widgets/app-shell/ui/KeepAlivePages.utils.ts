@@ -1,7 +1,6 @@
 import { AnalyzePage } from "@/features/analyze-game";
 import { HistoryPage } from "@/features/analyze-game";
 import { GameLibrary } from "@/features/manage-library";
-import { ScoreCalculatorPage } from "@/features/score-calculator";
 import { SettingsPage } from "@/features/manage-settings";
 import { HelpPage } from "@/features/help-guide";
 
@@ -13,7 +12,6 @@ export interface PageEntry {
 export const PAGES: PageEntry[] = [
   { path: "/analyze", Component: AnalyzePage },
   { path: "/library", Component: GameLibrary },
-  { path: "/score", Component: ScoreCalculatorPage },
   { path: "/history", Component: HistoryPage },
   { path: "/settings", Component: SettingsPage },
   { path: "/help", Component: HelpPage },

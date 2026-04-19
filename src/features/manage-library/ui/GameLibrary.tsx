@@ -7,7 +7,6 @@ import {
   PageHeader,
   PageTitle,
   PageSubtitle,
-  ButtonRow,
   HashLink,
   GuidanceBanner,
 } from "@/shared/ui";
@@ -20,6 +19,7 @@ import { AddGameModal } from "./AddGameModal";
 import { ScoreCalcModal } from "./ScoreCalcModal";
 import { LibraryPagination } from "./LibraryPagination";
 
+import { AddGameButtonRow } from "./GameLibrary.styles";
 import type { Game } from "@/shared/types";
 
 function LibraryBanners({ games, scored }: { games: Game[]; scored: number }) {
@@ -28,9 +28,7 @@ function LibraryBanners({ games, scored }: { games: Game[]; scored: number }) {
   if (games.length > 0 && scored === 0) {
     return (
       <GuidanceBanner variant="warning" linkText="How scoring works" linkHref="/help#scoring">
-        <strong>None of your {games.length} games have a score yet.</strong> The AI only sees scored
-        games during analysis. Use the score calculator (click the calculator icon on any row) or
-        enter scores manually.
+        None of your {games.length} games have a score yet.
       </GuidanceBanner>
     );
   }
@@ -53,7 +51,6 @@ function LibraryBanners({ games, scored }: { games: Game[]; scored: number }) {
 export function GameLibrary() {
   const tableRef = useRef<HTMLDivElement>(null);
   const lib = useGameLibrary();
-  const [showImport, setShowImport] = useState(false);
   const [calcGame, setCalcGame] = useState<{ id: string; name: string } | null>(null);
 
   return (
@@ -62,7 +59,6 @@ export function GameLibrary() {
         <PageHeader>
           <PageTitle>Game Library</PageTitle>
           <PageSubtitle>
-            {lib.games.length} games in your library ·{" "}
             <HashLink
               href="/help#library"
               style={{ color: "inherit", textDecoration: "underline" }}
@@ -78,40 +74,24 @@ export function GameLibrary() {
             </HashLink>
           </PageSubtitle>
         </PageHeader>
-        <ButtonRow>
-          <Button variant="secondary" onClick={() => setShowImport(!showImport)}>
-            {showImport ? "Hide Import" : "Import Games"}
-          </Button>
-          <Button variant="secondary" onClick={lib.handleExport}>
-            Export CSV
-          </Button>
+
+        <LibraryBanners games={lib.games} scored={lib.scored.length} />
+        <AddGameButtonRow>
           <Button
-            variant="secondary"
+            variant="primary"
             onClick={() => {
               lib.setAddName("");
               lib.setAddScore("");
               lib.setShowAddModal(true);
             }}
+            style={{ width: "100%" }}
           >
             + Add Game
           </Button>
-          {lib.games.length > 0 && (
-            <Button
-              variant="danger"
-              onClick={lib.handleClearLibrary}
-              onBlur={() => lib.setConfirmClear(false)}
-            >
-              {lib.confirmClear ? "Are you sure?" : "Clear Library"}
-            </Button>
-          )}
-        </ButtonRow>
+        </AddGameButtonRow>
       </PageHeader>
 
-      <LibraryBanners games={lib.games} scored={lib.scored.length} />
-
-      {showImport && (
-        <ImportSection handleImport={lib.handleImport} onHide={() => setShowImport(false)} />
-      )}
+      <ImportSection handleImport={lib.handleImport} />
 
       <LibraryStats games={lib.games} scored={lib.scored} avgScore={lib.avgScore} />
 

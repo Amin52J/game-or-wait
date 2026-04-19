@@ -3,12 +3,7 @@
 import React from "react";
 import type { AIProviderConfig, Game, SetupAnswers } from "@/shared/types";
 import { DEALBREAKER_OPTIONS, FREE_ANALYSIS_LIMIT } from "@/shared/types";
-import {
-  FieldGroup,
-  SectionTitle,
-  SummaryList,
-  SummaryItem,
-} from "../SetupWizard.styles";
+import { FieldGroup, SectionTitle, SummaryList, SummaryItem } from "../SetupWizard.styles";
 
 const PLAY_STYLE_LABELS: Record<string, string> = {
   singleplayer: "Single-player",
@@ -21,6 +16,7 @@ const VOICE_LABELS: Record<string, string> = {
   preferred: "Preferred",
   indifferent: "Indifferent",
   fine_with_text: "Fine with text",
+  any: "Any",
 };
 
 const DIFFICULTY_LABELS: Record<string, string> = {
@@ -28,6 +24,7 @@ const DIFFICULTY_LABELS: Record<string, string> = {
   moderate: "Moderate",
   challenging: "Challenging",
   soulslike: "Souls-like",
+  any: "Any",
 };
 
 const LENGTH_LABELS: Record<string, string> = {
@@ -46,14 +43,12 @@ const IMPORTANCE_SLIDERS: [keyof SetupAnswers, string][] = [
   ["strategyImportance", "Strategy"],
 ];
 
-const dealbreakerLabelMap = Object.fromEntries(
-  DEALBREAKER_OPTIONS.map((o) => [o.id, o.label]),
-);
+const dealbreakerLabelMap = Object.fromEntries(DEALBREAKER_OPTIONS.map((o) => [o.id, o.label]));
 
 function formatImportanceBar(answers: SetupAnswers): string {
-  return IMPORTANCE_SLIDERS.map(
-    ([key, label]) => `${label} ${answers[key] as number}/5`,
-  ).join(" · ");
+  return IMPORTANCE_SLIDERS.map(([key, label]) => `${label} ${answers[key] as number}/5`).join(
+    " · ",
+  );
 }
 
 export function StepReview({
@@ -104,10 +99,12 @@ export function StepReview({
           {allDealbreakers.length > 0 ? allDealbreakers.join(", ") : "None"}
         </SummaryItem>
         <SummaryItem>
-          <strong>Voice acting:</strong> {VOICE_LABELS[answers.voiceActingPreference] ?? answers.voiceActingPreference}
+          <strong>Voice acting:</strong>{" "}
+          {VOICE_LABELS[answers.voiceActingPreference] ?? answers.voiceActingPreference}
         </SummaryItem>
         <SummaryItem>
-          <strong>Difficulty:</strong> {DIFFICULTY_LABELS[answers.difficultyPreference] ?? answers.difficultyPreference}
+          <strong>Difficulty:</strong>{" "}
+          {DIFFICULTY_LABELS[answers.difficultyPreference] ?? answers.difficultyPreference}
         </SummaryItem>
         <SummaryItem>
           <strong>Ideal length:</strong> {LENGTH_LABELS[answers.idealLength] ?? answers.idealLength}

@@ -11,7 +11,7 @@ export const Page = styled.div`
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding: ${({ theme }) => `${theme.spacing.xxxxl} ${theme.spacing.md}`};
+  padding: ${({ theme }) => `${theme.spacing.md}`};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     padding: ${({ theme }) => theme.spacing.md};
@@ -29,7 +29,7 @@ export const HeaderRow = styled.div`
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.md};
   padding: 0;
-  margin-bottom: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     flex-direction: row;
@@ -48,13 +48,6 @@ export const Title = styled.h1`
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     font-size: 1.5rem;
   }
-`;
-
-export const Actions = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm};
-  align-items: center;
 `;
 
 export const Toolbar = styled.div`

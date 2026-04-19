@@ -11,21 +11,26 @@ import { SettingsPageTitle, Toast } from "./SettingsPage.styles";
 import { AccountSection } from "./AccountSection";
 import { ProviderSection } from "./ProviderSection";
 import { TasteSection } from "./TasteSection";
+import { LibrarySection } from "./LibrarySection";
+import { HistorySection } from "./HistorySection";
 import { DangerSection } from "./DangerSection";
 
 export function SettingsPage() {
   const { state, setAIProvider, setInstructions, setSetupAnswers, resetApp } = useApp();
 
-  const [providerType, setProviderType] = useState<AIProviderType>(state.aiProvider?.type || "anthropic");
+  const [providerType, setProviderType] = useState<AIProviderType>(
+    state.aiProvider?.type || "anthropic",
+  );
   const [apiKey, setApiKey] = useState(state.aiProvider?.apiKey || "");
   const [model, setModel] = useState(state.aiProvider?.model || "");
   const [baseUrl, setBaseUrl] = useState(state.aiProvider?.baseUrl || "");
   const [showKey, setShowKey] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
-  const [tasteAnswers, setTasteAnswers] = useState<SetupAnswers>(
-    () => ({ ...defaultSetupAnswers(), ...state.setupAnswers }),
-  );
+  const [tasteAnswers, setTasteAnswers] = useState<SetupAnswers>(() => ({
+    ...defaultSetupAnswers(),
+    ...state.setupAnswers,
+  }));
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
@@ -82,6 +87,10 @@ export function SettingsPage() {
         setTasteAnswers={setTasteAnswers}
         onSave={saveTaste}
       />
+
+      <LibrarySection />
+
+      <HistorySection />
 
       <DangerSection onReset={handleReset} />
     </PageWrapper>

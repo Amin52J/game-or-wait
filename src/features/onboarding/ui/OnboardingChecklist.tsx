@@ -76,7 +76,7 @@ export function OnboardingChecklist() {
         desc:
           state.analysisHistory.length > 0
             ? "Done! Check your History for past analyses"
-            : "Enter a game name and price to get started",
+            : "Enter a game name and its full price to get started",
         href: "/analyze",
         done: state.analysisHistory.length >= 1,
       },

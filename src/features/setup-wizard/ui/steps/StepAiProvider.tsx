@@ -69,8 +69,8 @@ export function StepAiProvider({
           <TrialBanner>
             <TrialBannerTitle>Don&apos;t have an API key yet?</TrialBannerTitle>
             <TrialBannerDesc>
-              Get {FREE_ANALYSIS_LIMIT} game analyses with our key — no setup needed.
-              Test the app before setting up your own provider.
+              Get {FREE_ANALYSIS_LIMIT} game analyses with our key — no setup needed. Test the app
+              before setting up your own provider.
             </TrialBannerDesc>
             <TrialBannerBtn type="button" onClick={onSkipTrial}>
               Skip — use our key
@@ -82,21 +82,39 @@ export function StepAiProvider({
 
       <div>
         <SectionTitle>AI provider</SectionTitle>
-        <SectionHint>Choose a provider and connect your API key. GameOrWait supports all major AI providers.</SectionHint>
+        <SectionHint>
+          Choose a provider and connect your API key. GameOrWait supports all major AI providers.
+        </SectionHint>
         <ProviderGrid>
-          <ProviderCard type="button" $selected={config.type === "anthropic"} onClick={() => setType("anthropic")}>
+          <ProviderCard
+            type="button"
+            $selected={config.type === "anthropic"}
+            onClick={() => setType("anthropic")}
+          >
             <ProviderName>Anthropic</ProviderName>
             <ProviderDesc>Claude Sonnet 4.6, Opus 4.6, Haiku 4.5</ProviderDesc>
           </ProviderCard>
-          <ProviderCard type="button" $selected={config.type === "openai"} onClick={() => setType("openai")}>
+          <ProviderCard
+            type="button"
+            $selected={config.type === "openai"}
+            onClick={() => setType("openai")}
+          >
             <ProviderName>OpenAI</ProviderName>
             <ProviderDesc>GPT-5.4, GPT-5, o3, and more</ProviderDesc>
           </ProviderCard>
-          <ProviderCard type="button" $selected={config.type === "google"} onClick={() => setType("google")}>
+          <ProviderCard
+            type="button"
+            $selected={config.type === "google"}
+            onClick={() => setType("google")}
+          >
             <ProviderName>Google</ProviderName>
             <ProviderDesc>Gemini 3.1 Pro, 3 Flash, 2.5 Pro</ProviderDesc>
           </ProviderCard>
-          <ProviderCard type="button" $selected={config.type === "custom"} onClick={() => setType("custom")}>
+          <ProviderCard
+            type="button"
+            $selected={config.type === "custom"}
+            onClick={() => setType("custom")}
+          >
             <ProviderName>Custom</ProviderName>
             <ProviderDesc>Any OpenAI-compatible endpoint</ProviderDesc>
           </ProviderCard>
@@ -114,9 +132,9 @@ export function StepAiProvider({
       <div>
         <Label htmlFor="gf-api-key">API key</Label>
         <SectionHint>
-          An API key is a unique code that lets GameOrWait connect to the AI provider you chose above.
-          You get it free from the provider&apos;s website — it takes about 2 minutes. The key stays
-          in your browser and is never sent to us. Each analysis costs a fraction of a cent, billed
+          An API key is a unique code that lets GameOrWait connect to the AI provider you chose
+          above. You get it free from the provider&apos;s website — it takes about 2 minutes. The
+          key stays in your browser and is never sent to us. Each analysis costs a few cents, billed
           directly by the provider.{" "}
           <InlineLink type="button" onClick={() => setShowApiKeyInfo(true)}>
             Learn more
@@ -167,7 +185,9 @@ export function StepAiProvider({
             onChange={(e) => setConfig((c) => ({ ...c, model: e.target.value }))}
           >
             {models.map((m) => (
-              <option key={m} value={m}>{m}</option>
+              <option key={m} value={m}>
+                {m}
+              </option>
             ))}
           </SelectInput>
         ) : (

@@ -144,7 +144,10 @@ export function StepPreferences({
                   e.preventDefault();
                   const val = (e.target as HTMLInputElement).value.trim();
                   if (val && !answers.customDealbreakers.includes(val)) {
-                    setAnswers((a) => ({ ...a, customDealbreakers: [...a.customDealbreakers, val] }));
+                    setAnswers((a) => ({
+                      ...a,
+                      customDealbreakers: [...a.customDealbreakers, val],
+                    }));
                     (e.target as HTMLInputElement).value = "";
                   }
                 }
@@ -197,6 +200,7 @@ export function StepPreferences({
               ["preferred", "Preferred"],
               ["indifferent", "Indifferent"],
               ["fine_with_text", "Fine with text"],
+              ["any", "Any"],
             ] as const
           ).map(([v, label]) => (
             <PillBtn
@@ -220,6 +224,7 @@ export function StepPreferences({
               ["moderate", "Moderate"],
               ["challenging", "Challenging"],
               ["soulslike", "Souls-like"],
+              ["any", "Any"],
             ] as const
           ).map(([v, label]) => (
             <PillBtn

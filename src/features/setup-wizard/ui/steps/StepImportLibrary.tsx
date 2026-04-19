@@ -16,7 +16,6 @@ import {
   SectionTitle,
   SectionHint,
   Label,
-  TextAreaField,
   InlineActions,
   Btn,
   StatusPill,
@@ -40,16 +39,12 @@ import {
 export function StepImportLibrary({
   importedGames,
   setImportedGames,
-  pasteText,
-  setPasteText,
   parseError,
   setParseError,
   steamAutoImportCount,
 }: {
   importedGames: Game[];
   setImportedGames: React.Dispatch<React.SetStateAction<Game[]>>;
-  pasteText: string;
-  setPasteText: (v: string) => void;
   parseError: string | null;
   setParseError: (v: string | null) => void;
   steamAutoImportCount: number | null;
@@ -117,16 +112,6 @@ export function StepImportLibrary({
     accept: { "text/*": [".csv", ".txt", ".json"], "application/json": [".json"] },
     multiple: true,
   });
-
-  const applyPaste = () => {
-    setParseError(null);
-    try {
-      const parsed = parseAnyFormat(pasteText);
-      setImportedGames((prev) => mergeGameLists(prev, parsed, true));
-    } catch {
-      setParseError("Could not parse pasted content.");
-    }
-  };
 
   const handleSteamConnect = async () => {
     setSteamError(null);
@@ -240,34 +225,21 @@ export function StepImportLibrary({
         </DropHint>
       </DropZone>
 
-      <div>
-        <Label htmlFor="gf-paste">Or paste data</Label>
-        <TextAreaField
-          id="gf-paste"
-          rows={5}
-          placeholder="Paste CSV, JSON array, or one game per line…"
-          value={pasteText}
-          onChange={(e) => setPasteText(e.target.value)}
-        />
-        <InlineActions>
-          <Btn type="button" $variant="secondary" onClick={applyPaste}>
-            Parse pasted text
-          </Btn>
-          <Btn
-            type="button"
-            $variant="ghost"
-            onClick={() => {
-              setImportedGames([]);
-              setSteamCount(null);
-              setEpicCount(null);
-              setEpicStep("idle");
-            }}
-          >
-            Clear imported games
-          </Btn>
-        </InlineActions>
-        {parseError ? <StatusPill>{parseError}</StatusPill> : null}
-      </div>
+      <InlineActions>
+        <Btn
+          type="button"
+          $variant="ghost"
+          onClick={() => {
+            setImportedGames([]);
+            setSteamCount(null);
+            setEpicCount(null);
+            setEpicStep("idle");
+          }}
+        >
+          Clear imported games
+        </Btn>
+      </InlineActions>
+      {parseError ? <StatusPill>{parseError}</StatusPill> : null}
 
       {importedGames.length > 0 ? (
         <PreviewBox>

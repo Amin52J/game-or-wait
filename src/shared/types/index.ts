@@ -61,8 +61,8 @@ export interface SetupAnswers {
   strategyImportance: number;
   dealbreakers: string[];
   customDealbreakers: string[];
-  voiceActingPreference: "essential" | "preferred" | "indifferent" | "fine_with_text";
-  difficultyPreference: "easy" | "moderate" | "challenging" | "soulslike";
+  voiceActingPreference: "essential" | "preferred" | "indifferent" | "fine_with_text" | "any";
+  difficultyPreference: "easy" | "moderate" | "challenging" | "soulslike" | "any";
   idealLength: "short" | "medium" | "long" | "any";
   currency: string;
   region: string;

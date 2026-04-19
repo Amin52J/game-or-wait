@@ -32,6 +32,7 @@ import {
   MenuToggle,
   MenuBar,
 } from "./Sidebar.styles";
+import { BottomNav } from "./BottomNav";
 
 export function Sidebar() {
   const { activePath, setIntent } = useNavigation();
@@ -127,6 +128,8 @@ export function Sidebar() {
           </FooterBtn>
         </Footer>
       </SidebarRoot>
+
+      <BottomNav onMenuClick={() => setMobileOpen((o) => !o)} />
 
       {showLogoutModal && (
         <ModalOverlay onClick={() => setShowLogoutModal(false)}>

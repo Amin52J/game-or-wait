@@ -20,7 +20,7 @@ export function LibraryToolbar({
     <Toolbar>
       <ToolbarSearchWrap>
         <Input
-          placeholder="Search games..."
+          placeholder="Search your library..."
           value={inputValue}
           onChange={(e) => setSearch(e.target.value)}
           autoComplete="off"

@@ -52,9 +52,9 @@ export function HelpPage() {
       <Section>
         <SectionAnchor id="what-is-GameOrWait">What is GameOrWait?</SectionAnchor>
         <P>
-          GameOrWait is your personal game purchasing assistant. It uses AI to analyze whether a game
-          is a good fit <strong>for you specifically</strong> — based on your gaming taste, play
-          history, and preferences — rather than giving a generic review score.
+          GameOrWait is your personal game purchasing assistant. It uses AI to analyze whether a
+          game is a good fit <strong>for you specifically</strong> — based on your gaming taste,
+          play history, and preferences — rather than giving a generic review score.
         </P>
         <P>Here&apos;s how it works at a high level:</P>
         <OL>
@@ -131,7 +131,7 @@ export function HelpPage() {
         <P>
           The 5 starter analyses are a one-time allowance per account. They cannot be reset or
           replenished. However, setting up your own API key is quick (about 2 minutes) and each
-          analysis costs only a fraction of a cent.
+          analysis costs only a few cents.
         </P>
       </Section>
 
@@ -146,9 +146,10 @@ export function HelpPage() {
 
         <SubHeading>What is an API key?</SubHeading>
         <P>
-          An API key is like a password that lets GameOrWait talk to the AI service on your behalf. You
-          get it from the AI provider&apos;s website and paste it into GameOrWait during setup. Each
-          analysis uses a tiny amount of the provider&apos;s credit (usually fractions of a cent).
+          An API key is like a password that lets GameOrWait talk to the AI service on your behalf.
+          You get it from the AI provider&apos;s website and paste it into GameOrWait during setup.
+          Each analysis uses a tiny amount of the provider&apos;s credit (usually fractions of a
+          cent).
         </P>
 
         <SubHeading>How to get one</SubHeading>
@@ -169,9 +170,9 @@ export function HelpPage() {
         </OL>
 
         <Callout $variant="info">
-          <strong>Your key stays private.</strong> GameOrWait stores your API key only in your browser
-          — it is never sent to GameOrWait&apos;s servers. Requests go directly from your browser to
-          the AI provider. You are billed by the provider, not by GameOrWait.
+          <strong>Your key stays private.</strong> GameOrWait stores your API key only in your
+          browser — it is never sent to GameOrWait&apos;s servers. Requests go directly from your
+          browser to the AI provider. You are billed by the provider, not by GameOrWait.
         </Callout>
 
         <SubHeading>How much does it cost?</SubHeading>
@@ -327,8 +328,8 @@ export function HelpPage() {
         <P>
           GameOrWait can import your Epic Games library during setup or from the Library page. Click
           &quot;Connect Epic Games&quot;, log in on the tab that opens, then copy the authorization
-          code shown on the page and paste it back into GameOrWait. Your owned games will be imported
-          automatically.
+          code shown on the page and paste it back into GameOrWait. Your owned games will be
+          imported automatically.
         </P>
 
         <SubHeading>Manual entry</SubHeading>
@@ -415,9 +416,9 @@ export function HelpPage() {
 
         <SubHeading>Do I need an API key to use GameOrWait?</SubHeading>
         <P>
-          Not right away. Every new account includes <strong>5 starter analyses</strong> using
-          our key — no setup needed. After that, you&apos;ll set up your own key from Anthropic,
-          OpenAI, or Google. See the <a href="#free-trial">Starter analyses</a> and{" "}
+          Not right away. Every new account includes <strong>5 starter analyses</strong> using our
+          key — no setup needed. After that, you&apos;ll set up your own key from Anthropic, OpenAI,
+          or Google. See the <a href="#free-trial">Starter analyses</a> and{" "}
           <a href="#api-key">API keys explained</a> sections for details.
         </P>
 

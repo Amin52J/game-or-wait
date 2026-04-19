@@ -287,11 +287,49 @@ export const Empty = styled.div`
   color: ${({ theme }) => theme.colors.textMuted};
 `;
 
-export const ImportSectionRoot = styled.div`
+export const ImportPanel = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  background: ${({ theme }) => theme.colors.surface};
+  overflow: hidden;
+`;
+
+export const ImportPanelHeader = styled.button`
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  transition: background ${({ theme }) => theme.transition.fast};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.surfaceHover};
+  }
+`;
+
+export const ImportPanelChevron = styled.span<{ $open: boolean }>`
+  display: inline-flex;
+  transition: transform ${({ theme }) => theme.transition.fast};
+  transform: rotate(${({ $open }) => ($open ? "180deg" : "0deg")});
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 1.1rem;
+`;
+
+export const ImportPanelBody = styled.div`
+  padding: 0 ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.md};
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.md};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+  padding-top: ${({ theme }) => theme.spacing.md};
 `;
 
 export const PlatformRow = styled.div`
@@ -545,6 +583,17 @@ export const ScorePreviewValue = styled.div`
   font-family: ${({ theme }) => theme.font.sans};
   font-size: 0.875rem;
   color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+export const AddGameButtonRow = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    max-width: 360px;
+    margin: 0 auto;
+  }
 `;
 
 export const Pagination = styled.div`

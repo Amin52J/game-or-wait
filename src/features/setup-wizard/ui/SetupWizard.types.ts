@@ -21,8 +21,6 @@ export interface StepPreferencesProps {
 export interface StepLibraryProps {
   importedGames: Game[];
   setImportedGames: React.Dispatch<React.SetStateAction<Game[]>>;
-  pasteText: string;
-  setPasteText: (v: string) => void;
   parseError: string | null;
   setParseError: (v: string | null) => void;
   steamAutoImportCount: number | null;
