@@ -1,5 +1,6 @@
 import sharp from "sharp";
-import { readFileSync } from "fs";
+import pngToIco from "png-to-ico";
+import { readFileSync, writeFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -69,15 +70,14 @@ async function generate() {
   }
   console.log("Tauri PNG icons generated");
 
-  // ICO (contains 16, 32, 48, 256)
-  const icoSizes = [16, 32, 48, 256];
-  const icoBuffers = await Promise.all(
+  // Windows .exe / taskbar: use DIB-based ICO (not raw PNG-in-ICO) for reliable shell embedding.
+  const icoSizes = [16, 24, 32, 48, 64, 128, 256];
+  const icoPngBuffers = await Promise.all(
     icoSizes.map((s) =>
       sharp(svg, { density: 300 }).resize(s, s).png().toBuffer()
     )
   );
-  const ico = createIco(icoBuffers, icoSizes);
-  const { writeFileSync } = await import("fs");
+  const ico = await pngToIco(icoPngBuffers);
   writeFileSync(resolve(tauriDir, "icon.ico"), ico);
   console.log("ICO generated");
 
@@ -87,51 +87,6 @@ async function generate() {
     .png()
     .toFile(resolve(tauriDir, "icon.icns"));
   console.log("All icons generated successfully");
-}
-
-function createIco(pngBuffers, sizes) {
-  const numImages = pngBuffers.length;
-  const headerSize = 6;
-  const dirEntrySize = 16;
-  const dirSize = dirEntrySize * numImages;
-  let offset = headerSize + dirSize;
-
-  const entries = [];
-  for (let i = 0; i < numImages; i++) {
-    const size = sizes[i] >= 256 ? 0 : sizes[i];
-    const buf = pngBuffers[i];
-    entries.push({ size, buf, offset });
-    offset += buf.length;
-  }
-
-  const total = offset;
-  const ico = Buffer.alloc(total);
-
-  // Header
-  ico.writeUInt16LE(0, 0);       // reserved
-  ico.writeUInt16LE(1, 2);       // ICO type
-  ico.writeUInt16LE(numImages, 4);
-
-  // Directory entries
-  for (let i = 0; i < numImages; i++) {
-    const e = entries[i];
-    const pos = headerSize + i * dirEntrySize;
-    ico.writeUInt8(e.size, pos);          // width
-    ico.writeUInt8(e.size, pos + 1);      // height
-    ico.writeUInt8(0, pos + 2);           // color palette
-    ico.writeUInt8(0, pos + 3);           // reserved
-    ico.writeUInt16LE(1, pos + 4);        // color planes
-    ico.writeUInt16LE(32, pos + 6);       // bits per pixel
-    ico.writeUInt32LE(e.buf.length, pos + 8);  // size
-    ico.writeUInt32LE(e.offset, pos + 12);     // offset
-  }
-
-  // Image data
-  for (const e of entries) {
-    e.buf.copy(ico, e.offset);
-  }
-
-  return ico;
 }
 
 generate().catch(console.error);
