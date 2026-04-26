@@ -48,7 +48,7 @@ function buildCorePrinciples(): string {
 - **No Assumptions**: Never assume the user has played a game unless it appears with a score. Treat the target game as unplayed.
 - **Score-Based Modeling**: Use the Scoring Procedure below. Base scores from the most relevant library titles (typically >75). Match on genre, gameplay, tone, mechanics, atmosphere.
 - **Dealbreaker Evidence Standard**: Apply a dealbreaker penalty ONLY if it matches a dealbreaker the user selected AND multiple Steam/critic reviews consistently report it as a significant issue. If evidence is mixed or unclear, do NOT apply the penalty.
-- **Review Quality Matters**: Anchor similarity sets the *ceiling* for the base score; the game's actual review reception determines how close it gets. A game with "Mixed" or "Mostly Negative" reviews should score meaningfully lower than a "Very Positive" game with the same anchors — even if no specific dealbreaker applies.
+- **Review Quality Matters**: Anchor similarity sets the *ceiling* for the base score; the game's actual review reception determines how close it gets. A game with "Mixed" or "Mostly Negative" reviews should score meaningfully lower than a "Very Positive" game with the same anchors — even if no specific dealbreaker applies. Apply the Review Quality Discount in the Scoring Procedure.
 - **Library Context**: The base score (from anchor games) is the starting point. Review quality adjustments, general quality penalties, and dealbreaker penalties refine it downward when warranted. Strong library similarity is a positive signal but does not override poor game quality established by broad review consensus.`;
 }
 
@@ -63,7 +63,7 @@ Fixed anchor bands — the Enjoyment Score is determined by base score minus all
 * 25–39: totalP ≥ 40 OR fundamental genre mismatch with base < 50.
 * 0–24: Anti-match. Nearly every trait conflicts.
 
-Hard rules: Penalties ≥ 30 pts → cannot score above 69. No dealbreaker penalties + strong overlap + positive reviews → floor at 70 (not 75).`;
+Hard rules: Penalties ≥ 30 pts → cannot score above 69. No dealbreaker penalties + strong overlap + positive reviews → floor at 70 (not 75 — review quality discount may still apply).`;
 }
 
 function buildScoringProcedure(): string {
@@ -71,20 +71,25 @@ function buildScoringProcedure(): string {
 Perform this calculation internally before writing any output sections. Do NOT include a "Scoring Procedure" section, calculation tables, or step-by-step math in your response. The results feed into the output sections described later.
 1. **Anchor games**: Identify 3–5 most similar library titles by genre, mechanics, and tone. Record each with its library score.
 2. **Base score**: B = weighted average of anchor scores (weight by similarity).
-3. **General quality penalty (GQP)**: If Steam/critic reviews broadly report significant issues NOT covered by the user's dealbreakers (e.g. bugs, poor optimization, bad value for money, unfinished content, predatory monetization), apply GQP = 3–10 based on severity and breadth of complaints.
-4. **Dealbreaker penalty checklist**: For each penalty rule below, decide YES (apply fixed value) or NO (skip). YES only if the user's dealbreakers include it AND reviews consistently confirm it.
-5. **Sum**: totalP = RQD + GQP + sum of all YES dealbreaker penalties. totalB = sum of any bonuses.
-6. **Raw score**: R = B − totalP + totalB.
-7. **Clamp**: totalP ≥ 25 → cap R at 69. totalP = 0 AND reviews positive → floor R at (lowest anchor − 10). Clamp to [0, 100].
-8. **Final**: Enjoyment Score = clamped R.
-9. **Confidence**: Very High (4+ anchors, extensive reviews) / High (3+, solid data) / Medium (2, mixed signals) / Low (1, sparse) / Very Low (0 anchors, minimal data).
+3. **Review quality discount (RQD)**: Compare the target game's Steam review rating to the quality level typical of the anchor games. Apply a discount to B:
+ - Overwhelmingly/Very Positive anchors vs Mixed/Mostly Negative target → RQD = 10–20.
+ - Positive anchors vs Mixed target → RQD = 5–12.
+ - Similar review quality → RQD = 0.
+ - The worse the target's reviews relative to the anchors, the larger the discount.
+4. **General quality penalty (GQP)**: If Steam/critic reviews broadly report significant issues NOT covered by the user's dealbreakers (e.g. bugs, poor optimization, bad value for money, unfinished content, predatory monetization), apply GQP = 3–10 based on severity and breadth of complaints.
+5. **Dealbreaker penalty checklist**: For each penalty rule below, decide YES (apply fixed value) or NO (skip). YES only if the user's dealbreakers include it AND reviews consistently confirm it.
+6. **Sum**: totalP = RQD + GQP + sum of all YES dealbreaker penalties. totalB = sum of any bonuses.
+7. **Raw score**: R = B − totalP + totalB.
+8. **Clamp**: totalP ≥ 25 → cap R at 69. totalP = 0 AND reviews positive → floor R at (lowest anchor − 10). Clamp to [0, 100].
+9. **Final**: Enjoyment Score = clamped R.
+10. **Confidence**: Very High (4+ anchors, extensive reviews) / High (3+, solid data) / Medium (2, mixed signals) / Low (1, sparse) / Very Low (0 anchors, minimal data).
 
 The Enjoyment Score MUST equal the calculated value. Do not adjust it.
 
 **Early Access adjustment** (apply only if the game is currently in Early Access on Steam):
-10. **Categorize penalties**: Mark each applied penalty as "fixable" (bugs, poor optimization, missing content, balance issues, UI/UX rough edges, incomplete voice acting, lack of polish) or "fundamental" (genre mismatch, core gameplay loop design, GAAS/live-service model, always-online, core movement/combat feel, fundamental design philosophy).
-11. **Potential score**: potentialP = sum of fundamental penalty values + (sum of fixable penalty values × 0.4). Potential = B − potentialP + totalB. Clamp to [0, 100].
-12. Output both the regular Enjoyment Score (step 9) as Current and the Potential score.`;
+11. **Categorize penalties**: Mark each applied penalty as "fixable" (bugs, poor optimization, missing content, balance issues, UI/UX rough edges, incomplete voice acting, lack of polish) or "fundamental" (genre mismatch, core gameplay loop design, GAAS/live-service model, always-online, core movement/combat feel, fundamental design philosophy).
+12. **Potential score**: potentialP = sum of fundamental penalty values + (sum of fixable penalty values × 0.4). Potential = B − potentialP + totalB. Clamp to [0, 100].
+13. Output both the regular Enjoyment Score (step 9) as Current and the Potential score.`;
 }
 
 function buildPlayStyleRules(a: SetupAnswers): string {
