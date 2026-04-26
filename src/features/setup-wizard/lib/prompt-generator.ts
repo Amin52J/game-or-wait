@@ -48,7 +48,7 @@ function buildCorePrinciples(): string {
 - **No Assumptions**: Never assume the user has played a game unless it appears with a score. Treat the target game as unplayed.
 - **Score-Based Modeling**: Use the Scoring Procedure below. Base scores from the most relevant library titles (typically >75). Match on genre, gameplay, tone, mechanics, atmosphere.
 - **Dealbreaker Evidence Standard**: Apply a dealbreaker penalty ONLY if it matches a dealbreaker the user selected AND multiple Steam/critic reviews consistently report it as a significant issue. If evidence is mixed or unclear, do NOT apply the penalty.
-- **Review Quality Matters**: Anchor similarity sets the *ceiling* for the base score; the game's actual review reception determines how close it gets. A game with "Mixed" or "Mostly Negative" reviews should score meaningfully lower than a "Very Positive" game with the same anchors — even if no specific dealbreaker applies. Apply the Review Quality Discount in the Scoring Procedure.
+- **Review Quality Matters**: Anchor similarity sets the *ceiling* for the base score; the game's actual review reception determines how close it gets. A game with "Mixed" or "Mostly Negative" reviews should score meaningfully lower than a "Very Positive" game with the same anchors — even if no specific dealbreaker applies.
 - **Library Context**: The base score (from anchor games) is the starting point. Review quality adjustments, general quality penalties, and dealbreaker penalties refine it downward when warranted. Strong library similarity is a positive signal but does not override poor game quality established by broad review consensus.`;
 }
 
@@ -63,7 +63,7 @@ Fixed anchor bands — the Enjoyment Score is determined by base score minus all
 * 25–39: totalP ≥ 40 OR fundamental genre mismatch with base < 50.
 * 0–24: Anti-match. Nearly every trait conflicts.
 
-Hard rules: Penalties ≥ 30 pts → cannot score above 69. No dealbreaker penalties + strong overlap + positive reviews → floor at 70 (not 75 — review quality discount may still apply).`;
+Hard rules: Penalties ≥ 30 pts → cannot score above 69. No dealbreaker penalties + strong overlap + positive reviews → floor at 70 (not 75).`;
 }
 
 function buildScoringProcedure(): string {
