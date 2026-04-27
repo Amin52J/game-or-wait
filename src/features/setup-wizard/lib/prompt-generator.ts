@@ -19,7 +19,7 @@ export function generateInstructions(answers: SetupAnswers): string {
 
   if (answers.additionalNotes.trim()) {
     sections.push(
-      `## Additional Taste Context\n\nThe user provided the following preference notes. These capture softer aversions, gradient preferences, and taste context that don't rise to the level of dealbreakers — the user has deliberately placed them here rather than in the red-line tag list.\n\nUse these notes to:\n- Apply moderate, scaled penalties or bonuses to the Enjoyment Score based on how strongly the corpus evidence matches a stated aversion or preference.\n- Inform tone and reasoning in the Public Sentiment and red-line risk sections.\n- Match on meaning, not exact phrasing — the same preference may surface in reviews under different vocabulary.\n\nDo NOT:\n- Treat these notes as questions to answer or topics to add new sections for.\n- Apply hard verdict-level penalties from notes alone — those are reserved for the explicit red-line tags.\n- Ignore notes when corpus evidence clearly matches them.\n\nThe user's notes:\n\n> ${answers.additionalNotes.trim().replace(/\n/g, "\n> ")}`,
+      `## Additional Taste Context\n\nThe user provided the following extra notes about their gaming preferences. Treat these as additional taste signals when scoring and analyzing games — do NOT treat them as questions to answer or topics to add new sections for.\n\n> ${answers.additionalNotes.trim().replace(/\n/g, "\n> ")}`,
     );
   }
 
@@ -72,10 +72,10 @@ Perform this calculation internally before writing any output sections. Do NOT i
 1. **Anchor games**: Identify 3–5 most similar library titles by genre, mechanics, and tone. Record each with its library score.
 2. **Base score**: B = weighted average of anchor scores (weight by similarity).
 3. **Review quality discount (RQD)**: Compare the target game's Steam review rating to the quality level typical of the anchor games. Apply a discount to B:
- - Overwhelmingly/Very Positive anchors vs Mixed/Mostly Negative target → RQD = 10–20.
- - Positive anchors vs Mixed target → RQD = 5–12.
- - Similar review quality → RQD = 0.
- - The worse the target's reviews relative to the anchors, the larger the discount.
+   - Overwhelmingly/Very Positive anchors vs Mixed/Mostly Negative target → RQD = 10–20.
+   - Positive anchors vs Mixed target → RQD = 5–12.
+   - Similar review quality → RQD = 0.
+   - The worse the target's reviews relative to the anchors, the larger the discount.
 4. **General quality penalty (GQP)**: If Steam/critic reviews broadly report significant issues NOT covered by the user's dealbreakers (e.g. bugs, poor optimization, bad value for money, unfinished content, predatory monetization), apply GQP = 3–10 based on severity and breadth of complaints.
 5. **Dealbreaker penalty checklist**: For each penalty rule below, decide YES (apply fixed value) or NO (skip). YES only if the user's dealbreakers include it AND reviews consistently confirm it.
 6. **Sum**: totalP = RQD + GQP + sum of all YES dealbreaker penalties. totalB = sum of any bonuses.
