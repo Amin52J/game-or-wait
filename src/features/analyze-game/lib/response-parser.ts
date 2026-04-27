@@ -93,14 +93,21 @@ export function extractMetrics(sections: ParsedSection[]): ExtractedMetrics {
     }
 
     if (s.key.includes("red-line-risk")) {
-      if (/\bHigh\b/.test(s.content)) metrics.riskLevel = "high";
-      else if (/\bMedium\b/.test(s.content)) metrics.riskLevel = "medium";
-      else if (/\bNone\b/.test(s.content)) metrics.riskLevel = "none";
+      const firstLine = s.content.split("\n")[0] || "";
+      if (/\bNone\b/i.test(firstLine)) metrics.riskLevel = "none";
+      else if (/\bHigh\b/i.test(firstLine)) metrics.riskLevel = "high";
+      else if (/\bMedium\b/i.test(firstLine)) metrics.riskLevel = "medium";
     }
 
     if (s.key.includes("refund-guard")) {
-      metrics.refundRecommended = /\brecommended\b/i.test(s.content)
-        && !/\bnot required\b/i.test(s.content);
+      const firstLine = s.content.split("\n")[0] || "";
+      if (/\bnot required\b/i.test(firstLine)) {
+        metrics.refundRecommended = false;
+      } else if (/\brecommended\b/i.test(firstLine)) {
+        metrics.refundRecommended = true;
+      } else {
+        metrics.refundRecommended = false; // safe default
+      }
     }
 
     if (s.key.includes("target-price")) {
@@ -148,7 +155,7 @@ export function computeTargetPrice(
   if (A >= 92) return { value: fullPrice, label: formatPriceValue(fullPrice) };
 
   const fraction = (A - 40) / 52;
-  const price = Math.round(fullPrice * (0.10 + 0.90 * Math.pow(fraction, 1.3)));
+  const price = Math.round(fullPrice * (0.1 + 0.9 * Math.pow(fraction, 1.3)));
   return { value: price, label: formatPriceValue(price) };
 }
 
@@ -172,7 +179,16 @@ const KNOWN_SECTION_KEYS = new Set([
 
 export function getSectionType(
   key: string,
-): "score" | "price" | "refund" | "positive" | "negative" | "risk" | "sentiment" | "signals" | "default" {
+):
+  | "score"
+  | "price"
+  | "refund"
+  | "positive"
+  | "negative"
+  | "risk"
+  | "sentiment"
+  | "signals"
+  | "default" {
   if (key.includes("enjoyment-score") || key.includes("score-summary")) return "score";
   if (key.includes("target-price")) return "price";
   if (key.includes("refund-guard")) return "refund";
