@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.26% </span>
+                <span class="strong">52.63% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/19</span>
+                <span class='fraction'>10/19</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">5.26% </span>
+                <span class="strong">52.63% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/19</span>
+                <span class='fraction'>10/19</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -116,7 +116,7 @@
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -125,30 +125,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,15 +173,15 @@
 &nbsp;
 import React, { useState } from "react";
 import { Button, SectionCard, SectionTitle, SectionDesc } from "@/shared/ui";
-import { useApp } from "@/app/providers/AppProvider";
 import { gamesToCSV } from "@/entities/game/lib/csv-parser";
+import { useApp } from "@/app/providers/AppProvider";
 import { MarginedButtonRow } from "./SettingsPage.styles";
 &nbsp;
-export function <span class="fstat-no" title="function not covered" >LibrarySection() {</span>
-  const { state, <span class="cstat-no" title="statement not covered" >setGames } = useApp();</span>
-  const [confirmClear, <span class="cstat-no" title="statement not covered" >setConfirmClear] = useState(false);</span>
+export function LibrarySection() {
+  const { state, setGames } = useApp();
+  const [confirmClear, setConfirmClear] = useState(false);
 &nbsp;
-  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >handleExport = () =&gt; {</span></span>
+  const <span class="fstat-no" title="function not covered" >handleExport = () =&gt; {</span>
     const <span class="cstat-no" title="statement not covered" >csv = gamesToCSV(state.games);</span>
     const blob = <span class="cstat-no" title="statement not covered" >new Blob([csv], { type: "text/csv" });</span>
     const url = <span class="cstat-no" title="statement not covered" >URL.createObjectURL(blob);</span>
@@ -192,16 +192,16 @@ export function <span class="fstat-no" title="function not covered" >LibrarySect
 <span class="cstat-no" title="statement not covered" >    URL.revokeObjectURL(url);</span>
   };
 &nbsp;
-  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >handleClearLibrary = () =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    if (confirmClear) {</span>
-<span class="cstat-no" title="statement not covered" >      setGames([]);</span>
-<span class="cstat-no" title="statement not covered" >      setConfirmClear(false);</span>
+  const handleClearLibrary = () =&gt; {
+    if (confirmClear) {
+      setGames([]);
+      setConfirmClear(false);
     } else {
-<span class="cstat-no" title="statement not covered" >      setConfirmClear(true);</span>
+      setConfirmClear(true);
     }
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;SectionCard&gt;
       &lt;SectionTitle&gt;Library&lt;/SectionTitle&gt;
       &lt;SectionDesc&gt;Export your game library as CSV or clear all games.&lt;/SectionDesc&gt;
@@ -229,7 +229,7 @@ export function <span class="fstat-no" title="function not covered" >LibrarySect
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-01T18:34:09.681Z
+                at 2026-05-08T12:21:23.676Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
