@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
+import type { SetupAnswers } from "@/shared/types";
 import { Button, SectionCard, SectionTitle, SectionDesc } from "@/shared/ui";
 import { StepPreferences } from "@/features/setup-wizard/ui/SetupWizard";
-import type { SetupAnswers } from "@/shared/types";
 import { MarginedButtonRow } from "./SettingsPage.styles";
 
 export function TasteSection({

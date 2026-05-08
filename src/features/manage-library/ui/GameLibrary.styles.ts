@@ -2,6 +2,7 @@
 
 import styled, { keyframes } from "styled-components";
 import { ButtonRow } from "@/shared/ui/Layout";
+import { GRID_COVER_MIN_COL_PX, GRID_COVER_MIN_COL_PX_WIDE } from "./GameLibrary.utils";
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -37,39 +38,6 @@ export const ToolbarSearchRow = styled.div`
   max-width: min(400px, 100%);
   width: 100%;
   min-width: 0;
-`;
-
-export const ViewToggle = styled.div`
-  display: flex;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radius.md};
-  overflow: hidden;
-  flex-shrink: 0;
-`;
-
-export const ViewBtn = styled.button<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border: none;
-  cursor: pointer;
-  transition:
-    background ${({ theme }) => theme.transition.fast},
-    color ${({ theme }) => theme.transition.fast};
-  background: ${({ theme, $active }) =>
-    $active ? theme.colors.accentMuted : theme.colors.surface};
-  color: ${({ theme, $active }) => ($active ? theme.colors.accent : theme.colors.textMuted)};
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.text};
-    background: ${({ theme }) => theme.colors.surfaceHover};
-  }
-
-  & + & {
-    border-left: 1px solid ${({ theme }) => theme.colors.border};
-  }
 `;
 
 export const TableHeaderActionsLabel = styled.span`
@@ -344,22 +312,21 @@ export const Empty = styled.div`
 `;
 
 export const Grid = styled.div`
+  --cover-col-min: ${GRID_COVER_MIN_COL_PX}px;
+  --cover-col-min-large: ${GRID_COVER_MIN_COL_PX_WIDE}px;
+
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--cover-col-min)), 1fr));
   gap: ${({ theme }) => theme.spacing.md};
   width: 100%;
-
-  @media (min-width: 480px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  align-items: start;
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    grid-template-columns: repeat(4, 1fr);
     gap: ${({ theme }) => theme.spacing.lg};
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoint.desktop}) {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--cover-col-min-large)), 1fr));
   }
 `;
 
@@ -767,6 +734,14 @@ export const AddGameButtonRow = styled.div`
     max-width: 360px;
     margin: 0 auto;
   }
+`;
+
+export const ShowcaseShareSection = styled.div`
+  width: 100%;
+  margin-top: ${({ theme }) => theme.spacing.sm};
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs};
 `;
 
 export const Pagination = styled.div`

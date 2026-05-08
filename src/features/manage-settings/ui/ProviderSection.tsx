@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Button, Input, Select, SectionCard, SectionTitle, SectionDesc } from "@/shared/ui";
 import type { AIProviderType } from "@/shared/types";
 import { DEFAULT_MODELS, FREE_ANALYSIS_LIMIT } from "@/shared/types";
+import { Button, Input, Select, SectionCard, SectionTitle, SectionDesc } from "@/shared/ui";
 import { FormRow, FormGroup, KeyFieldWrap, RevealKeyButton, MarginedButtonRow, TrialStatusBox } from "./SettingsPage.styles";
 
 export function ProviderSection({

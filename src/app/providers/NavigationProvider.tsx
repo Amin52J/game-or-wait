@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -21,12 +22,10 @@ const NavigationContext = createContext<NavigationContextValue | null>(null);
 export function NavigationProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [pendingPath, setPendingPath] = useState<string | null>(null);
-  const [lastPathname, setLastPathname] = useState(pathname);
 
-  if (pathname !== lastPathname) {
-    setLastPathname(pathname);
+  useEffect(() => {
     setPendingPath(null);
-  }
+  }, [pathname]);
 
   const setIntent = useCallback((path: string) => {
     setPendingPath(path);

@@ -32,6 +32,11 @@ interface AnalysisRow {
   timestamp: number;
 }
 
+export interface LibraryShowcaseGameRow {
+  name: string;
+  score: number | null;
+}
+
 async function uid(): Promise<string | null> {
   const { data: { user } } = await getSupabase().auth.getUser();
   return user?.id ?? null;
@@ -166,6 +171,87 @@ export async function deleteGame(gameId: string) {
   await getSupabase().from("games").delete().eq("id", gameId).eq("user_id", id);
 }
 
+export interface LibraryShowcasePayload {
+  games: LibraryShowcaseGameRow[];
+  ownerDisplayName: string | null;
+}
+
+async function resolveShowcaseOwnerLabel(userId: string): Promise<string | null> {
+  const sb = getSupabase();
+  const { data: profile } = await sb
+    .from("profiles")
+    .select("display_name")
+    .eq("id", userId)
+    .maybeSingle();
+  const fromProfile = (profile as { display_name: string | null } | null)?.display_name?.trim();
+  if (fromProfile) return fromProfile;
+
+  const {
+    data: { user },
+  } = await sb.auth.getUser();
+  if (!user || user.id !== userId) return null;
+  const meta =
+    typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name.trim() : "";
+  if (meta) return meta;
+  const email = user.email?.trim();
+  if (email) {
+    const local = email.split("@")[0];
+    return local || email;
+  }
+  return null;
+}
+
+// ——— Public library showcase ———
+
+export async function publishLibraryShowcase(games: Game[]): Promise<string> {
+  const id = await uid();
+  if (!id) throw new Error("You must be signed in to publish a showcase.");
+
+  const ownerLabel = (await resolveShowcaseOwnerLabel(id))?.trim() || null;
+
+  const payload: LibraryShowcaseGameRow[] = games.map((g) => ({
+    name: g.name,
+    score: g.score,
+  }));
+
+  const { data, error } = await getSupabase()
+    .from("library_showcases")
+    .upsert(
+      {
+        user_id: id,
+        games: payload,
+        owner_display_name: ownerLabel,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    )
+    .select("public_id")
+    .single();
+
+  if (error) throw error;
+  return (data as { public_id: string }).public_id;
+}
+
+export async function getLibraryShowcaseByPublicId(
+  publicId: string,
+): Promise<LibraryShowcasePayload | null> {
+  const { data, error } = await getSupabase()
+    .from("library_showcases")
+    .select("games, owner_display_name")
+    .eq("public_id", publicId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+  const raw = (data as { games: unknown; owner_display_name: string | null }).games;
+  if (!Array.isArray(raw)) return null;
+  const ownerDisplayName = (data as { owner_display_name: string | null }).owner_display_name?.trim() || null;
+  return {
+    games: raw as LibraryShowcaseGameRow[],
+    ownerDisplayName,
+  };
+}
+
 // ——— Analysis History ———
 
 export async function insertAnalysis(result: AnalysisResult) {
@@ -225,6 +311,7 @@ export async function resetUserData() {
   await Promise.all([
     sb.from("games").delete().eq("user_id", id),
     sb.from("analysis_history").delete().eq("user_id", id),
+    sb.from("library_showcases").delete().eq("user_id", id),
     sb.from("user_settings").update({
       ai_provider: null,
       setup_answers: null,

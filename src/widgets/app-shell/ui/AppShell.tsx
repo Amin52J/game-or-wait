@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { useApp } from "@/app/providers/AppProvider";
@@ -13,6 +13,10 @@ import { UpdateNotification } from "@/features/updater/ui/UpdateNotification";
 import { ShellRoot, Main } from "./AppShell.styles";
 import { noopSubscribe, getTauri, getTauriServer } from "./AppShell.utils";
 import type { AppShellProps } from "./AppShell.types";
+import {
+  normalizeShowcasePath,
+  isPublicShowcasePath,
+} from "@/shared/lib/publicShowcaseRoute";
 
 export function AppShell({ children }: AppShellProps) {
   const { user, loading: authLoading, recoveryMode } = useAuth();
@@ -22,12 +26,21 @@ export function AppShell({ children }: AppShellProps) {
   const forceSetup = pathname === "/setup";
   const setupDone = state.isSetupComplete && !forceSetup;
 
+  const [pathFromBrowser, setPathFromBrowser] = useState("");
+  useLayoutEffect(() => {
+    setPathFromBrowser(normalizeShowcasePath(window.location.pathname));
+  }, [pathname]);
+
+  const publicShowcase =
+    isPublicShowcasePath(pathname) || isPublicShowcasePath(pathFromBrowser);
+
   const isTauri = useSyncExternalStore(noopSubscribe, getTauri, getTauriServer);
 
   // Redirect to home when landing on a deep link and either:
   // - not authenticated, or
   // - authenticated but hasn't completed setup.
   useEffect(() => {
+    if (publicShowcase) return;
     if (pathname !== "/") {
       if (!authLoading && !user) {
         router.replace("/");
@@ -35,13 +48,28 @@ export function AppShell({ children }: AppShellProps) {
         router.replace("/");
       }
     }
-  }, [authLoading, user, hydrated, state.isSetupComplete, pathname, router]);
+  }, [
+    authLoading,
+    user,
+    hydrated,
+    state.isSetupComplete,
+    pathname,
+    router,
+    publicShowcase,
+  ]);
 
   if (authLoading || isTauri === null) {
     return <AuthLoadingSkeleton />;
   }
 
   if (!user) {
+    if (publicShowcase) {
+      return (
+        <ShellRoot>
+          <Main $fullWidth>{children}</Main>
+        </ShellRoot>
+      );
+    }
     return isTauri ? <AuthPage /> : <LandingOrAuth />;
   }
 
@@ -49,14 +77,16 @@ export function AppShell({ children }: AppShellProps) {
     return <AuthPage initialMode="recovery" />;
   }
 
-  if (!hydrated) {
+  if (!hydrated && !publicShowcase) {
     return <HydrationSkeleton />;
   }
 
   return (
     <ShellRoot>
-      {setupDone ? <Sidebar /> : null}
-      <Main $fullWidth={!setupDone}>{setupDone ? <KeepAlivePages /> : children}</Main>
+      {setupDone && !publicShowcase ? <Sidebar /> : null}
+      <Main $fullWidth={!setupDone || publicShowcase}>
+        {setupDone && !publicShowcase ? <KeepAlivePages /> : children}
+      </Main>
       <UpdateNotification />
     </ShellRoot>
   );

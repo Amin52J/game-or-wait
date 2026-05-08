@@ -1,4 +1,4 @@
-const CACHE_NAME = "gameorwait-v1";
+const CACHE_NAME = "gameorwait-v2";
 const PRECACHE_URLS = ["/", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
@@ -12,16 +12,18 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE_NAME)
-            .map((key) => caches.delete(key)),
-        ),
-      )
-      .then(() => self.clients.claim()),
+    (async () => {
+      try {
+        if (self.registration.navigationPreload) {
+          await self.registration.navigationPreload.disable();
+        }
+      } catch {
+        /* ignore */
+      }
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)));
+      await self.clients.claim();
+    })(),
   );
 });
 
@@ -30,22 +32,20 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
 
-  // Skip cross-origin requests (APIs, fonts CDN, etc.)
   if (!request.url.startsWith(self.location.origin)) return;
 
+  // Let the browser handle documents / soft navigations. Intercepting them without
+  // consuming `preloadResponse` spams console and cancels navigation preload (Chrome).
+  if (request.mode === "navigate" || request.destination === "document") {
+    return;
+  }
+
+  // Cache-first for precached entries only; everything else is network-only.
+  // Avoids unbounded Cache Storage growth (RAM) from caching every asset on every visit.
   event.respondWith(
     caches.match(request).then((cached) => {
-      const fetched = fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
-
-      return cached || fetched;
+      if (cached) return cached;
+      return fetch(request);
     }),
   );
 });

@@ -1,10 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { PAGE_SIZE, SCORE_RANGES } from "./GameLibrary.utils";
+import {
+  PAGE_SIZE,
+  SCORE_RANGES,
+  countGameGridColumns,
+  showcaseInfiniteScrollChunkSize,
+  SHOWCASE_SCROLL_ROWS_PER_BATCH,
+} from "./GameLibrary.utils";
 
 describe("PAGE_SIZE", () => {
   it("is a positive number", () => {
     expect(PAGE_SIZE).toBeGreaterThan(0);
     expect(PAGE_SIZE).toBe(50);
+  });
+});
+
+describe("countGameGridColumns / showcaseInfiniteScrollChunkSize", () => {
+  it("estimates columns from width (desktop min / gap)", () => {
+    const cols = countGameGridColumns(1200, 1200);
+    expect(cols).toBe(Math.floor((1200 + 24) / (240 + 24)));
+  });
+
+  it("batch size is five rows times column count", () => {
+    expect(showcaseInfiniteScrollChunkSize(4)).toBe(4 * SHOWCASE_SCROLL_ROWS_PER_BATCH);
   });
 });
 

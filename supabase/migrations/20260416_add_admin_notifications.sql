@@ -1,1 +1,0 @@
--- REMOVE ME: this migration is not needed, notifications are handled in Edge Functions instead.

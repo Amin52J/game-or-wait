@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Game } from "@/shared/types";
+import { publishLibraryShowcase } from "@/shared/api/db";
 import {
   Button,
   PageWrapper,
@@ -12,9 +14,8 @@ import {
   GuidanceBanner,
 } from "@/shared/ui";
 import { AddGameModal } from "./AddGameModal";
-import { GameGrid } from "./GameGrid";
 import { useGameLibrary } from "./GameLibrary.hooks";
-import { AddGameButtonRow } from "./GameLibrary.styles";
+import { AddGameButtonRow, ShowcaseShareSection } from "./GameLibrary.styles";
 import { GameTable } from "./GameTable";
 import { ImportSection } from "./ImportSection";
 import { LibraryPagination } from "./LibraryPagination";
@@ -46,9 +47,19 @@ function LibraryBanners({ games, scored }: { games: Game[]; scored: number }) {
 }
 
 export function GameLibrary() {
+  const router = useRouter();
   const tableRef = useRef<HTMLDivElement>(null);
   const lib = useGameLibrary();
   const [calcGame, setCalcGame] = useState<{ id: string; name: string } | null>(null);
+  const [showcaseBusy, setShowcaseBusy] = useState(false);
+  const [showcaseHint, setShowcaseHint] = useState<string | null>(null);
+  const showcaseHintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (showcaseHintTimerRef.current) clearTimeout(showcaseHintTimerRef.current);
+    };
+  }, []);
 
   const totalGames = lib.games.length;
   const scoredCount = lib.scored.length;
@@ -67,6 +78,26 @@ export function GameLibrary() {
     if (firstGame) {
       setTimeout(() => lib.startEdit(firstGame), 400);
     }
+  };
+
+  const shareShowcase = async () => {
+    setShowcaseHint(null);
+    setShowcaseBusy(true);
+    try {
+      const publicId = await publishLibraryShowcase(lib.games);
+      const showcasePath = `/showcase?id=${encodeURIComponent(publicId)}`;
+      router.push(showcasePath);
+      setShowcaseHint("Showcase opened. Copy your link from the page.");
+    } catch (e) {
+      setShowcaseHint(e instanceof Error ? e.message : "Could not publish showcase.");
+    } finally {
+      setShowcaseBusy(false);
+    }
+    if (showcaseHintTimerRef.current) clearTimeout(showcaseHintTimerRef.current);
+    showcaseHintTimerRef.current = setTimeout(() => {
+      setShowcaseHint(null);
+      showcaseHintTimerRef.current = null;
+    }, 8000);
   };
 
   return (
@@ -122,6 +153,21 @@ export function GameLibrary() {
             </Button>
           </AddGameButtonRow>
         )}
+
+        {totalGames > 0 ? (
+          <ShowcaseShareSection>
+            <AddGameButtonRow>
+              <Button
+                variant="secondary"
+                onClick={() => void shareShowcase()}
+                disabled={showcaseBusy}
+                style={{ width: "100%" }}
+              >
+                {showcaseBusy ? "Creating link…" : "Showcase your library"}
+              </Button>
+            </AddGameButtonRow>
+          </ShowcaseShareSection>
+        ) : null}
       </PageHeader>
 
       <ImportSection handleImport={lib.handleImport} />
@@ -133,38 +179,28 @@ export function GameLibrary() {
         setSearch={lib.setSearch}
         activeRanges={lib.activeRanges}
         toggleRange={lib.toggleRange}
-        viewMode={lib.viewMode}
-        setViewMode={lib.setViewMode}
       />
 
-      {lib.viewMode === "grid" ? (
-        <GameGrid
-          gridRef={tableRef}
-          pageGames={lib.pageGames}
-          totalGames={lib.games.length}
-        />
-      ) : (
-        <GameTable
-          tableRef={tableRef}
-          pageGames={lib.pageGames}
-          totalGames={lib.games.length}
-          sortField={lib.sortField}
-          sortDir={lib.sortDir}
-          toggleSort={lib.toggleSort}
-          editingId={lib.editingId}
-          editName={lib.editName}
-          setEditName={lib.setEditName}
-          editScore={lib.editScore}
-          setEditScore={lib.setEditScore}
-          confirmDeleteId={lib.confirmDeleteId}
-          saveEdit={lib.saveEdit}
-          setEditingId={lib.setEditingId}
-          startEdit={lib.startEdit}
-          handleDeleteGame={lib.handleDeleteGame}
-          setConfirmDeleteId={lib.setConfirmDeleteId}
-          onCalcScore={(g) => setCalcGame({ id: g.id, name: g.name })}
-        />
-      )}
+      <GameTable
+        tableRef={tableRef}
+        pageGames={lib.pageGames}
+        totalGames={lib.games.length}
+        sortField={lib.sortField}
+        sortDir={lib.sortDir}
+        toggleSort={lib.toggleSort}
+        editingId={lib.editingId}
+        editName={lib.editName}
+        setEditName={lib.setEditName}
+        editScore={lib.editScore}
+        setEditScore={lib.setEditScore}
+        confirmDeleteId={lib.confirmDeleteId}
+        saveEdit={lib.saveEdit}
+        setEditingId={lib.setEditingId}
+        startEdit={lib.startEdit}
+        handleDeleteGame={lib.handleDeleteGame}
+        setConfirmDeleteId={lib.setConfirmDeleteId}
+        onCalcScore={(g) => setCalcGame({ id: g.id, name: g.name })}
+      />
 
       <LibraryPagination
         clampedPage={lib.clampedPage}

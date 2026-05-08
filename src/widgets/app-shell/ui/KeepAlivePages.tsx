@@ -10,36 +10,43 @@ import {
   NotFoundDesc,
   NotFoundLink,
 } from "./KeepAlivePages.styles";
+import { normalizeShowcasePath, isPublicShowcasePath } from "@/shared/lib/publicShowcaseRoute";
 import { PAGES, matchRoute } from "./KeepAlivePages.utils";
 
 export function KeepAlivePages() {
   const { activePath } = useNavigation();
-  const anyMatch = PAGES.some((p) => matchRoute(activePath, p.path));
-  const prevPathRef = useRef(activePath);
+  const normalizedActivePath = normalizeShowcasePath(activePath);
+  const anyMatch = PAGES.some((p) => matchRoute(normalizedActivePath, p.path));
+  const onPublicShowcase = isPublicShowcasePath(activePath);
+  const prevPathRef = useRef(normalizedActivePath);
 
   useEffect(() => {
-    if (prevPathRef.current === activePath) return;
-    prevPathRef.current = activePath;
+    if (prevPathRef.current === normalizedActivePath) return;
+    prevPathRef.current = normalizedActivePath;
     const main = document.querySelector("main");
     if (main) main.scrollTo({ top: 0, behavior: "instant" });
-  }, [activePath]);
+  }, [normalizedActivePath]);
 
   const [mounted, setMounted] = useState<Set<string>>(() => {
     const initial = new Set<string>();
-    const match = PAGES.find((p) => matchRoute(activePath, p.path));
+    const match = PAGES.find((p) => matchRoute(normalizedActivePath, p.path));
     if (match) initial.add(match.path);
     return initial;
   });
 
-  const currentMatch = PAGES.find((p) => matchRoute(activePath, p.path));
-  if (currentMatch && !mounted.has(currentMatch.path)) {
-    setMounted((prev) => new Set([...prev, currentMatch.path]));
-  }
+  useEffect(() => {
+    const currentMatch = PAGES.find((p) => matchRoute(normalizedActivePath, p.path));
+    if (!currentMatch) return;
+    setMounted((prev) => {
+      if (prev.has(currentMatch.path)) return prev;
+      return new Set([...prev, currentMatch.path]);
+    });
+  }, [normalizedActivePath]);
 
   return (
     <>
       {PAGES.map(({ path, Component }) => {
-        const active = matchRoute(activePath, path);
+        const active = matchRoute(normalizedActivePath, path);
         if (!mounted.has(path) && !active) return null;
         return (
           <PageSlot key={path} $visible={active}>
@@ -47,7 +54,7 @@ export function KeepAlivePages() {
           </PageSlot>
         );
       })}
-      {!anyMatch && (
+      {!anyMatch && !onPublicShowcase && (
         <NotFoundRoot>
           <NotFoundCode>404</NotFoundCode>
           <NotFoundTitle>Page not found</NotFoundTitle>

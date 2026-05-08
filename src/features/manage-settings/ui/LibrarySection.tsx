@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { Button, SectionCard, SectionTitle, SectionDesc } from "@/shared/ui";
-import { useApp } from "@/app/providers/AppProvider";
 import { gamesToCSV } from "@/entities/game/lib/csv-parser";
+import { useApp } from "@/app/providers/AppProvider";
 import { MarginedButtonRow } from "./SettingsPage.styles";
 
 export function LibrarySection() {

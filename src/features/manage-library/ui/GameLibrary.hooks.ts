@@ -1,18 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import type { Game } from "@/shared/types";
 import { parseAnyFormat, gamesToCSV } from "@/entities/game/lib/csv-parser";
 import { useApp } from "@/app/providers/AppProvider";
-import type { SortField, SortDir, ViewMode } from "./GameLibrary.types";
+import type { SortField, SortDir } from "./GameLibrary.types";
 import { SCORE_RANGES, PAGE_SIZE } from "./GameLibrary.utils";
-
-function readInitialViewMode(): ViewMode {
-  if (typeof window === "undefined") return "list";
-  const params = new URLSearchParams(window.location.search);
-  return params.get("view") === "grid" ? "grid" : "list";
-}
 
 function matchesRanges(score: number | null, activeRanges: Set<string>): boolean {
   if (activeRanges.size === 0) return true;
@@ -24,15 +17,12 @@ function matchesRanges(score: number | null, activeRanges: Set<string>): boolean
 
 export function useGameLibrary() {
   const { state, setGames, updateGame, deleteGame } = useApp();
-  const pathname = usePathname();
-  const isActive = pathname === "/library" || pathname?.startsWith("/library/");
 
   const [inputValue, setInputValue] = useState("");
   const [page, setPage] = useState(0);
   const [sortField, setSortField] = useState<SortField>("score");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [activeRanges, setActiveRanges] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<ViewMode>(readInitialViewMode);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editScore, setEditScore] = useState("");
@@ -47,15 +37,6 @@ export function useGameLibrary() {
     setInputValue(q);
     setPage(0);
   }, []);
-
-  useEffect(() => {
-    if (!isActive || typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    if (viewMode === "grid") params.set("view", "grid");
-    else params.delete("view");
-    const qs = params.toString();
-    window.history.replaceState(null, "", `/library${qs ? `?${qs}` : ""}`);
-  }, [isActive, viewMode]);
 
   const toggleSort = useCallback(
     (field: SortField) => {
@@ -202,8 +183,6 @@ export function useGameLibrary() {
     toggleSort,
     activeRanges,
     toggleRange,
-    viewMode,
-    setViewMode,
     filtered,
     totalPages,
     clampedPage,

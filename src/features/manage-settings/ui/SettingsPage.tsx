@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { PageWrapper } from "@/shared/ui";
-import { useApp } from "@/app/providers/AppProvider";
-import { generateInstructions } from "@/features/setup-wizard/lib/prompt-generator";
-import { defaultSetupAnswers } from "@/features/setup-wizard/ui/SetupWizard";
 import type { AIProviderConfig, AIProviderType, SetupAnswers } from "@/shared/types";
 import { DEFAULT_MODELS } from "@/shared/types";
-import { SettingsPageTitle, Toast } from "./SettingsPage.styles";
+import { PageWrapper, Toast } from "@/shared/ui";
+import { generateInstructions } from "@/features/setup-wizard/lib/prompt-generator";
+import { defaultSetupAnswers } from "@/features/setup-wizard/ui/SetupWizard";
+import { useApp } from "@/app/providers/AppProvider";
 import { AccountSection } from "./AccountSection";
-import { ProviderSection } from "./ProviderSection";
-import { TasteSection } from "./TasteSection";
-import { LibrarySection } from "./LibrarySection";
-import { HistorySection } from "./HistorySection";
 import { DangerSection } from "./DangerSection";
+import { HistorySection } from "./HistorySection";
+import { LibrarySection } from "./LibrarySection";
+import { ProviderSection } from "./ProviderSection";
+import { SettingsPageTitle } from "./SettingsPage.styles";
+import { TasteSection } from "./TasteSection";
 
 export function SettingsPage() {
   const { state, setAIProvider, setInstructions, setSetupAnswers, resetApp } = useApp();
@@ -63,7 +63,11 @@ export function SettingsPage() {
   return (
     <PageWrapper>
       <SettingsPageTitle>Settings</SettingsPageTitle>
-      {toast && <Toast $type={toast.type}>{toast.msg}</Toast>}
+      {toast ? (
+        <Toast $type={toast.type} $offsetForAppShell>
+          {toast.msg}
+        </Toast>
+      ) : null}
 
       <AccountSection onToast={showToast} />
 
