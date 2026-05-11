@@ -30,8 +30,6 @@ export function useGameLibrary() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addName, setAddName] = useState("");
-  const [addScore, setAddScore] = useState("");
 
   const setSearch = useCallback((q: string) => {
     setInputValue(q);
@@ -161,16 +159,21 @@ export function useGameLibrary() {
     }
   };
 
-  const handleAddGame = () => {
-    if (!addName.trim()) return;
-    const raw = parseInt(addScore);
-    const score = addScore.trim() && !isNaN(raw) ? Math.max(0, Math.min(100, raw)) : null;
-    setGames([
-      ...state.games,
-      { id: Math.random().toString(36).slice(2, 11), name: addName.trim(), score },
-    ]);
-    setShowAddModal(false);
-  };
+  const handleAddGame = useCallback(
+    (name: string, scoreStr: string) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const raw = parseInt(scoreStr, 10);
+      const score =
+        scoreStr.trim() && !Number.isNaN(raw) ? Math.max(0, Math.min(100, raw)) : null;
+      setGames([
+        ...state.games,
+        { id: Math.random().toString(36).slice(2, 11), name: trimmed, score },
+      ]);
+      setShowAddModal(false);
+    },
+    [state.games, setGames],
+  );
 
   return {
     games: state.games,
@@ -201,10 +204,6 @@ export function useGameLibrary() {
     setConfirmClear,
     showAddModal,
     setShowAddModal,
-    addName,
-    setAddName,
-    addScore,
-    setAddScore,
     startEdit,
     saveEdit,
     handleImport,

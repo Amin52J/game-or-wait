@@ -28,45 +28,6 @@ export const Label = styled.label`
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
-export const GameNameField = styled.input<{ $invalid?: boolean }>`
-  width: 100%;
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
-  font-family: ${({ theme }) => theme.font.sans};
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: ${({ theme }) => theme.colors.text};
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid
-    ${({ theme, $invalid }) => ($invalid ? theme.colors.error : theme.colors.border)};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  outline: none;
-  transition:
-    border-color ${({ theme }) => theme.transition.fast},
-    box-shadow ${({ theme }) => theme.transition.fast};
-
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.textMuted};
-    font-weight: 500;
-  }
-
-  &:focus {
-    border-color: ${({ theme, $invalid }) => ($invalid ? theme.colors.error : theme.colors.accent)};
-    box-shadow: 0 0 0 3px
-      ${({ theme, $invalid }) => ($invalid ? theme.colors.errorMuted : theme.colors.accentMuted)};
-  }
-
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-
-  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    font-size: 1.375rem;
-    padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
-  }
-`;
-
 export const PriceRow = styled.div<{ $invalid?: boolean }>`
   display: flex;
   align-items: stretch;

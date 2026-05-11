@@ -5,6 +5,9 @@ export interface Game {
   score: number | null;
 }
 
+/** RAWG-backed library autocomplete row */
+export type GameSearchHit = { name: string; image: string | null };
+
 export type AIProviderType = "anthropic" | "openai" | "google" | "custom";
 
 export interface AIProviderConfig {

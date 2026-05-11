@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
+import { GameCover } from "@/entities/game";
 import { Icon } from "@/shared/ui";
 import type { Game } from "@/shared/types";
 import {
   Row,
+  RowCoverCell,
   GameName,
   ScoreBadge,
   InlineInput,
@@ -55,6 +57,9 @@ export function GameRow({
       onClick={handleRowClick}
       style={{ cursor: isEditing ? undefined : "pointer" }}
     >
+      <RowCoverCell>
+        <GameCover name={game.name} size="list" />
+      </RowCoverCell>
       <GameName>
         {isEditing ? (
           <InlineNameInput

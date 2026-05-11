@@ -8,7 +8,9 @@ import { GameRow } from "./GameRow";
 import {
   Table,
   TableHeader,
+  TableHeaderCoverSpacer,
   SortableCol,
+  TableHeaderGameSort,
   SortArrow,
   TableHeaderActionsLabel,
   Empty,
@@ -56,7 +58,8 @@ export function GameTable({
   return (
     <Table ref={tableRef}>
       <TableHeader>
-        <SortableCol $active={sortField === "name"} onClick={() => toggleSort("name")}>
+        <TableHeaderCoverSpacer aria-hidden />
+        <TableHeaderGameSort $active={sortField === "name"} onClick={() => toggleSort("name")}>
           Game
           <SortArrow $dir={sortField === "name" ? sortDir : null}>
             <Icon
@@ -64,7 +67,7 @@ export function GameTable({
               size={14}
             />
           </SortArrow>
-        </SortableCol>
+        </TableHeaderGameSort>
         <SortableCol $active={sortField === "score"} onClick={() => toggleSort("score")}>
           Score
           <SortArrow $dir={sortField === "score" ? sortDir : null}>

@@ -7,7 +7,7 @@ const shimmer = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-export type CoverSize = "xs" | "sm" | "md" | "lg";
+export type CoverSize = "xs" | "sm" | "md" | "lg" | "list";
 
 const sizeStyles = {
   xs: css`
@@ -35,6 +35,10 @@ const sizeStyles = {
   lg: css`
     width: 100%;
     aspect-ratio: 2 / 3;
+  `,
+  list: css`
+    width: calc(100px * 2 / 3);
+    height: 100px;
   `,
 } as const;
 
@@ -82,6 +86,7 @@ export const CoverFallback = styled.div<{ $seed: number; $size: CoverSize }>`
   font-size: ${({ $size }) => {
     if ($size === "xs") return "0.95rem";
     if ($size === "sm") return "1.4rem";
+    if ($size === "list") return "1.55rem";
     if ($size === "md") return "1.85rem";
     return "2.5rem";
   }};

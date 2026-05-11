@@ -101,9 +101,17 @@ export const TableHeader = styled.div`
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
     display: grid;
-    grid-template-columns: 1fr 100px auto;
+    grid-template-columns: calc(100px * 2 / 3) 1fr 100px auto;
     padding: 12px 20px;
     font-size: 0.8rem;
+  }
+`;
+
+export const TableHeaderCoverSpacer = styled.div`
+  display: none;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    display: block;
   }
 `;
 
@@ -131,6 +139,13 @@ export const SortArrow = styled.span<{ $dir: "asc" | "desc" | null }>`
   opacity: ${({ $dir }) => ($dir ? 1 : 0.3)};
 `;
 
+/** Same horizontal offset as `GameName` from tablet up so the column label lines up with row titles. */
+export const TableHeaderGameSort = styled(SortableCol)`
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    padding-left: ${({ theme }) => theme.spacing.md};
+  }
+`;
+
 export const FilterBar = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.sm};
@@ -144,11 +159,26 @@ export const FilterLabel = styled.span`
   margin-right: 2px;
 `;
 
-export const Row = styled.div<{ $editing?: boolean }>`
+export const RowCoverCell = styled.div`
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.sm};
+  justify-content: center;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    grid-column: auto;
+    grid-row: auto;
+    justify-content: flex-start;
+  }
+`;
+
+export const Row = styled.div<{ $editing?: boolean }>`
+  display: grid;
+  grid-template-columns: calc(100px * 2 / 3) minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+  align-items: center;
   padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.sm}`};
   font-size: 0.8rem;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
@@ -165,25 +195,29 @@ export const Row = styled.div<{ $editing?: boolean }>`
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    display: grid;
-    grid-template-columns: 1fr 100px auto;
+    grid-template-columns: calc(100px * 2 / 3) 1fr 100px auto;
+    grid-template-rows: auto;
+    gap: 0;
     padding: 10px 20px;
     font-size: unset;
-    gap: 0;
   }
 `;
 
 export const GameName = styled.div`
-  width: 100%;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
   font-size: 0.8125rem;
   color: ${({ theme }) => theme.colors.text};
   word-break: break-word;
   padding: 4px;
 
   @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
-    width: auto;
+    grid-column: auto;
+    grid-row: auto;
     font-size: 0.9rem;
     word-break: normal;
+    padding-left: ${({ theme }) => theme.spacing.md};
   }
 `;
 
@@ -214,8 +248,16 @@ export const ScoreBadge = styled.span<{ $score: number | null }>`
 
 export const ScoreContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  grid-column: 2;
+  grid-row: 2;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    grid-column: auto;
+    grid-row: auto;
+    justify-content: center;
+  }
 `;
 
 export const InlineInput = styled.input`
@@ -257,7 +299,15 @@ export const RowActions = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.xs};
   justify-content: flex-end;
-  margin-left: auto;
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  align-self: center;
+
+  @media (min-width: ${({ theme }) => theme.breakpoint.tablet}) {
+    grid-column: auto;
+    grid-row: auto;
+    margin-left: auto;
+  }
 `;
 
 export const IconBtn = styled.button<{ $danger?: boolean }>`
@@ -632,6 +682,7 @@ export const ModalBackdrop = styled.div`
 `;
 
 export const ModalCard = styled.div`
+  position: relative;
   background: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
@@ -651,10 +702,117 @@ export const ModalTitle = styled.h2`
   color: ${({ theme }) => theme.colors.text};
 `;
 
+export const AddGameModalTitle = styled.h2`
+  margin: 0;
+  padding-right: 88px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
 export const ModalActions = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.sm};
   justify-content: flex-end;
+`;
+
+export const AddGameAutocompleteWrap = styled.div`
+  position: relative;
+  z-index: 1;
+  width: 100%;
+`;
+
+export const AddGameCoverPreview = styled.figure`
+  position: absolute;
+  z-index: 0;
+  top: ${({ theme }) => theme.spacing.lg};
+  right: ${({ theme }) => theme.spacing.lg};
+  margin: 0;
+  width: 76px;
+  height: 43px;
+  border-radius: ${({ theme }) => theme.radius.sm};
+  overflow: hidden;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.bg};
+`;
+
+export const AddGameCoverPreviewImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+`;
+
+export const AddGameSuggestionsList = styled.ul`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + ${({ theme }) => theme.spacing.xs});
+  margin: 0;
+  padding: ${({ theme }) => theme.spacing.xs} 0;
+  list-style: none;
+  z-index: 1;
+  max-height: 280px;
+  overflow-y: auto;
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ theme }) => theme.colors.surfaceElevated};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  box-shadow: ${({ theme }) => theme.shadow.md};
+`;
+
+export const AddGameSuggestionItem = styled.button<{ $active?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  width: 100%;
+  margin: 0;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  text-align: left;
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.text};
+  background: ${({ theme, $active }) =>
+    $active ? theme.colors.accentMuted : "transparent"};
+  border: none;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    background: ${({ theme }) => theme.colors.accentMuted};
+  }
+`;
+
+export const AddGameSuggestionThumbWrap = styled.span`
+  flex-shrink: 0;
+  width: 44px;
+  height: 30px;
+  border-radius: ${({ theme }) => theme.radius.sm};
+  overflow: hidden;
+  background: ${({ theme }) => theme.colors.bg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+`;
+
+export const AddGameSuggestionThumb = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+`;
+
+export const AddGameSuggestionLabel = styled.span`
+  min-width: 0;
+  flex: 1;
+  line-height: 1.25;
+`;
+
+export const AddGameSuggestionsStatus = styled.li`
+  margin: 0;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  font-family: ${({ theme }) => theme.font.sans};
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+  list-style: none;
 `;
 
 export const ModalHint = styled.p`

@@ -8,10 +8,6 @@ beforeEach(resetAllMocks);
 
 describe("AddGameModal", () => {
   const defaultProps = {
-    addName: "",
-    setAddName: vi.fn(),
-    addScore: "",
-    setAddScore: vi.fn(),
     onAdd: vi.fn(),
     onClose: vi.fn(),
   };
@@ -28,17 +24,21 @@ describe("AddGameModal", () => {
     expect(screen.getByRole("button", { name: "Add" })).toBeDisabled();
   });
 
-  it("has enabled Add button when name is provided", () => {
-    renderWithProviders(<AddGameModal {...defaultProps} addName="Elden Ring" />);
+  it("has enabled Add button when name is provided", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<AddGameModal {...defaultProps} />);
+    await user.type(screen.getByLabelText("Game name"), "Elden Ring");
     expect(screen.getByRole("button", { name: "Add" })).not.toBeDisabled();
   });
 
   it("calls onAdd when Add button is clicked", async () => {
     const user = userEvent.setup();
     const onAdd = vi.fn();
-    renderWithProviders(<AddGameModal {...defaultProps} addName="Test Game" onAdd={onAdd} />);
+    renderWithProviders(<AddGameModal {...defaultProps} onAdd={onAdd} />);
+    await user.type(screen.getByLabelText("Game name"), "Test Game");
     await user.click(screen.getByRole("button", { name: "Add" }));
     expect(onAdd).toHaveBeenCalledTimes(1);
+    expect(onAdd).toHaveBeenCalledWith("Test Game", "");
   });
 
   it("calls onClose when Cancel button is clicked", async () => {
@@ -58,29 +58,28 @@ describe("AddGameModal", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("calls setAddName on name input change", async () => {
+  it("updates game name field when user types", async () => {
     const user = userEvent.setup();
-    const setAddName = vi.fn();
-    renderWithProviders(<AddGameModal {...defaultProps} setAddName={setAddName} />);
-    await user.type(screen.getByLabelText("Game name"), "A");
-    expect(setAddName).toHaveBeenCalled();
+    renderWithProviders(<AddGameModal {...defaultProps} />);
+    await user.type(screen.getByLabelText("Game name"), "Portal");
+    expect(screen.getByLabelText("Game name")).toHaveValue("Portal");
   });
 
-  it("calls setAddScore on score input change", async () => {
+  it("updates score field when user types", async () => {
     const user = userEvent.setup();
-    const setAddScore = vi.fn();
-    renderWithProviders(<AddGameModal {...defaultProps} setAddScore={setAddScore} />);
+    renderWithProviders(<AddGameModal {...defaultProps} />);
     await user.type(screen.getByLabelText("Score (optional)"), "8");
-    expect(setAddScore).toHaveBeenCalled();
+    expect(screen.getByLabelText("Score (optional)")).toHaveValue(8);
   });
 
   it("calls onAdd when Enter is pressed in name input", async () => {
     const user = userEvent.setup();
     const onAdd = vi.fn();
-    renderWithProviders(<AddGameModal {...defaultProps} addName="Test" onAdd={onAdd} />);
-    screen.getByLabelText("Game name").focus();
+    renderWithProviders(<AddGameModal {...defaultProps} onAdd={onAdd} />);
+    const nameInput = screen.getByLabelText("Game name");
+    await user.type(nameInput, "Test");
     await user.keyboard("{Enter}");
-    expect(onAdd).toHaveBeenCalled();
+    expect(onAdd).toHaveBeenCalledWith("Test", "");
   });
 
   it("calls onClose when Escape is pressed in name input", async () => {
@@ -95,10 +94,11 @@ describe("AddGameModal", () => {
   it("calls onAdd when Enter is pressed in score input", async () => {
     const user = userEvent.setup();
     const onAdd = vi.fn();
-    renderWithProviders(<AddGameModal {...defaultProps} addName="Test" onAdd={onAdd} />);
+    renderWithProviders(<AddGameModal {...defaultProps} onAdd={onAdd} />);
+    await user.type(screen.getByLabelText("Game name"), "Test");
     screen.getByLabelText("Score (optional)").focus();
     await user.keyboard("{Enter}");
-    expect(onAdd).toHaveBeenCalled();
+    expect(onAdd).toHaveBeenCalledWith("Test", "");
   });
 
   it("calls onClose when Escape is pressed in score input", async () => {
@@ -120,22 +120,18 @@ describe("AddGameModal", () => {
 
   it("rejects score values above 100", async () => {
     const user = userEvent.setup();
-    const setAddScore = vi.fn();
-    renderWithProviders(<AddGameModal {...defaultProps} setAddScore={setAddScore} addScore="" />);
+    renderWithProviders(<AddGameModal {...defaultProps} />);
     const scoreInput = screen.getByLabelText("Score (optional)");
-    // Simulate typing "101" — the onChange handler should reject it
     await user.type(scoreInput, "101");
-    // setAddScore should be called for "1", "10" but not for "101" since 101 > 100
-    const calls = setAddScore.mock.calls.map((c: any[]) => c[0]);
-    expect(calls).not.toContain("101");
+    expect(scoreInput).toHaveValue(10);
   });
 
-  it("allows empty score value", async () => {
+  it("allows clearing score value", async () => {
     const user = userEvent.setup();
-    const setAddScore = vi.fn();
-    renderWithProviders(<AddGameModal {...defaultProps} setAddScore={setAddScore} addScore="5" />);
+    renderWithProviders(<AddGameModal {...defaultProps} />);
     const scoreInput = screen.getByLabelText("Score (optional)");
+    await user.type(scoreInput, "5");
     await user.clear(scoreInput);
-    // The clear triggers onChange with empty string which should be accepted
+    expect(scoreInput).toHaveValue(null);
   });
 });

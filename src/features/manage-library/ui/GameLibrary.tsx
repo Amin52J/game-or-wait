@@ -67,8 +67,6 @@ export function GameLibrary() {
   const needsMoreScoring = totalGames >= 10 && scoredCount < 10;
 
   const openAddModal = () => {
-    lib.setAddName("");
-    lib.setAddScore("");
     lib.setShowAddModal(true);
   };
 
@@ -211,10 +209,6 @@ export function GameLibrary() {
 
       {lib.showAddModal && (
         <AddGameModal
-          addName={lib.addName}
-          setAddName={lib.setAddName}
-          addScore={lib.addScore}
-          setAddScore={lib.setAddScore}
           onAdd={lib.handleAddGame}
           onClose={() => lib.setShowAddModal(false)}
         />

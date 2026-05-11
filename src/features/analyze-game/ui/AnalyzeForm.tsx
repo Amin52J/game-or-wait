@@ -3,14 +3,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useApp } from "@/app/providers/AppProvider";
-import { FREE_ANALYSIS_LIMIT } from "@/shared/types";
 import { sessionCache } from "@/features/analyze-game/model/session-cache";
+import { RawgGameAutocompleteField } from "@/features/manage-library/ui/RawgGameAutocompleteField";
+import { FREE_ANALYSIS_LIMIT } from "@/shared/types";
 import { Button } from "@/shared/ui/Button";
 import {
   FormRoot,
   FieldBlock,
   Label,
-  GameNameField,
   PriceRow,
   CurrencyPrefix,
   PriceField,
@@ -37,6 +37,7 @@ export function AnalyzeForm({
   const { state, hydrated } = useApp();
   const pathname = usePathname();
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const cached = sessionCache.get();
   const [gameName, setGameName] = useState(cached.gameName);
@@ -59,6 +60,11 @@ export function AnalyzeForm({
   const priceInvalid = touched && (Number.isNaN(priceNum) || priceNum < 0);
   const nameInvalid = touched && gameName.trim() === "";
 
+  const syncGameName = useCallback((next: string) => {
+    setGameName(next);
+    sessionCache.set({ gameName: next });
+  }, []);
+
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -75,25 +81,31 @@ export function AnalyzeForm({
   const disabled = isLoading || showProviderError || trialExhausted || notEnoughScored;
 
   return (
-    <FormRoot onSubmit={handleSubmit} noValidate>
+    <FormRoot ref={formRef} onSubmit={handleSubmit} noValidate>
       <FieldBlock>
         <Label htmlFor="analyze-game-name">Game name</Label>
-        <GameNameField
+        <RawgGameAutocompleteField
           ref={nameRef}
           id="analyze-game-name"
-          name="gameName"
-          type="text"
-          autoComplete="off"
+          placeholder=""
           value={gameName}
-          onChange={(e) => {
-            setGameName(e.target.value);
-            sessionCache.set({ gameName: e.target.value });
+          onValueChange={syncGameName}
+          onPick={(hit) => syncGameName(hit.name)}
+          listboxLabel="Suggested game titles"
+          onEnterWhenCollapsed={() => formRef.current?.requestSubmit()}
+          error={nameInvalid ? "Enter a game name." : undefined}
+          inputProps={{
+            name: "gameName",
+            disabled,
+            autoComplete: "off",
+            spellCheck: false,
+            style: {
+              fontSize: "clamp(1.125rem, 2.5vw, 1.375rem)",
+              fontWeight: 600,
+              lineHeight: 1.3,
+            },
           }}
-          disabled={disabled}
-          $invalid={nameInvalid}
-          aria-invalid={nameInvalid || undefined}
         />
-        {nameInvalid ? <FieldError>Enter a game name.</FieldError> : null}
       </FieldBlock>
 
       <FieldBlock>
