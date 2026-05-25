@@ -139,8 +139,8 @@ export function computeTargetPrice(
   refundRecommended: boolean,
 ): { value: number | null; label: string } {
   let A = score;
-  if (riskLevel === "medium") A -= 5;
-  else if (riskLevel === "high") A -= 10;
+  if (riskLevel === "medium") A -= 3;
+  else if (riskLevel === "high") A -= 7;
 
   const conf = confidence?.toLowerCase() ?? "";
   if ((conf === "low" || conf === "very low") && riskLevel !== "none") A -= 5;
@@ -173,6 +173,7 @@ const KNOWN_SECTION_KEYS = new Set([
   "public-sentiment",
   "library-signals",
   "positive-alignment",
+  "positive-factors",
   "negative-factors",
   "red-line-risk",
 ]);
@@ -192,7 +193,7 @@ export function getSectionType(
   if (key.includes("enjoyment-score") || key.includes("score-summary")) return "score";
   if (key.includes("target-price")) return "price";
   if (key.includes("refund-guard")) return "refund";
-  if (key.includes("positive-alignment")) return "positive";
+  if (key.includes("positive-alignment") || key.includes("positive-factors")) return "positive";
   if (key.includes("negative-factors")) return "negative";
   if (key.includes("red-line-risk")) return "risk";
   if (key.includes("public-sentiment")) return "sentiment";

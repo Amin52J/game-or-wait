@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
     system: [{ type: "text", text: body.system, cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: body.user }],
     tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
-    max_tokens: 4096,
+    max_tokens: 8192,
     temperature: 0,
     stream: true,
   };

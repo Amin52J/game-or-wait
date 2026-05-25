@@ -111,8 +111,8 @@ export class AIClient {
       model: this.config.model,
       system,
       messages: [{ role: "user", content: user }],
-      max_tokens: 4096,
-      temperature: 0.2,
+      max_tokens: 8192,
+      temperature: 0,
       stream: true,
     };
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -183,9 +183,9 @@ export class AIClient {
     };
 
     if (this.config.extendedThinking) {
-      body.max_tokens = 8192;
+      body.max_tokens = 16384;
     } else {
-      body.max_tokens = 4096;
+      body.max_tokens = 8192;
     }
 
     if (stream) body.stream = true;
@@ -338,9 +338,9 @@ export class AIClient {
 
     if (this.config.extendedThinking) {
       body.reasoning_effort = "low";
-      body.max_completion_tokens = 8192;
+      body.max_completion_tokens = 16384;
     } else {
-      body.max_tokens = 4096;
+      body.max_tokens = 8192;
       body.temperature = 0;
     }
 
@@ -454,9 +454,9 @@ export class AIClient {
     };
     if (this.config.extendedThinking) {
       body.reasoning_effort = "low";
-      body.max_tokens = 8192;
+      body.max_tokens = 16384;
     } else {
-      body.max_tokens = 4096;
+      body.max_tokens = 8192;
       body.temperature = 0;
     }
     const res = await fetch(this.googleBaseUrl, {
@@ -494,9 +494,9 @@ export class AIClient {
     };
     if (this.config.extendedThinking) {
       body.reasoning_effort = "low";
-      body.max_tokens = 8192;
+      body.max_tokens = 16384;
     } else {
-      body.max_tokens = 4096;
+      body.max_tokens = 8192;
       body.temperature = 0;
     }
     const res = await fetch(this.googleBaseUrl, {
@@ -534,8 +534,8 @@ export class AIClient {
       body: JSON.stringify({
         model: this.config.model,
         messages,
-        max_tokens: 4096,
-        temperature: 0.2,
+        max_tokens: 8192,
+        temperature: 0,
       }),
       signal,
     });

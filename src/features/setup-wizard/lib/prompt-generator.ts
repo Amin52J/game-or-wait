@@ -22,7 +22,7 @@ export function generateInstructions(answers: SetupAnswers): string {
 
   if (answers.additionalNotes.trim()) {
     sections.push(
-      `## Additional Taste Context\n\nThe user provided the following preference notes. These capture softer aversions, gradient preferences, and taste context that don't rise to the level of dealbreakers — the user has deliberately placed them here rather than in the red-line tag list.\n\nUse these notes to:\n- Apply scaled penalties based on corpus evidence. For penalties derived from these notes (and only these notes — NOT from the dealbreaker rules above), use one of three fixed magnitudes: −3 (mild match — single source or weak signal), −5 (clear match — multiple sources confirm), or −8 (strong match — broadly cited across critic and user reviews). Do not use intermediate values. The dealbreaker rules above use their own magnitudes (−8, −12, −15) and are not affected by this scale.\n- Inform tone and reasoning in the Public Sentiment and red-line risk sections.\n- Match on meaning, not exact phrasing — the same preference may surface in reviews under different vocabulary.\n\nFor each note-derived penalty, quote the specific review snippet that supports it. If you cannot find a clear corpus match for a note, do not apply a penalty and briefly note 'no clear corpus match' for that preference, so the gap is visible.\n\nDo NOT:\n- Treat these notes as questions to answer or topics to add new sections for.\n- Apply hard verdict-level penalties from notes alone — those are reserved for the explicit red-line tags.\n- Ignore notes when corpus evidence clearly matches them.\n- Apply note-derived magnitudes (−3/−5/−8) to dealbreaker penalties, or dealbreaker magnitudes (−8/−12/−15) to note-derived penalties. The two scales are independent.\n\nThe user's notes:\n\n> ${answers.additionalNotes.trim().replace(/\n/g, "\n> ")}`,
+      `## Additional Taste Context\n\nThe user provided the following preference notes. These capture softer aversions, gradient preferences, and taste context that don't rise to the level of dealbreakers — the user has deliberately placed them here rather than in the red-line tag list.\n\nUse these notes to:\n- Apply scaled penalties based on corpus evidence, mapped through the **Penalty Evidence Ladder** in Core Principles. For penalties derived from these notes (and only these notes — NOT from the dealbreaker rules above), use one of three fixed magnitudes tied to the citation count: −3 (Weak / single-source evidence — exactly 1 review or quote, even when vivid), −5 (Moderate evidence — exactly 2 independent reviews), or −8 (Strong evidence — ≥3 reviews or explicit consensus language). Do NOT use intermediate values and do NOT pick the magnitude by feel — the citation count is the input. Internally state the distinct review count before picking the tier. The dealbreaker rules above use their own magnitudes (−8, −12, −15) and are not affected by this scale.\n- Inform tone and reasoning in the Public Sentiment and red-line risk sections.\n- Match on meaning, not exact phrasing — the same preference may surface in reviews under different vocabulary.\n\nFor each note-derived penalty, quote the specific review snippet(s) that support it AND state the number of distinct reviews. If you cannot find at least 1 distinct review supporting the note, do not apply a penalty (and per the Negative Factors brevity rule, simply omit it from output — do not add a 'no corpus match' filler line).\n\nDo NOT:\n- Treat these notes as questions to answer or topics to add new sections for.\n- Apply hard verdict-level penalties from notes alone — those are reserved for the explicit red-line tags.\n- Ignore notes when corpus evidence clearly matches them.\n- Apply note-derived magnitudes (−3/−5/−8) to dealbreaker penalties, or dealbreaker magnitudes (−8/−12/−15) to note-derived penalties. The two scales are independent.\n- Apply a higher magnitude (−5 or −8) on the strength of a single review, no matter how vivid. Single-source caps at −3.\n\nThe user's notes:\n\n> ${answers.additionalNotes.trim().replace(/\n/g, "\n> ")}`,
     );
   }
 
@@ -51,6 +51,13 @@ function buildCorePrinciples(): string {
 - **No Assumptions**: Never assume the user has played a game unless it appears with a score. Treat the target game as unplayed.
 - **Score-Based Modeling**: Use the Scoring Procedure below. Base scores from the most relevant library titles (typically >75). Match on genre, gameplay, tone, mechanics, atmosphere. Treat games scored below 76 (not unscored games!) as unfinished games or games the user didn't enjoy playing as much.
 - **Evidence Standard**: Apply ANY penalty or bonus from the rule sections below ONLY if multiple Steam/critic reviews consistently confirm the relevant signal. If evidence is mixed or unclear, do NOT apply the adjustment.
+- **Penalty Evidence Ladder** (applies to ALL penalty rules below — dealbreakers, taste notes, Repetition & Pacing, Dialogue & Voice Acting, Wayfinding Friction, Axis Sensitivity negatives, GQP, custom dealbreakers): Before applying ANY penalty, count the independent review citations that describe the same friction. Then pick the magnitude tier accordingly — NEVER pick a magnitude by feel.
+  - *Strong evidence* (≥ 3 independent reviews stating the same issue, OR explicit consensus language in critic reviews such as "broadly criticised", "common complaint", "consistently reported"): apply the FULL magnitude defined by the rule (i.e. the rule's largest negative value: −15 / −12 / −10 / −8 depending on scale).
+  - *Moderate evidence* (exactly 2 independent reviews stating the same issue): apply the MIDDLE magnitude on the rule's scale. For the dealbreaker scale (−8/−12/−15) use −12; for the note scale (−3/−5/−8) use −5; for single-value rules (Pacing −12, Wayfinding −10) use approximately 2/3 of the magnitude rounded to a clean integer (Pacing → −8, Wayfinding → −7).
+  - *Weak / single-source evidence* (exactly 1 review or a single critic quote, even when vivid — e.g. one reviewer calling an opening "insanely rough"): cap at the LOWEST magnitude of the rule's scale. For dealbreakers use −8; for notes use −3; for single-value rules use −5. NEVER apply the full magnitude on single-source evidence.
+  - *No evidence* (no reviews describe the friction, OR reviews are mixed/contradictory): do NOT apply the penalty. When in doubt, drop it — conservative scoring is preferable to inconsistent scoring.
+  - When applying a penalty, you MUST be able to point internally to a specific number of distinct reviews supporting it. If you cannot count at least 1 distinct review, the penalty does not fire. Phrasing like "reviews consistently report" / "broadly cited" elsewhere in this prompt is shorthand for *Strong evidence* on this ladder; it does NOT mean "fire the penalty regardless of citation count".
+  - This ladder applies to NEGATIVE penalties only. Positive bonuses (Axis Sensitivity positives, Difficulty Appetite positives, Voice Acting bonus, Length Fit pacing bonus) keep their fixed values defined by their rules.
 - **Independent Scoring Scales**: The rules below use SEVERAL independent scales. Do not mix magnitudes between them:
   - **Dealbreakers** (Play Style, Negative Factors, Pacing, Dialogue, Wayfinding, custom dealbreakers): −8 / −12 / −15.
   - **Taste notes** (Additional Taste Context, when present): −3 / −5 / −8.
@@ -59,7 +66,9 @@ function buildCorePrinciples(): string {
   - **Axis Sensitivity** (1–5 importance sliders): negative −3 / −5 / −8 / −12, positive +3 / +5 / +8, scaled by slider value.
   - **Voice Acting**: −15 (essential + no-VA), or ±5 (preferred), per the Dialogue & Voice Acting rule.
 - **Review Quality Matters**: Anchor similarity sets the *ceiling* for the base score; the game's actual review reception determines how close it gets. A game with "Mixed" or "Mostly Negative" reviews should score meaningfully lower than a "Very Positive" game with the same anchors — even if no specific dealbreaker applies. Apply the Review Quality Discount in the Scoring Procedure.
-- **Library Context**: The base score (from anchor games) is the starting point. Review quality adjustments, general quality penalties, dealbreaker penalties, and the other scales above refine it. Strong library similarity is a positive signal but does not override poor game quality established by broad review consensus.`;
+- **Library Context**: The base score (from anchor games) is the starting point. Review quality adjustments, general quality penalties, dealbreaker penalties, and the other scales above refine it. Strong library similarity is a positive signal but does not override poor game quality established by broad review consensus.
+- **No Inference About Dislike Reasons**: When the user scored a library game below 70, do NOT invent or assume *why* they disliked it. Only adjust anchor handling based on (1) the user's EXPLICIT recorded preferences (dealbreakers, axis sliders ≥ 3, voice-acting preference, idealLength, difficultyPreference, custom dealbreakers, additionalNotes) and (2) CITABLE review evidence about the target game. When either is missing or ambiguous, default to the more conservative outcome. The vocabulary used by reviewers is irrelevant — what matters is the aspect of the game being described.
+- **Similarity Has Kinds**: Anchor similarity is not a single dimension. A direct franchise predecessor / same-studio spiritual successor with the same core gameplay loop (a "near-twin", tier A) is a categorically stronger signal than a game that shares only narrative density, tone, or choice-driven structure (tier C). See the Scoring Procedure for the tier system — a low-scored near-twin must not be diluted by superficially-related anchors.`;
 }
 
 function buildScoringRubric(): string {
@@ -80,6 +89,11 @@ Fixed anchor bands — the Enjoyment Score is determined by base score minus all
 * totalP ≥ 20 → R ≤ 69.
 * totalP ≥ 10 → R ≤ 79.
 * totalP ≥ 5 → R ≤ 89.
+* **Near-twin caps (tier-A anchors only — see Scoring Procedure step 1):** Apply EXACTLY ONE near-twin cap — the strictest one whose condition is met. Do NOT apply both the ≤ 60 and the ≤ 70 caps together; pick the single one that matches.
+  - If a confirmed tier-A near-twin anchor scored ≤ 60 AND the Escape Clause did NOT fire → R ≤ (near-twin score + 8); refund guard auto-recommended. (Use this cap; do NOT also apply the ≤ 70 cap.)
+  - Else if a confirmed tier-A near-twin anchor scored ≤ 70 AND the Escape Clause did NOT fire → R ≤ (near-twin score + 12).
+  - If the Escape Clause (Scoring Procedure step 1c) fires, replace the above with R ≤ (near-twin score + 20); the underlying caps from Red-Line Risk and totalP still apply.
+  - These caps apply ONLY to tier-A near-twins. Tier-B and tier-C anchors NEVER trigger near-twin caps regardless of their scores.
 
 **Hard floors:**
 * No dealbreaker penalties + strong overlap + positive reviews → R ≥ 70 (review quality discount may still apply).
@@ -90,8 +104,40 @@ Fixed anchor bands — the Enjoyment Score is determined by base score minus all
 function buildScoringProcedure(): string {
   return `## Scoring Procedure (INTERNAL — do NOT output this as a section)
 Perform this calculation internally before writing any output sections. Do NOT include a "Scoring Procedure" section, calculation tables, or step-by-step math in your response. The results feed into the output sections described later.
-1. **Anchor games**: Identify 3–5 most similar library titles by genre, mechanics, and tone. Record each with its library score.
-2. **Base score**: B = weighted average of anchor scores (weight by similarity).
+
+**0a. Library audit (MANDATORY — do this FIRST, before any anchor classification; do NOT output this step):**
+   - Read the user's library list (delivered in the user message under "Here is my game library:") verbatim. The library is the GROUND TRUTH about what the user has scored — it is not optional context.
+   - Count the total number of scored entries. Hold that count in mind as a sanity check.
+   - Scan the entire list — every entry, not just the first few — for games that could plausibly be anchors for the target. Pay specific attention to:
+     · Same-studio / same-franchise / direct-predecessor titles (these are the most likely tier-A candidates and the most damaging to miss).
+     · Same-sub-genre titles (isometric CRPGs, immersive sims, Soulslikes, etc. relative to the target).
+     · The user's lowest-scored games (≤ 70) — a low score on a near-twin is the single most informative signal in the entire procedure, and the easiest entry to overlook.
+   - For EACH candidate anchor you plan to use, quote its EXACT name and score from the library list before classifying it. If you cannot find a matching "Name: NN/100" entry in the library list, you MUST NOT use that game as an anchor — it is not in the user's library.
+   - It is FORBIDDEN to claim a game is "absent" or "unscored" from the library unless you have actually scanned the entire list and confirmed its absence. When in doubt, the game IS in the library — re-scan before declaring it missing. Hallucinating that a same-studio predecessor is "absent" is the single worst failure mode of this procedure and silently disables the near-twin cap.
+
+1. **Anchor games — tiered classification**: Identify 3–6 candidate library titles. Classify EACH candidate into exactly ONE tier. Do NOT mix tiers when computing the base score.
+   - **Tier A — Near-twin**: same core gameplay loop AND same genre AND same studio/franchise/direct-lineage relationship (direct predecessor, sequel, spiritual successor by the same team, or near-identical mechanical systems such as the same isometric dialogue-CRPG sub-genre with dice checks). There are usually 0–2 of these per analysis.
+   - **Tier B — Strong match**: shares the dominant gameplay pillar (e.g. both are turn-based tactics RPGs, both are immersive sims, both are no-combat narrative CRPGs) but differs in setting, studio, or tone. Pick at most 2.
+   - **Tier C — Supporting**: shares only secondary traits — narrative density, choice-heavy storytelling, dark tone, atmosphere, visual style, voice-acting quality — but the moment-to-moment gameplay loop is different. Pick at most 3.
+   - **Discipline check**: if you find yourself placing a game in tier A based only on "they both have great writing" or "both are story-driven", that is tier C, not tier A. A shared studio / direct-franchise / sequel relationship is the single strongest tier-A indicator. Different gameplay loop = never tier A.
+
+   **1b. Near-twin cap (applies before step 2):** If any tier-A anchor has a library score ≤ 70, the Enjoyment Score is capped per the Near-twin caps in the Scoring Rubric. This cap stands by default and may only be relaxed by the Escape Clause below.
+
+   **1c. Escape Clause (evidence-only — never on inference):** The near-twin cap may be relaxed ONLY when BOTH (i) and (ii) below are TRUE. If either is missing or ambiguous, the cap stands.
+   - (i) **Concrete + Comparative + Broad review evidence about the target**: Reviews of the TARGET game describe a substantive change versus the predecessor in a specific, identifiable aspect of the game (mechanics, pacing, controls, scope, writing approach, technical polish, content density, UI/UX, accessibility, balance, progression, combat presence, etc.). The change must be:
+     · *Concrete*: reviewers point to a specific aspect, not just "it's better overall".
+     · *Comparative*: explicitly framed against the predecessor or franchise context, not isolated praise.
+     · *Broadly supported*: appears across multiple reviews, not a single outlier.
+     · *Core-loop relevant, not additions-on-top*: the change must alter or replace an existing aspect of the predecessor's moment-to-moment experience (e.g. "controls overhauled", "pacing accelerated", "text density reduced", "combat reworked", "progression no longer requires guides"). Adding NEW systems on top of an unchanged core loop (e.g. "adds a stress system", "introduces dramatic encounters", "more skill checks") is a WEAKER form of change and counts ONLY if reviews explicitly state the additions reshape the moment-to-moment experience versus the predecessor — not merely "expand" or "build on" it. When in doubt between "core loop changed" and "additions on top", treat the evidence as ambiguous and the cap stands.
+     The vocabulary used by reviewers ("refined", "polished", "overhauled", "more action-focused", etc.) is irrelevant — what matters is the aspect being described and that the change is real.
+   - (ii) **Direct mapping to an EXPLICIT user signal**: The aspect being changed maps directly to one of the user's recorded preferences — a listed dealbreaker, a specific axis rated 3+ importance, the voiceActingPreference, idealLength, difficultyPreference, a customDealbreaker, or a clear statement in additionalNotes. The mapping must be direct (e.g. reviews report combat is overhauled AND user rated combatImportance ≥ 3). Generic improvements (e.g. "better graphics") with no corresponding user signal do NOT qualify.
+     · *gameplayImportance is too generic to satisfy (ii) on its own when the change is "more systems / expanded mechanical depth"*: nearly every sequel can be described that way, so gameplayImportance ≥ 3 alone is NOT sufficient for additions-style changes. To satisfy (ii) for additions, the change must map to a more specific signal — a specific axis (combatImportance, explorationImportance, puzzleImportance, strategyImportance), a dealbreaker (e.g. 'grind', 'slow_start', 'bad_controls', 'wayfinding', 'shallow_crafting'), the difficultyPreference, a customDealbreaker, or a clearly relevant additionalNote. gameplayImportance CAN satisfy (ii) when the change is to the core loop itself (e.g. combat reworked, controls overhauled, progression restructured) AND another more specific signal does not already cover it.
+   - If both hold, relax the near-twin cap as specified in the Scoring Rubric and state the mapping explicitly in Positive Factors (cite the user signal and the review evidence). If either is missing, the cap stands. NEVER relax on a single review, vague "better than before" language, or an aspect the user has no recorded preference for.
+
+2. **Base score**:
+   - If a tier-A near-twin exists, B starts at the tier-A anchor's library score (the average if multiple tier-A anchors exist). Tier-B and tier-C anchors may adjust B by at most +/-8 combined (positive only if their scores are higher and the target genuinely shares those pillars; negative if they signal mismatch).
+   - If no tier-A anchor exists, B = weighted average of tier-B and tier-C anchor scores, with tier-B weighted approximately 2× tier-C.
+   - Rationale: a documented experience with the closest mechanical twin is the strongest possible signal. Superficially related anchors (tier C) cannot dominate or wash out direct evidence about the actual gameplay loop.
 3. **Review quality discount (RQD)**: Compare the target game's Steam review rating to the quality level typical of the anchor games. Apply a discount to B:
    - Overwhelmingly/Very Positive anchors vs Mixed/Mostly Negative target → RQD = 10–20.
    - Positive anchors vs Mixed target → RQD = 5–12.
@@ -114,13 +160,23 @@ Perform this calculation internally before writing any output sections. Do NOT i
     - totalP ≥ 20 → R ≤ 69.
     - totalP ≥ 10 → R ≤ 79.
     - totalP ≥ 5 → R ≤ 89.
-    - Floors: totalP = 0 AND reviews positive AND strong overlap → R ≥ max((lowest anchor − 10), 70).
+    - Tier-A near-twin caps (apply EXACTLY ONE — the strictest matching condition, never both):
+      · Tier-A near-twin ≤ 60 AND Escape Clause did NOT fire → R ≤ (near-twin score + 8). (Take this one; do not also apply +12.)
+      · Else Tier-A near-twin ≤ 70 AND Escape Clause did NOT fire → R ≤ (near-twin score + 12).
+      · Tier-A near-twin ≤ 70 AND Escape Clause fired → R ≤ (near-twin score + 20) replaces the above.
+    - Floors: totalP = 0 AND reviews positive AND strong overlap → R ≥ max((lowest anchor − 10), 70). Floors NEVER override a near-twin cap.
     - Final clamp to [0, 100].
     Bonuses (totalB) cannot override these caps. If R after step 10 exceeds any applicable cap, clamp it down. This is non-negotiable — the cap reflects real friction the user will experience.
 12. **Final**: Enjoyment Score = clamped R.
 13. **Confidence**: Very High (4+ anchors, extensive reviews) / High (3+, solid data) / Medium (2, mixed signals) / Low (1, sparse) / Very Low (0 anchors, minimal data).
 
 **Consistency check (perform before writing the score)**: If you wrote "Medium" or "High" in Red-Line Risk, the Enjoyment Score MUST satisfy the corresponding cap (≤ 79 for Medium, ≤ 69 for High). If your computed score violates this, it is incorrect — clamp it down. There is no scenario where Red-Line Risk is Medium and the score is 80+, or Red-Line Risk is High and the score is 70+.
+
+**Anchor sanity check (MANDATORY — perform after step 13 and BEFORE writing the score; do NOT output this step):**
+   - Restate the list of anchors you chose, each with the EXACT library score you read in the Library Audit (step 0a). If you cannot do this — i.e. you cannot recall a specific "Name: NN/100" entry for an anchor you used — the analysis is INVALID. Return to step 0a, re-scan the library, and redo the anchor classification.
+   - **Same-studio / same-franchise / same-sub-genre check**: If the target game is a known sequel, spiritual successor, direct franchise entry, or built by a studio/team also known for another title, scan the library AGAIN specifically for that predecessor or sibling title before finalising the score. If such a title exists in the library but is NOT in your anchor list, you have almost certainly misclassified — it should very likely be a tier-A near-twin. Add it and redo step 1 onwards.
+   - **Tier-A absence justification**: If the final anchor list has NO tier-A anchor for a target whose studio/franchise/sub-genre is well-known, explicitly justify (internally) why no library entry qualifies. The default assumption when a same-studio/same-franchise predecessor is plausible is that one exists in the library and you missed it — re-scan rather than concluding "no tier-A exists".
+   - This step is a hard guard against the most damaging failure mode: silently dropping a near-twin anchor and thereby disabling the near-twin cap. Do not skip it.
 
 The Enjoyment Score MUST equal the calculated value. Do not adjust it.
 
@@ -165,19 +221,19 @@ function buildNegativeFactors(a: SetupAnswers): string {
 
   if (a.dealbreakers.includes("bad_controls")) {
     factors.push(
-      `**Movement clunk**: Reviews consistently report stiff/tanky movement, sluggish turning, or animation-lock → −12.`,
+      `**Movement clunk**: Reviews report stiff/tanky movement, sluggish turning, or animation-lock. Apply per the Penalty Evidence Ladder on the dealbreaker scale: Strong (≥3 reviews) → −12; Moderate (2 reviews) → −12 (middle tier on −8/−12/−15 scale); Weak / single-source → −8 (lowest tier); No evidence → skip.`,
     );
   }
 
   if (a.dealbreakers.includes("religious_themes")) {
     factors.push(
-      `**Heavy religious themes**: Religious themes are a significant or central part of the experience → −10.`,
+      `**Heavy religious themes**: Religious themes are a significant or central part of the experience. Apply per the Penalty Evidence Ladder: Strong (≥3 reviews or explicit marketing/description confirms it as central) → −10; Moderate (2 reviews) → −7; Weak / single-source → −5; No evidence → skip.`,
     );
   }
 
   if (a.dealbreakers.includes("shallow_crafting")) {
     factors.push(
-      `**Jank and shallow systems**: Reviews consistently report janky gameplay or hollow busywork crafting/looting → −15.`,
+      `**Jank and shallow systems**: Reviews report janky gameplay or hollow busywork crafting/looting. Apply per the Penalty Evidence Ladder on the dealbreaker scale: Strong (≥3 reviews) → −15; Moderate (2 reviews) → −12; Weak / single-source → −8; No evidence → skip.`,
     );
   }
 
@@ -197,7 +253,12 @@ function buildPacingRules(a: SetupAnswers): string {
   if (!a.dealbreakers.includes("grind") && !a.dealbreakers.includes("slow_start")) return "";
 
   return `## Repetition & Pacing
-Reviews consistently report repetitive gameplay, grind, padding, or a dull opening → −12.`;
+Reviews report repetitive gameplay, grind, padding, or a dull opening. Apply ONE magnitude per the Penalty Evidence Ladder in Core Principles — never by feel:
+* Strong evidence (≥ 3 independent reviews, or explicit consensus language) → **−12**.
+* Moderate evidence (exactly 2 independent reviews) → **−8**.
+* Weak / single-source evidence (1 review, even if vivid — e.g. one critic calling an opening "insanely rough") → **−5**. NEVER apply −12 on a single reviewer's "rough opening" line.
+* No evidence → no penalty.
+Internally state the distinct review count before picking the tier.`;
 }
 
 function buildDialogueRules(a: SetupAnswers): string {
@@ -225,7 +286,11 @@ function buildNavigationRules(a: SetupAnswers): string {
   if (!a.dealbreakers.includes("wayfinding")) return "";
 
   return `## Wayfinding Friction
-Reviews consistently report players getting lost or needing guides in open/semi-open areas → −10.`;
+Reviews report players getting lost or needing guides in open/semi-open areas. Apply ONE magnitude per the Penalty Evidence Ladder:
+* Strong evidence (≥ 3 reviews, or consensus language) → **−10**.
+* Moderate evidence (exactly 2 reviews) → **−7**.
+* Weak / single-source evidence (1 review) → **−5**. NEVER apply −10 on a single reviewer's wayfinding complaint.
+* No evidence → no penalty.`;
 }
 
 function buildQualityRules(a: SetupAnswers): string {
@@ -348,7 +413,8 @@ const AXIS_DEFINITIONS: AxisDef[] = [
     negSignal: "shallow / repetitive / unsatisfying core mechanics",
     posSignal: "tight, deep, or tightly-connected mechanical systems",
     alwaysProminent: true,
-    prominenceCriteria: "ALWAYS prominent — every game has core mechanics; the penalty applies regardless of genre.",
+    prominenceCriteria:
+      "ALWAYS prominent — every game has core mechanics; the penalty applies regardless of genre.",
   },
   {
     key: "explorationImportance",
@@ -417,7 +483,9 @@ function buildAxisSensitivityRules(a: SetupAnswers): string {
     const posPart =
       pos !== 0 ? `**+${pos}** if reviews consistently praise ${axis.posSignal}` : "no bonus";
 
-    const prominenceTag = axis.alwaysProminent ? " *(always prominent — penalty applies in every game)*" : "";
+    const prominenceTag = axis.alwaysProminent
+      ? " *(always prominent — penalty applies in every game)*"
+      : "";
     axisLines.push(
       `* **${axis.label}** (importance ${importance}/5)${prominenceTag}: ${negPart}; ${posPart}.`,
     );
@@ -537,7 +605,8 @@ The refund guard is **Recommended** if ANY ONE of these conditions is true. Chec
 3. Steam reviews are "Mixed", "Mostly Negative", or worse → Recommended.
 4. Review Quality Discount (RQD) was ≥ 10 AND General Quality Penalty (GQP) was ≥ 5 → Recommended.
 5. **The Enjoyment Score is ≤ 59** → Recommended. A predicted score this low indicates a weak match or heavy penalties — the user is unlikely to enjoy the game enough to justify the purchase, regardless of why the score is low.
-6. **Any anchor game used in the score calculation has a library score ≤ 50** → Recommended. The user has documented direct evidence of disliking a closely related title (often a franchise predecessor, sequel, or near-twin), so a guarded purchase is warranted even if the target's reviews are positive. State the specific anchor title and score in the explanation.
+6. **Any tier-A near-twin anchor has a library score ≤ 75** → Recommended. The user has documented direct evidence of friction with the closest mechanical match (franchise predecessor / same-studio spiritual successor / near-identical sub-genre) at a score below their enjoyment line of 76, so a guarded purchase is warranted even if the target's reviews are positive. State the specific anchor title and score in the explanation. Tier-B and tier-C anchors do NOT trigger this rule — only confirmed tier-A near-twins. **Scope restriction**: The ≤ 75 threshold applies ONLY to tier-A near-twin library scores. A final Enjoyment Score below 76 does NOT itself trigger this rule — only a tier-A near-twin library score ≤ 75 does. The Enjoyment-Score-based trigger lives in condition 5 (≤ 59) and is independent.
+7. **Any tier-A near-twin anchor has a library score ≤ 60** → Recommended AND auto-triggered by the corresponding Near-twin cap in the Scoring Rubric, regardless of the final Enjoyment Score.
 
 If you wrote "High" in the Red-Line Risk section above, you MUST mark the refund guard as Recommended.
 
@@ -546,7 +615,7 @@ The refund guard is **Not required** ONLY if ALL of these are true:
 - Confidence is "Medium" or higher;
 - Steam reviews are "Mostly Positive" or better;
 - GQP < 5;
-- No anchor game scored ≤ 50.
+- No tier-A near-twin anchor scored ≤ 75 (unless the Escape Clause in Scoring Procedure step 1c fired with both conditions satisfied).
 
 If ANY one of those is false, OR any of the numbered triggers above fires, the refund guard MUST be Recommended. The Enjoyment Score is NOT a precondition for "Not required" — a score in the 60–69 range is not automatically safe (it can still need a refund guard via other triggers like Mixed reviews or Low confidence), but it is also not automatically Recommended. Let the other triggers do the work in that range.
 
@@ -586,17 +655,40 @@ function buildOutputFormat(): string {
   return `## Prediction Output Format
 If the game is currently in Early Access on Steam, output [EARLY_ACCESS] on the very first line of your response, before any ## headings.
 
-Use ## headings for every section. You MUST output sections in exactly this order — evidence first, then conclusions:
+**Voice (applies to EVERY section below)**: Write the entire response in second person, addressing the reader directly as "you" / "your library" / "your taste" / "your preferences". The app is speaking *to* the reader, not *about* them. Do NOT use "the user", "the user's", "this user", "the player" (when referring to the reader), or any other third-person framing anywhere in the output. This applies to every section — Public Sentiment, Positive Factors, Negative Factors, Red-Line Risk, Refund Guard, Enjoyment Score, and Score Summary. Internal reasoning may still say "the user"; the final response must not.
+
+Use ## headings for every section. You MUST output sections in EXACTLY this order — no exceptions, no reordering, no moving "Positive Factors" below "Negative Factors":
 1. **Public Sentiment** — Steam review rating (e.g. "Very Positive"), review count, and the most common praise/complaints in 3–5 bullet points.
-2. **Positive Alignment** — what aligns with the user's taste. Mention the anchor games you used and why they're relevant.
-3. **Negative Factors** — what works against the user's preferences. For each applicable penalty, state what it is and why it applies. For Early Access games, mark each penalty as (fixable) or (fundamental). Do not include penalties that don't apply.
+2. **Positive Factors** — what in this game aligns with YOUR taste / library / preferences. This section MUST appear BEFORE Negative Factors. Every bullet MUST link the game's trait to a specific user signal — e.g. "your X/100 on [game]", "your [axis] importance of N/5", "your stated preference for [voice acting / challenging difficulty / single-player]", "your dealbreaker [name]", or a clear additionalNote — and explain why that signal makes the trait a positive fit. Bullets that only describe the game ("the combat is praised", "the story is moving") without anchoring to a user signal are NOT allowed. Mention the anchor games used and why they're relevant. When any anchor is a tier-A near-twin (per Scoring Procedure step 1), explicitly call it out as such (e.g. "tier-A near-twin: same studio, same core gameplay loop") **only if that anchor genuinely supports a positive prediction** — i.e. the tier-A library score is ABOVE the user's enjoyment line of 76, OR the Escape Clause fired. **If a tier-A near-twin has a library score ≤ 75, it is a friction signal, not an alignment signal, and MUST appear ONLY in Negative Factors — do NOT also list it here.** When a tier-A near-twin exists with a library score ≤ 70, this section OR the Negative Factors section MUST state whether the Escape Clause (Scoring Procedure step 1c) fired or not, citing both the review evidence and the matching user signal (or stating that one or both are missing). Do NOT relax the near-twin cap silently. **All positive adjustments belong here, never in Negative Factors.** Axis Sensitivity bonuses, Difficulty Appetite bonuses, Voice Acting bonuses, and any other applied positive bonus MUST be mentioned exclusively in this section — even if the same axis or preference was *evaluated* in a way that could have produced a penalty but instead produced a bonus, it still belongs here, not in Negative Factors.
+3. **Negative Factors** — what in this game works against YOUR preferences / library / taste. This is NOT a generic "negative reviews" or "complaints about the game" list — it is a **taste-alignment** list. Every bullet MUST link a friction trait of the game to a specific user signal — e.g. "your X/100 on [predecessor]", "your dealbreaker [name]", "your [axis] importance of N/5", "your stated dislike of [forced political messaging / guide dependency / etc.]", "your preference for [challenging / voiced / single-player]", or a clear additionalNote — and explain why that signal turns the trait into friction for *you specifically*. A review complaint that does NOT map to any of your signals MUST be omitted, no matter how often reviewers mention it. For each applied penalty, state what it is and why it applies *in terms of your preferences*. For Early Access games, mark each penalty as (fixable) or (fundamental). **Only list penalties that were actually applied.** If a penalty was NOT applied for ANY reason — prominence gate skipped it, no corpus match, mixed/insufficient evidence, axis importance ≤ 2, dealbreaker not triggered, etc. — simply OMIT it entirely. Do NOT write any "— no penalty", "— skipped", "— no corpus match for X", "— no note-derived penalty applied", or "— penalty skipped because not prominent" lines. There are NO exceptions, including the Combat Feel / prominence-gate skip note — that bookkeeping happens internally only and never appears in the output. Positive bonuses NEVER appear in this section regardless of which axis or rule produced them; route them to Positive Factors instead. **Tier-A near-twin exclusivity**: when a tier-A near-twin has a library score ≤ 75, it MUST be listed here AND MUST NOT also appear as a positive item in Positive Factors (mentioning it as "anchor used" in Positive Factors is forbidden in that case — only Negative Factors carries it).
 4. **Red-Line Risk** — None / Medium / High with a one-sentence explanation.
 5. **Refund Guard** — "Recommended" or "Not required" with brief explanation.
 6. **Enjoyment Score** — format as "**X/100** | Confidence: Y". One line only — no calculation breakdown. For Early Access games, format as "**X/100 (Current) → Y/100 (Potential)** | Confidence: Z".
-7. **Score Summary** — one or two sentences explaining the score. For Early Access games, briefly note which penalties are fixable vs fundamental.
+7. **Score Summary** — one or two sentences explaining the score. For Early Access games, briefly note which penalties are fixable vs fundamental. **Consistency with the Escape Clause**: if the Escape Clause fired (Positive Factors said so), the Score Summary MUST NOT undercut that decision by claiming the sub-genre "has historically underdelivered", "is a real warning sign", or otherwise asserting the predecessor's friction still applies as a primary driver — pick one side. If the predecessor's friction is the primary driver, the Escape Clause should not have fired. If the Escape Clause fired, the summary should attribute the score to the relaxed cap and the residual review/quality penalties, not to the predecessor anchor. Conversely, if the Escape Clause did NOT fire, the summary may freely cite the near-twin friction.
 
 CRITICAL: Complete sections 1–5 BEFORE writing the Enjoyment Score. The score must be consistent with the evidence you already wrote. The Refund Guard (section 5) MUST be consistent with the Red-Line Risk (section 4) — Medium or High risk requires "Recommended"; "Not required" is only valid when risk is None.
 Do NOT output a "Scoring Procedure", "Internal Calculation", or "Methodology" section. Do NOT include calculation tables, formulas, or step-by-step math.
 Do NOT include a Target Price section — pricing is computed separately.
-Tone: clear, analytical, no filler. Keep each section concise.`;
+
+**No internal-math leakage**: The internal Scoring Procedure uses variables and arithmetic that are NOT for the user. Never expose them in the output. Specifically, do NOT write any of these — anywhere, in any section:
+- The variable names \`R\`, \`B\`, \`totalP\`, \`totalB\`, \`frictionLoad\`, \`RQD\`, \`GQP\`, \`potentialP\`.
+- The phrases "near-twin cap", "the cap", "the +12 cap", "the +8 cap", "the +20 cap", "near-twin score + 12", "near-twin score + 8", "near-twin score + 20", or any equivalent.
+- Any arithmetic in the form \`X ≤ (Y + Z) = N\`, \`X + Y = N\`, \`(score + 12)\`, \`R ≤ …\`, or similar pseudo-equations.
+- Step references like "step 1c", "step 11", "clamp", "totalP ≥ 10 cap".
+- Aggregate/internal magnitude bookkeeping such as \`totalP\`, \`totalB\`, \`frictionLoad\` totals, "RQD = −5", "GQP = −3" — these aggregate variables stay internal.
+- **EXCEPTION — per-item point values in Positive Factors and Negative Factors are REQUIRED**: each bullet in those two sections MUST end with the exact applied point value for that single item in parentheses, e.g. "(−5)", "(−12)", "(+8)", "(+3)". Use the actual integer the rule produced (penalty = negative, bonus = positive). One value per bullet, matching the single penalty/bonus that bullet describes. Do NOT add these per-item values in any other section (Public Sentiment, Red-Line Risk, Refund Guard, Score Summary, Enjoyment Score) — they belong only on Positive Factors and Negative Factors bullets.
+When you need to explain why the score landed where it did, use plain natural language ("your direct experience with the predecessor limited how high this could score"; "the new systems didn't change the loop enough to overcome that"). The reader does not know what these variables mean and should never see them.
+
+**Tone and brevity (HARD requirements — not guidelines)**:
+- **Second person only**: Address the reader directly as "you" / "your library" / "your taste". Do NOT use "the user", "the user's", "this user", "the player" (when referring to the reader), or any third-person framing in the output. Internal reasoning may say "the user"; the final response must not.
+- **Be concise**: the entire response (excluding section headings) should fit comfortably in ~250–400 words total. Cut filler aggressively. No restating the same point across sections. Paraphrase reviews tightly — do not quote long snippets.
+- **Per-section length caps** (apply ALL):
+  - Public Sentiment: ≤ 6 bullets, each ≤ 25 words.
+  - Positive Factors: ≤ 5 bullets total. Each bullet ≤ 35 words.
+  - Negative Factors: ≤ 5 bullets total. Each bullet ≤ 35 words.
+  - Red-Line Risk: exactly 1 sentence.
+  - Refund Guard: ≤ 2 sentences (plus the "Recommended" / "Not required" label).
+  - Enjoyment Score: 1 line.
+  - Score Summary: ≤ 2 sentences.
+- **No meta-explaining**: do NOT explain anchor classification mechanics, the Escape Clause framework, the tier system, the near-twin cap, or any other internal rule in the output. State the *result* of those rules ("Disco Elysium is a same-studio predecessor and your direct experience with it is the main brake on this score") without naming the framework that produced the result.`;
 }

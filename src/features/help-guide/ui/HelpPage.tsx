@@ -405,7 +405,7 @@ export function HelpPage() {
           </li>
         </UL>
         <P>
-          Each section of the report (Positive Alignment, Negative Factors, Red-Line Risk, etc.)
+          Each section of the report (Positive Factors, Negative Factors, Red-Line Risk, etc.)
           explains how specific aspects of the game interact with your preferences and library.
         </P>
       </Section>

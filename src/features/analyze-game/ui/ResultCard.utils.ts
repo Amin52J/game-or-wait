@@ -60,6 +60,7 @@ export function formatPrice(price: number, currencyCode: string | undefined): st
 
 export const DISPLAY_ORDER: string[] = [
   "refund-guard",
+  "positive-factors",
   "positive-alignment",
   "negative-factors",
   "red-line-risk",

@@ -272,7 +272,7 @@ describe("AIClient", () => {
   });
 
   describe("extended thinking", () => {
-    it("sets max_tokens to 8192 for Anthropic with extended thinking", async () => {
+    it("sets max_tokens to 16384 for Anthropic with extended thinking", async () => {
       const config: AIProviderConfig = {
         ...anthropicConfig,
         extendedThinking: true,
@@ -286,7 +286,7 @@ describe("AIClient", () => {
       await client.analyze("Test", 0, "system", [], "€");
 
       const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-      expect(body.max_tokens).toBe(8192);
+      expect(body.max_tokens).toBe(16384);
     });
 
     it("sets reasoning_effort for OpenAI with extended thinking", async () => {
@@ -469,7 +469,7 @@ describe("google non-streaming", () => {
     await client.analyze("Test", 0, "sys", [], "$");
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.reasoning_effort).toBe("low");
-    expect(body.max_tokens).toBe(8192);
+    expect(body.max_tokens).toBe(16384);
   });
 });
 
@@ -595,7 +595,7 @@ describe("Google streaming", () => {
     await client.analyze("Test", 0, "sys", [], "$", onStream);
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.reasoning_effort).toBe("low");
-    expect(body.max_tokens).toBe(8192);
+    expect(body.max_tokens).toBe(16384);
     expect(body.stream).toBe(true);
   });
 
@@ -608,7 +608,7 @@ describe("Google streaming", () => {
     const onStream = vi.fn();
     await client.analyze("Test", 0, "sys", [], "$", onStream);
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.max_tokens).toBe(4096);
+    expect(body.max_tokens).toBe(8192);
     expect(body.temperature).toBe(0);
   });
 });

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { computeTargetPrice, type RiskLevel } from "./response-parser";
+import {
+  computeTargetPrice,
+  getSectionType,
+  isKnownSection,
+  type RiskLevel,
+} from "./response-parser";
 
 describe("computeTargetPrice", () => {
   const fp = 60;
@@ -83,9 +88,39 @@ describe("computeTargetPrice", () => {
     }
   });
 
+  it("softens risk-level deductions so a Risk-None ↔ Medium flip on the same score does not swing the price by ~€10 on a €60 game", () => {
+    // Medium risk now deducts 3 (was 5); High deducts 7 (was 10).
+    const noneToMedium = calc(80, "none").value! - calc(80, "medium").value!;
+    const noneToHigh = calc(80, "none").value! - calc(80, "high").value!;
+    // On a €60 game, the None→Medium gap should now be small (≤ €5), not ~€10.
+    expect(noneToMedium).toBeLessThanOrEqual(5);
+    // None→High should also be softer than the prior ~€10+ swing.
+    expect(noneToHigh).toBeLessThanOrEqual(9);
+    // Ordering preserved.
+    expect(noneToMedium).toBeLessThan(noneToHigh);
+  });
+
   it("produces conservative mid-range prices", () => {
     const at75 = calc(75).value!;
     expect(at75).toBeLessThan(fp * 0.65);
-    expect(at75).toBeGreaterThan(fp * 0.40);
+    expect(at75).toBeGreaterThan(fp * 0.4);
+  });
+});
+
+describe("section key compatibility (Positive Alignment → Positive Factors rename)", () => {
+  it("recognizes the legacy 'positive-alignment' key as a known section", () => {
+    expect(isKnownSection("positive-alignment")).toBe(true);
+  });
+
+  it("recognizes the new 'positive-factors' key as a known section", () => {
+    expect(isKnownSection("positive-factors")).toBe(true);
+  });
+
+  it("maps the legacy 'positive-alignment' key to the 'positive' section type", () => {
+    expect(getSectionType("positive-alignment")).toBe("positive");
+  });
+
+  it("maps the new 'positive-factors' key to the 'positive' section type", () => {
+    expect(getSectionType("positive-factors")).toBe("positive");
   });
 });

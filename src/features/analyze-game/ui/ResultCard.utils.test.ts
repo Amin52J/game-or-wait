@@ -106,7 +106,7 @@ describe("formatCurrencyValue", () => {
 
   it("handles JPY (no decimals)", () => {
     const result = formatCurrencyValue(5000, "JPY");
-    expect(result).toContain("5,000") ;
+    expect(result).toContain("5,000");
   });
 
   it("falls back to code + number for invalid currency", () => {
@@ -136,10 +136,15 @@ describe("formatPrice", () => {
 describe("displaySortKey", () => {
   it("returns correct order for known sections", () => {
     expect(displaySortKey("refund-guard")).toBe(0);
-    expect(displaySortKey("positive-alignment")).toBe(1);
-    expect(displaySortKey("negative-factors")).toBe(2);
-    expect(displaySortKey("red-line-risk")).toBe(3);
-    expect(displaySortKey("public-sentiment")).toBe(4);
+    expect(displaySortKey("positive-factors")).toBe(1);
+    expect(displaySortKey("positive-alignment")).toBe(2);
+    expect(displaySortKey("negative-factors")).toBe(3);
+    expect(displaySortKey("red-line-risk")).toBe(4);
+    expect(displaySortKey("public-sentiment")).toBe(5);
+  });
+
+  it("sorts the new positive-factors key before negative-factors (regression: rename from positive-alignment)", () => {
+    expect(displaySortKey("positive-factors")).toBeLessThan(displaySortKey("negative-factors"));
   });
 
   it("returns length for unknown sections (sorts last)", () => {
