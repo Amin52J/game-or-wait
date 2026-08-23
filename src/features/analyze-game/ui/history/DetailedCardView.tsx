@@ -87,7 +87,7 @@ export function DetailedCardView({
               </CardMain>
             ) : (
               <ExpandedSection>
-                <ExpandedContent response={item.response} gameName={item.gameName} fullPrice={item.price} currencyCode={currency} />
+                <ExpandedContent analysisId={item.id} response={item.response} originalResponse={item.originalResponse} gameName={item.gameName} fullPrice={item.price} currencyCode={currency} />
               </ExpandedSection>
             )}
           </HistoryCard>

@@ -73,21 +73,39 @@ create table analysis_history (
   game_name text not null,
   price numeric not null,
   response text not null,
+  -- Set the first time a discussion re-runs the analysis, so the original stays readable
+  original_response text,
   "timestamp" bigint not null,
   created_at timestamptz default now(),
   primary key (id, user_id)
+);
+
+-- Follow-up discussion messages attached to an analysis
+create table analysis_discussions (
+  id text not null,
+  user_id uuid references auth.users on delete cascade not null,
+  analysis_id text not null,
+  role text not null check (role in ('user', 'assistant', 'revision')),
+  content text not null,
+  "timestamp" bigint not null,
+  created_at timestamptz default now(),
+  primary key (id, user_id),
+  foreign key (analysis_id, user_id) references analysis_history (id, user_id) on delete cascade
 );
 
 -- Indexes
 create index idx_games_user on games (user_id);
 create index idx_analysis_user on analysis_history (user_id);
 create index idx_analysis_user_ts on analysis_history (user_id, "timestamp" desc);
+create index idx_discussions_user on analysis_discussions (user_id);
+create index idx_discussions_thread on analysis_discussions (user_id, analysis_id, "timestamp");
 
 -- RLS policies
 alter table profiles enable row level security;
 alter table user_settings enable row level security;
 alter table games enable row level security;
 alter table analysis_history enable row level security;
+alter table analysis_discussions enable row level security;
 
 create policy "Users can view own profile"
   on profiles for select using (auth.uid() = id);
@@ -116,8 +134,17 @@ create policy "Users can view own analyses"
   on analysis_history for select using (auth.uid() = user_id);
 create policy "Users can insert own analyses"
   on analysis_history for insert with check (auth.uid() = user_id);
+create policy "Users can update own analyses"
+  on analysis_history for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Users can delete own analyses"
   on analysis_history for delete using (auth.uid() = user_id);
+
+create policy "Users can view own discussion messages"
+  on analysis_discussions for select using (auth.uid() = user_id);
+create policy "Users can insert own discussion messages"
+  on analysis_discussions for insert with check (auth.uid() = user_id);
+create policy "Users can delete own discussion messages"
+  on analysis_discussions for delete using (auth.uid() = user_id);
 
 -- Read-only library snapshots shareable via public URL
 create table library_showcases (
@@ -180,6 +207,9 @@ grant select, insert, update, delete on table public.games to authenticated, ser
 
 grant select on table public.analysis_history to anon;
 grant select, insert, update, delete on table public.analysis_history to authenticated, service_role;
+
+grant select on table public.analysis_discussions to anon;
+grant select, insert, update, delete on table public.analysis_discussions to authenticated, service_role;
 
 grant select on table public.library_showcases to anon;
 grant select, insert, update, delete on table public.library_showcases to authenticated, service_role;

@@ -28,6 +28,7 @@ type Action =
   | { type: "COMPLETE_SETUP" }
   | { type: "ADD_ANALYSIS"; payload: AnalysisResult }
   | { type: "UPDATE_ANALYSIS"; payload: { id: string; response: string } }
+  | { type: "REVISE_ANALYSIS"; payload: { id: string; response: string } }
   | { type: "DELETE_ANALYSIS"; payload: string }
   | { type: "CLEAR_HISTORY" }
   | { type: "SET_FREE_ANALYSES_USED"; payload: number }
@@ -67,6 +68,19 @@ function reducer(state: ReducerState, action: Action): ReducerState {
           a.id === action.payload.id ? { ...a, response: action.payload.response } : a,
         ),
       };
+    case "REVISE_ANALYSIS":
+      return {
+        ...state,
+        analysisHistory: state.analysisHistory.map((a) =>
+          a.id === action.payload.id
+            ? {
+                ...a,
+                response: action.payload.response,
+                originalResponse: a.originalResponse ?? a.response,
+              }
+            : a,
+        ),
+      };
     case "DELETE_ANALYSIS":
       return {
         ...state,
@@ -97,6 +111,7 @@ interface AppContextValue {
   completeSetup: () => void;
   addAnalysis: (result: AnalysisResult) => void;
   updateAnalysisResponse: (id: string, response: string) => void;
+  reviseAnalysis: (id: string, response: string, previousResponse: string) => void;
   deleteAnalysis: (id: string) => void;
   clearHistory: () => void;
   setFreeAnalysesUsed: (count: number) => void;
@@ -195,6 +210,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     db.updateAnalysisResponse(id, response);
   }, []);
 
+  const reviseAnalysis = useCallback((id: string, response: string, previousResponse: string) => {
+    dispatch({ type: "REVISE_ANALYSIS", payload: { id, response } });
+    db.reviseAnalysis(id, response, previousResponse);
+  }, []);
+
   const deleteAnalysis = useCallback((id: string) => {
     dispatch({ type: "DELETE_ANALYSIS", payload: id });
     db.deleteAnalysis(id);
@@ -230,6 +250,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         completeSetup,
         addAnalysis,
         updateAnalysisResponse,
+        reviseAnalysis,
         deleteAnalysis,
         clearHistory,
         setFreeAnalysesUsed,

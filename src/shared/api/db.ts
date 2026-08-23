@@ -5,6 +5,8 @@ import type {
   Game,
   SetupAnswers,
   AnalysisResult,
+  DiscussionMessage,
+  DiscussionRole,
 } from "@/shared/types";
 import { INITIAL_STATE } from "@/shared/types";
 
@@ -29,6 +31,15 @@ interface AnalysisRow {
   game_name: string;
   price: number;
   response: string;
+  original_response: string | null;
+  timestamp: number;
+}
+
+interface DiscussionRow {
+  id: string;
+  analysis_id: string;
+  role: string;
+  content: string;
   timestamp: number;
 }
 
@@ -67,6 +78,7 @@ export async function loadUserState(): Promise<AppState> {
     gameName: h.game_name,
     price: Number(h.price),
     response: h.response,
+    originalResponse: h.original_response ?? undefined,
     timestamp: Number(h.timestamp),
   }));
 
@@ -277,10 +289,85 @@ export async function updateAnalysisResponse(analysisId: string, response: strin
     .eq("user_id", id);
 }
 
+/**
+ * Replaces the response after a discussion re-run, preserving the very first
+ * version in `original_response` so the user can still read what changed.
+ */
+export async function reviseAnalysis(
+  analysisId: string,
+  response: string,
+  previousResponse: string,
+) {
+  const id = await uid();
+  if (!id) return;
+  const sb = getSupabase();
+
+  const { data } = await sb
+    .from("analysis_history")
+    .select("original_response")
+    .eq("id", analysisId)
+    .eq("user_id", id)
+    .maybeSingle();
+  const alreadyRevised = Boolean(
+    (data as { original_response: string | null } | null)?.original_response,
+  );
+
+  await sb
+    .from("analysis_history")
+    .update(alreadyRevised ? { response } : { response, original_response: previousResponse })
+    .eq("id", analysisId)
+    .eq("user_id", id);
+}
+
 export async function deleteAnalysis(analysisId: string) {
   const id = await uid();
   if (!id) return;
   await getSupabase().from("analysis_history").delete().eq("id", analysisId).eq("user_id", id);
+}
+
+// ——— Analysis Discussions ———
+// Rows cascade with their parent analysis, so deleting history clears them too.
+
+export async function loadDiscussion(analysisId: string): Promise<DiscussionMessage[]> {
+  const id = await uid();
+  if (!id) return [];
+  const { data } = await getSupabase()
+    .from("analysis_discussions")
+    .select("id, analysis_id, role, content, timestamp")
+    .eq("user_id", id)
+    .eq("analysis_id", analysisId)
+    .order("timestamp", { ascending: true });
+
+  return ((data ?? []) as DiscussionRow[]).map((m) => ({
+    id: m.id,
+    analysisId: m.analysis_id,
+    role: m.role as DiscussionRole,
+    content: m.content,
+    timestamp: Number(m.timestamp),
+  }));
+}
+
+export async function insertDiscussionMessage(message: DiscussionMessage) {
+  const id = await uid();
+  if (!id) return;
+  await getSupabase().from("analysis_discussions").insert({
+    id: message.id,
+    user_id: id,
+    analysis_id: message.analysisId,
+    role: message.role,
+    content: message.content,
+    timestamp: message.timestamp,
+  });
+}
+
+export async function deleteDiscussionMessage(messageId: string) {
+  const id = await uid();
+  if (!id) return;
+  await getSupabase()
+    .from("analysis_discussions")
+    .delete()
+    .eq("id", messageId)
+    .eq("user_id", id);
 }
 
 export async function clearHistory() {

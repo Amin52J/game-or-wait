@@ -98,6 +98,19 @@ export interface AnalysisResult {
   price: number;
   response: string;
   timestamp: number;
+  /** The response as first generated, kept once a discussion re-runs the analysis. */
+  originalResponse?: string;
+}
+
+/** A `revision` message marks the point where a discussion re-ran the analysis. */
+export type DiscussionRole = "user" | "assistant" | "revision";
+
+export interface DiscussionMessage {
+  id: string;
+  analysisId: string;
+  role: DiscussionRole;
+  content: string;
+  timestamp: number;
 }
 
 export const FREE_ANALYSIS_LIMIT = 5;

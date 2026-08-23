@@ -8,6 +8,7 @@ import { sessionCache } from "@/features/analyze-game/model/session-cache";
 import { OnboardingChecklist } from "@/features/onboarding";
 import { AnalyzeForm } from "./AnalyzeForm";
 import { ResultCard } from "./ResultCard";
+import { DiscussionPanel } from "./discussion/DiscussionPanel";
 import { TrialExhaustedCard } from "./TrialExhaustedCard";
 import { Button, PageHeader, PageTitle, PageSubtitle, HashLink, GuidanceBanner } from "@/shared/ui";
 import { Page, Toolbar, ExpandBar, ExpandHint, ErrorBox, TrialBadge } from "./AnalyzePage.styles";
@@ -59,15 +60,17 @@ export function AnalyzePage() {
     setFormKey((k) => k + 1);
   }, [reset]);
 
+  const { state } = useApp();
+
   const showResult = Boolean(session);
   const isDone = !isStreaming && !isLoading && !isExpanding && (session || result);
   const canExpand = isDone && result && !expanded && !isTrialMode;
 
-  const displayResponse = streamedText || result?.response || "";
+  // The stored copy wins once it exists: a discussion re-run rewrites it in place.
+  const stored = result ? state.analysisHistory.find((a) => a.id === result.id) : undefined;
+  const displayResponse = stored?.response || streamedText || result?.response || "";
   const displayName = result?.gameName ?? session?.gameName ?? "";
   const displayPrice = result?.price ?? session?.price ?? 0;
-
-  const { state } = useApp();
   const scoredCount = useMemo(
     () => state.games.filter((g) => g.score !== null).length,
     [state.games],
@@ -158,6 +161,16 @@ export function AnalyzePage() {
               </ExpandHint>
             </ExpandBar>
           )}
+          {isDone && result ? (
+            <DiscussionPanel
+              analysisId={result.id}
+              gameName={result.gameName}
+              price={result.price}
+              response={displayResponse}
+              originalResponse={stored?.originalResponse}
+              defaultOpen
+            />
+          ) : null}
         </>
       ) : null}
 

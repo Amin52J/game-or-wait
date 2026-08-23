@@ -6,6 +6,91 @@ interface Message {
   content: string;
 }
 
+/** One turn of a follow-up discussion about a finished analysis. */
+export interface ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface DiscussionContext {
+  gameName: string;
+  price: number;
+  currencySymbol: string;
+  /** The analysis being discussed, as currently shown to the user. */
+  analysis: string;
+  /** The user's generated taste instructions — same system prompt used to produce the analysis. */
+  instructions: string;
+}
+
+function discussionContextBlock(ctx: DiscussionContext): string {
+  return `You are discussing an analysis you already produced for this user. Everything above describes their taste profile and the procedure the analysis was scored with.
+
+GAME: ${ctx.gameName}
+PRICE: ${ctx.currencySymbol}${ctx.price}
+
+THE ANALYSIS UNDER DISCUSSION:
+"""
+${ctx.analysis}
+"""`;
+}
+
+const DISCUSSION_RULES = `How to reply:
+- Be brief. Two or three sentences is the target and 100 words is the hard ceiling.
+- Answer only what was asked. No preamble, no restating the question, no recap of the analysis, no offers of further help.
+- Plain prose, no ## headings. Use bullets only when the answer really is a list, and keep it to three short lines.
+- If the user corrects a fact or tells you that you misread one of their taste points, accept it and say in one line what it changes: which factor, which direction the Enjoyment Score moves, and roughly how far. If it changes nothing meaningful, say exactly that and stop.
+- Never output a rewritten analysis. The user has a separate control for re-running it.
+- If you are unsure of a fact, say so in a few words rather than guessing. You may search the web to check.`;
+
+const REVISION_RULES = `The user has discussed this analysis with you and now wants it re-run.
+
+Produce a COMPLETE replacement analysis for this game using the exact same section format and scoring procedure defined above. It must stand alone and be usable in place of the old analysis.
+
+Apply everything established in the discussion: corrected facts, corrected taste points, and any adjustment you already agreed to. Where the discussion changed nothing, keep your previous conclusions rather than drifting.
+
+Output only the analysis itself, with no preamble describing what you changed.`;
+
+const REVISION_REQUEST = "Re-run the full analysis now, applying everything we agreed in this discussion.";
+
+/**
+ * Discussion replies are meant to be a few sentences; the ceiling keeps rambling in check.
+ * Reasoning models spend part of the budget on hidden tokens before the reply starts, so
+ * they get more headroom — brevity is enforced by the prompt, not by truncation.
+ */
+const DISCUSSION_MAX_TOKENS = 1024;
+const DISCUSSION_MAX_TOKENS_REASONING = 4096;
+
+function applyMaxTokens(body: Record<string, unknown>, maxTokens: number) {
+  if ("max_completion_tokens" in body) body.max_completion_tokens = maxTokens;
+  else body.max_tokens = maxTokens;
+  return body;
+}
+
+/**
+ * Anthropic rejects consecutive same-role turns and transcripts that don't open
+ * with the user, which a thread can hit if a reply failed midway.
+ */
+function normalizeTurns(turns: ChatTurn[]): ChatTurn[] {
+  const merged: ChatTurn[] = [];
+  for (const turn of turns) {
+    if (!turn.content.trim()) continue;
+    const last = merged[merged.length - 1];
+    if (last && last.role === turn.role) {
+      merged[merged.length - 1] = { role: last.role, content: `${last.content}\n\n${turn.content}` };
+    } else {
+      merged.push({ ...turn });
+    }
+  }
+  while (merged.length > 0 && merged[0].role !== "user") merged.shift();
+  return merged;
+}
+
+/** Providers without cacheable system blocks take one flattened system message. */
+function joinSystem(cachedSystem: string, contextSystem: string, turns: ChatTurn[]): Message[] {
+  const system = [cachedSystem.trim(), contextSystem].filter(Boolean).join("\n\n---\n\n");
+  return [{ role: "system", content: system }, ...turns];
+}
+
 class RetryableError extends Error {
   constructor(message: string) {
     super(message);
@@ -131,6 +216,208 @@ export class AIClient {
       throw new Error(`Anthropic API error (${res.status}): ${err}`);
     }
     return this.readAnthropicSSE(res, onStream);
+  }
+
+  /** Answers a follow-up question about an analysis, with the prior turns as context. */
+  async discuss(
+    ctx: DiscussionContext,
+    history: ChatTurn[],
+    question: string,
+    onStream?: (chunk: string) => void,
+    signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
+  ): Promise<string> {
+    return this.chat(
+      ctx.instructions,
+      `${discussionContextBlock(ctx)}\n\n${DISCUSSION_RULES}`,
+      [...history, { role: "user", content: question }],
+      this.config.extendedThinking ? DISCUSSION_MAX_TOKENS_REASONING : DISCUSSION_MAX_TOKENS,
+      onStream,
+      signal,
+      onThinking,
+    );
+  }
+
+  /** Regenerates the whole analysis, folding in whatever the discussion established. */
+  async reviseAnalysis(
+    ctx: DiscussionContext,
+    history: ChatTurn[],
+    onStream?: (chunk: string) => void,
+    signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
+  ): Promise<string> {
+    return this.chat(
+      ctx.instructions,
+      `${discussionContextBlock(ctx)}\n\n${REVISION_RULES}`,
+      [...history, { role: "user", content: REVISION_REQUEST }],
+      this.config.extendedThinking ? 16384 : 8192,
+      onStream,
+      signal,
+      onThinking,
+    );
+  }
+
+  /**
+   * Multi-turn request. `cachedSystem` is the long, stable instruction prompt and is
+   * marked cacheable on Anthropic; `contextSystem` holds the per-analysis details.
+   */
+  private async chat(
+    cachedSystem: string,
+    contextSystem: string,
+    rawTurns: ChatTurn[],
+    maxTokens: number,
+    onStream?: (chunk: string) => void,
+    signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
+  ): Promise<string> {
+    const turns = normalizeTurns(rawTurns);
+    switch (this.config.type) {
+      case "anthropic":
+        return this.anthropicChat(
+          cachedSystem,
+          contextSystem,
+          turns,
+          maxTokens,
+          onStream,
+          signal,
+          onThinking,
+        );
+      case "openai":
+        return this.openAICompatChat(
+          "https://api.openai.com/v1/chat/completions",
+          applyMaxTokens(
+            this.buildOpenAIBody(joinSystem(cachedSystem, contextSystem, turns), Boolean(onStream)),
+            maxTokens,
+          ),
+          onStream,
+          signal,
+          onThinking,
+        );
+      case "google":
+        return this.openAICompatChat(
+          this.googleBaseUrl,
+          applyMaxTokens(
+            this.buildGoogleBody(joinSystem(cachedSystem, contextSystem, turns), Boolean(onStream)),
+            maxTokens,
+          ),
+          onStream,
+          signal,
+          onThinking,
+        );
+      case "custom":
+        return this.customChat(joinSystem(cachedSystem, contextSystem, turns), maxTokens, signal);
+    }
+  }
+
+  private async anthropicChat(
+    cachedSystem: string,
+    contextSystem: string,
+    turns: ChatTurn[],
+    maxTokens: number,
+    onStream?: (chunk: string) => void,
+    signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
+  ): Promise<string> {
+    const system: Record<string, unknown>[] = [];
+    if (cachedSystem.trim()) {
+      system.push({ type: "text", text: cachedSystem, cache_control: { type: "ephemeral" } });
+    }
+    system.push({ type: "text", text: contextSystem });
+
+    const body: Record<string, unknown> = {
+      model: this.config.model,
+      system,
+      messages: turns.map((t) => ({ role: t.role, content: t.content })),
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
+      temperature: 0,
+      max_tokens: maxTokens,
+    };
+    if (onStream) body.stream = true;
+
+    return withRetry(async () => {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": this.config.apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify(body),
+        signal,
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        if (res.status === 429 || res.status === 529 || /overloaded/i.test(err)) {
+          throw new RetryableError(`Anthropic API error (${res.status}): ${err}`);
+        }
+        throw new Error(`Anthropic API error (${res.status}): ${err}`);
+      }
+      if (onStream) return this.readAnthropicSSE(res, onStream, onThinking);
+      const data = await res.json();
+      const textBlocks = (data.content || []).filter((b: { type: string }) => b.type === "text");
+      return textBlocks.map((b: { text: string }) => b.text).join("") || "";
+    });
+  }
+
+  private async openAICompatChat(
+    url: string,
+    body: Record<string, unknown>,
+    onStream?: (chunk: string) => void,
+    signal?: AbortSignal,
+    onThinking?: (chunk: string) => void,
+  ): Promise<string> {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.config.apiKey}`,
+      },
+      body: JSON.stringify(body),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`AI API error (${res.status}): ${err}`);
+    }
+    if (onStream) return this.readOpenAISSE(res, onStream, onThinking);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "";
+  }
+
+  private async customChat(
+    messages: Message[],
+    maxTokens: number,
+    signal?: AbortSignal,
+  ): Promise<string> {
+    const url = this.config.baseUrl;
+    if (!url) throw new Error("Custom provider requires a base URL");
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.config.apiKey ? { Authorization: `Bearer ${this.config.apiKey}` } : {}),
+      },
+      body: JSON.stringify({
+        model: this.config.model,
+        messages,
+        max_tokens: maxTokens,
+        temperature: 0,
+      }),
+      signal,
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Custom API error (${res.status}): ${err}`);
+    }
+    const data = await res.json();
+    return (
+      data.choices?.[0]?.message?.content ||
+      data.content?.[0]?.text ||
+      data.response ||
+      JSON.stringify(data)
+    );
   }
 
   private formatLibrary(games: Game[]): string {
@@ -443,11 +730,7 @@ export class AIClient {
   private googleBaseUrl =
     "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
-  private async googleRequest(system: string, user: string, signal?: AbortSignal): Promise<string> {
-    const messages: Message[] = [
-      { role: "system", content: system },
-      { role: "user", content: user },
-    ];
+  private buildGoogleBody(messages: Message[], stream = false) {
     const body: Record<string, unknown> = {
       model: this.config.model,
       messages,
@@ -459,6 +742,16 @@ export class AIClient {
       body.max_tokens = 8192;
       body.temperature = 0;
     }
+    if (stream) body.stream = true;
+    return body;
+  }
+
+  private async googleRequest(system: string, user: string, signal?: AbortSignal): Promise<string> {
+    const messages: Message[] = [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ];
+    const body = this.buildGoogleBody(messages);
     const res = await fetch(this.googleBaseUrl, {
       method: "POST",
       headers: {
@@ -487,18 +780,7 @@ export class AIClient {
       { role: "system", content: system },
       { role: "user", content: user },
     ];
-    const body: Record<string, unknown> = {
-      model: this.config.model,
-      messages,
-      stream: true,
-    };
-    if (this.config.extendedThinking) {
-      body.reasoning_effort = "low";
-      body.max_tokens = 16384;
-    } else {
-      body.max_tokens = 8192;
-      body.temperature = 0;
-    }
+    const body = this.buildGoogleBody(messages, true);
     const res = await fetch(this.googleBaseUrl, {
       method: "POST",
       headers: {

@@ -73,6 +73,7 @@ export interface Database {
           game_name: string;
           price: number;
           response: string;
+          original_response: string | null;
           timestamp: number;
           created_at: string;
         };
@@ -82,12 +83,36 @@ export interface Database {
           game_name: string;
           price: number;
           response: string;
+          original_response?: string | null;
           timestamp: number;
         };
         Update: {
           game_name?: string;
           price?: number;
           response?: string;
+          original_response?: string | null;
+        };
+      };
+      analysis_discussions: {
+        Row: {
+          id: string;
+          user_id: string;
+          analysis_id: string;
+          role: string;
+          content: string;
+          timestamp: number;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          user_id: string;
+          analysis_id: string;
+          role: string;
+          content: string;
+          timestamp: number;
+        };
+        Update: {
+          content?: string;
         };
       };
     };

@@ -408,6 +408,26 @@ export function HelpPage() {
           Each section of the report (Positive Factors, Negative Factors, Red-Line Risk, etc.)
           explains how specific aspects of the game interact with your preferences and library.
         </P>
+
+        <SubHeading>Discussing an analysis</SubHeading>
+        <P>
+          Under every analysis — both right after it runs and on the History page — there&apos;s a{" "}
+          <strong>Discuss this analysis</strong> panel. Use it to ask why the AI reached a
+          conclusion, or to correct it when it misread one of your taste points or got a fact about
+          the game wrong. Replies are deliberately short and stay attached to that analysis, so you
+          can come back to the thread later.
+        </P>
+        <P>
+          If the discussion changes something that should move the numbers, use{" "}
+          <strong>Re-run score &amp; price</strong>. That regenerates the full analysis with the
+          corrections applied and updates the score, target price and risk on the card. A plain
+          question doesn&apos;t need it — you can ask and leave the analysis as it is. After a
+          re-run, <strong>View original</strong> in the panel header still shows the first version.
+        </P>
+        <Callout $variant="tip">
+          Discussion runs extra AI requests, so it needs your own API key. It isn&apos;t available
+          during the 5 starter analyses.
+        </Callout>
       </Section>
 
       {/* ───── FAQ ───── */}

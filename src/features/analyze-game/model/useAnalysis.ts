@@ -129,8 +129,11 @@ export function useAnalysis() {
 
   const expand = useCallback(async () => {
     if (!state.aiProvider || !state.setupAnswers) return;
-    const currentResult = mutation.data ?? cachedResult;
-    if (!currentResult) return;
+    const session = mutation.data ?? cachedResult;
+    if (!session) return;
+    // A discussion re-run may have replaced the response since the mutation settled.
+    const stored = state.analysisHistory.find((a) => a.id === session.id);
+    const currentResult = stored ?? session;
 
     const sectionNames = getExtendedSectionNames(state.setupAnswers);
     if (sectionNames.length === 0) return;
@@ -162,7 +165,14 @@ export function useAnalysis() {
       setIsExpanding(false);
       abortRef.current = null;
     }
-  }, [state.aiProvider, state.setupAnswers, mutation.data, cachedResult, updateAnalysisResponse]);
+  }, [
+    state.aiProvider,
+    state.setupAnswers,
+    state.analysisHistory,
+    mutation.data,
+    cachedResult,
+    updateAnalysisResponse,
+  ]);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
